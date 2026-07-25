@@ -93,7 +93,9 @@ export default function PrazosPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Erro ao adicionar prazo')
+        // Repassa a mensagem da API para o modal em vez de um erro genérico
+        const erro = await response.json().catch(() => null)
+        throw new Error(erro?.error || 'Erro ao adicionar prazo')
       }
 
       buscarPrazos()

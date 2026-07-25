@@ -1,11 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface Apostila {
   id: string
   titulo: string
   materia?: string
+}
+
+interface Usuario {
+  id: string
+  nome: string
+  email: string
+}
+
+// Cada setor é atendido por um papel de usuário
+const ROLE_POR_SETOR: Record<string, string> = {
+  DIAGRAMACAO: 'DIAGRAMADOR',
+  REVISAO: 'REVISOR',
+  ILUSTRACAO: 'ILUSTRADOR',
 }
 
 interface AdicionarPrazoModalProps {
@@ -16,6 +29,7 @@ interface AdicionarPrazoModalProps {
   onAdicionar: (prazo: {
     apostilaId: string
     setor?: string
+    usuarioId: string
     prazoEntrega: Date
     descricao?: string
   }) => Promise<void>
@@ -33,10 +47,41 @@ export function AdicionarPrazoModal({
   onApostilaChange,
 }: AdicionarPrazoModalProps) {
   const [setor, setSetor] = useState('')
+  const [usuarioId, setUsuarioId] = useState('')
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [carregandoUsuarios, setCarregandoUsuarios] = useState(false)
   const [data, setData] = useState('')
   const [descricao, setDescricao] = useState('')
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState('')
+
+  // Ao trocar de setor, recarrega os responsáveis possíveis
+  useEffect(() => {
+    setUsuarioId('')
+    setUsuarios([])
+
+    const role = ROLE_POR_SETOR[setor]
+    if (!role) return
+
+    let cancelado = false
+    setCarregandoUsuarios(true)
+
+    fetch(`/api/usuarios?role=${role}`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('falha'))))
+      .then((json) => {
+        if (!cancelado) setUsuarios(json.data || [])
+      })
+      .catch(() => {
+        if (!cancelado) setErro('Não foi possível carregar os responsáveis')
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoUsuarios(false)
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [setor])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,11 +102,17 @@ export function AdicionarPrazoModal({
       return
     }
 
+    if (!usuarioId) {
+      setErro('Selecione o responsável')
+      return
+    }
+
     try {
       setCarregando(true)
       await onAdicionar({
         apostilaId,
         setor: setor || undefined,
+        usuarioId,
         prazoEntrega: new Date(data),
         descricao: descricao || undefined,
       })
@@ -118,6 +169,33 @@ export function AdicionarPrazoModal({
               </select>
             </div>
           )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Responsável
+            </label>
+            <select
+              value={usuarioId}
+              onChange={(e) => setUsuarioId(e.target.value)}
+              disabled={!setor || carregandoUsuarios}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green disabled:opacity-50"
+            >
+              <option value="">
+                {!setor
+                  ? 'Selecione um setor primeiro'
+                  : carregandoUsuarios
+                    ? 'Carregando...'
+                    : usuarios.length === 0
+                      ? 'Nenhum usuário neste setor'
+                      : 'Selecione o responsável'}
+              </option>
+              {usuarios.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.nome}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

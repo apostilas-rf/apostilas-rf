@@ -68,25 +68,26 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { apostilaId, setor, prazoEntrega, descricao } = body
+    const { apostilaId, setor, usuarioId, prazoEntrega, descricao } = body
 
     if (!apostilaId || !prazoEntrega) {
       return NextResponse.json(
-        { error: 'Campo obrigatório ausente' },
+        { error: 'Selecione a apostila e a data de entrega' },
         { status: 400 }
       )
     }
 
-    // Atualizar ou criar atribuição com prazo
+    if (!usuarioId) {
+      return NextResponse.json(
+        { error: 'Selecione o responsável pelo prazo' },
+        { status: 400 }
+      )
+    }
+
+    const tarefa = setor || 'DIAGRAMACAO'
+
     const apostila = await db.apostila.findUnique({
       where: { id: apostilaId },
-      include: {
-        atribuicoes: {
-          where: {
-            tarefa: setor || 'DIAGRAMACAO',
-          },
-        },
-      },
     })
 
     if (!apostila) {
@@ -96,10 +97,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (apostila.atribuicoes.length === 0) {
+    const responsavel = await db.user.findUnique({
+      where: { id: usuarioId },
+    })
+
+    if (!responsavel || !responsavel.ativo) {
       return NextResponse.json(
-        { error: 'Nenhum usuário atribuído para este setor' },
-        { status: 400 }
+        { error: 'Responsável não encontrado ou inativo' },
+        { status: 404 }
       )
     }
 
@@ -118,12 +123,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Atualizar atribuição com prazo
-    const prazo = await db.userAssignment.update({
+    // Cria a atribuição se ainda não existir, ou apenas atualiza o prazo
+    const prazo = await db.userAssignment.upsert({
       where: {
-        id: apostila.atribuicoes[0].id,
+        usuarioId_apostilaId_tarefa: {
+          usuarioId,
+          apostilaId,
+          tarefa,
+        },
       },
-      data: {
+      create: {
+        usuarioId,
+        apostilaId,
+        tarefa,
+        prazoAtribuido: agora,
+        prazoEntrega: prazoDate,
+        statusPrazo: statusPrazo as any,
+      },
+      update: {
         prazoEntrega: prazoDate,
         statusPrazo: statusPrazo as any,
       },
