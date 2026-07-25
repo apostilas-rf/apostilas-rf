@@ -111,7 +111,7 @@ export default function ApostilaDetailPage() {
       })
       if (response.ok) {
         const data = await response.json()
-        setUserRole(data.usuario.role)
+        setUserRole(data.data.role)
       }
     } catch (err) {
       console.error('Erro ao buscar role:', err)
@@ -149,7 +149,7 @@ export default function ApostilaDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="text-gray-500">Carregando...</div>
+        <div className="text-gray-500 dark:text-gray-400">Carregando...</div>
       </div>
     )
   }
@@ -157,7 +157,7 @@ export default function ApostilaDetailPage() {
   if (error || !apostila) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
+        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
         <button
           onClick={() => router.push('/dashboard/apostilas')}
           className="btn-secondary"
@@ -182,8 +182,8 @@ export default function ApostilaDetailPage() {
       <div className="mb-8">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{apostila.titulo}</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{apostila.titulo}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
               {apostila.materia} • {SERIES[apostila.serie].label}
             </p>
           </div>
@@ -193,23 +193,23 @@ export default function ApostilaDetailPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="card">
-          <h3 className="font-semibold text-gray-700 mb-2">Série</h3>
-          <p className="text-lg text-gray-900">{SERIES[apostila.serie].label}</p>
+          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Série</h3>
+          <p className="text-lg text-gray-900 dark:text-white">{SERIES[apostila.serie].label}</p>
         </div>
 
         <div className="card">
-          <h3 className="font-semibold text-gray-700 mb-2">Matéria</h3>
-          <p className="text-lg text-gray-900">{apostila.materia}</p>
+          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Matéria</h3>
+          <p className="text-lg text-gray-900 dark:text-white">{apostila.materia}</p>
         </div>
 
         <div className="card">
-          <h3 className="font-semibold text-gray-700 mb-2">Status</h3>
-          <p className="text-lg text-gray-900">{APOSTILA_STATUS[apostila.status].label}</p>
+          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</h3>
+          <p className="text-lg text-gray-900 dark:text-white">{APOSTILA_STATUS[apostila.status].label}</p>
         </div>
       </div>
 
       <div className="card mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Mudar Status</h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Mudar Status</h2>
 
         <div className="space-y-4">
           <div>
@@ -270,14 +270,14 @@ export default function ApostilaDetailPage() {
 
       {apostila.observacoes && (
         <div className="card">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Observações</h2>
-          <p className="text-gray-700 whitespace-pre-wrap">{apostila.observacoes}</p>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Observações</h2>
+          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{apostila.observacoes}</p>
         </div>
       )}
 
       <div className="card mt-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Informações</h2>
-        <div className="space-y-2 text-sm text-gray-600">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Informações</h2>
+        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
           <p>
             <span className="font-medium">Criado em:</span>{' '}
             {new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}
@@ -297,7 +297,7 @@ export default function ApostilaDetailPage() {
 
       {/* Upload de Arquivos */}
       <div className="card mt-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Enviar Conteúdo</h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Enviar Conteúdo</h2>
         <FileUploadForm
           apostilaId={id}
           tipo="PROFESSOR"
@@ -307,16 +307,16 @@ export default function ApostilaDetailPage() {
 
       {/* Lista de Arquivos */}
       <div className="card mt-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Arquivos Enviados</h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Arquivos Enviados</h2>
         <ArquivosList arquivos={arquivos} />
       </div>
 
       {/* Editor Estruturado de Conteúdo */}
       <div className="card mt-8" ref={editorRef}>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
           {conteudoEditando ? '✏️ Editando Capítulo' : 'Escrever Conteúdo'}
         </h2>
-        <p className="text-gray-600 mb-4 text-sm">
+        <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
           {conteudoEditando
             ? `Editando: ${conteudoEditando.capitulo}`
             : 'Escreva o conteúdo diretamente na plataforma com estrutura pré-definida'}
@@ -335,7 +335,7 @@ export default function ApostilaDetailPage() {
       {/* Lista de Conteúdos Criados */}
       {conteudos.length > 0 && (
         <div className="card mt-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Capítulos Criados ({conteudos.length})</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Capítulos Criados ({conteudos.length})</h2>
           <div className="space-y-3">
             {conteudos.map((conteudo) => (
               <ConteudoCard

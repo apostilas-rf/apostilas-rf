@@ -52,6 +52,10 @@
     @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-300 px-6 py-3.5 font-semibold text-gray-700 bg-white/80 backdrop-blur-sm shadow-subtle hover:shadow-elevated hover:border-gray-400 hover:bg-white active:scale-95 transition-all duration-300;
   }
 
+  :root.dark .btn-secondary {
+    @apply border-gray-600 text-gray-200 bg-gray-700/80 hover:border-gray-500 hover:bg-gray-700;
+  }
+
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 px-6 py-3.5 font-semibold text-white shadow-elevated hover:shadow-floating hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300;
   }

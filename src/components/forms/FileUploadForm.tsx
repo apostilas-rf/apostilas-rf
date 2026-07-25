@@ -167,7 +167,7 @@ export function FileUploadForm({ apostilaId, tipo, onSuccess }: FileUploadFormPr
               onChange={(e) => setMethod(e.target.value as 'file' | 'link')}
               className="w-4 h-4"
             />
-            <span className="text-sm font-medium text-gray-700">Enviar arquivo</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enviar arquivo</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -178,7 +178,7 @@ export function FileUploadForm({ apostilaId, tipo, onSuccess }: FileUploadFormPr
               onChange={(e) => setMethod(e.target.value as 'file' | 'link')}
               className="w-4 h-4"
             />
-            <span className="text-sm font-medium text-gray-700">Link do Drive</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Link do Drive</span>
           </label>
         </div>
 
@@ -192,7 +192,7 @@ export function FileUploadForm({ apostilaId, tipo, onSuccess }: FileUploadFormPr
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
               dragActive
                 ? 'border-rf-green bg-green-50'
-                : 'border-gray-300 hover:border-rf-green'
+                : 'border-gray-300 dark:border-gray-600 hover:border-rf-green'
             }`}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -203,8 +203,8 @@ export function FileUploadForm({ apostilaId, tipo, onSuccess }: FileUploadFormPr
               onChange={handleChange}
               className="hidden"
             />
-            <p className="text-gray-600 font-medium">Arrastar arquivo aqui ou clicar</p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-gray-600 dark:text-gray-400 font-medium">Arrastar arquivo aqui ou clicar</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               Formato: {tipoAceitos[tipo]} (máximo 50MB)
             </p>
           </div>
@@ -223,7 +223,7 @@ export function FileUploadForm({ apostilaId, tipo, onSuccess }: FileUploadFormPr
                 className="input-base"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Compartilhe o arquivo e cole o link aqui
               </p>
             </div>

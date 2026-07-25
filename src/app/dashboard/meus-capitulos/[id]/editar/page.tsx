@@ -68,7 +68,7 @@ export default function EditarCapituloPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rf-green mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando capítulo...</p>
+          <p className="text-gray-600 dark:text-gray-400">Carregando capítulo...</p>
         </div>
       </div>
     )
@@ -91,10 +91,10 @@ export default function EditarCapituloPage() {
         >
           ← Voltar
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           ✏️ {conteudo.capitulo}
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           {conteudo.apostila.titulo} • {conteudo.apostila.materia}
         </p>
       </div>

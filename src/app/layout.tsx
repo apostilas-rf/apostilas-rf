@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={openSans.variable}>
-      <body className="bg-white text-gray-900 font-sans">
+      <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
         {children}
       </body>
     </html>

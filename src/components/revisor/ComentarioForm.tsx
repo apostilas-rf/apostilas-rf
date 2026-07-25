@@ -80,7 +80,7 @@ export default function ComentarioForm({
 
   return (
     <div className="card-elevated">
-      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
         <span>➕</span> Adicionar Apontamento
       </h2>
 
@@ -109,7 +109,7 @@ export default function ComentarioForm({
                 className={`p-3 rounded-xl border-2 font-medium text-sm transition-all duration-300 ${
                   categoria === cat.value
                     ? 'border-rf-green bg-rf-green/10 text-rf-green shadow-subtle'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {cat.label}
@@ -142,7 +142,7 @@ export default function ComentarioForm({
             className="input-base resize-none font-mono text-sm"
             maxLength={1000}
           />
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             {conteudo.length}/1000 caracteres
           </p>
         </div>

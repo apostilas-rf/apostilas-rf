@@ -82,7 +82,7 @@ export default function RevisorDetalhesPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rf-green mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando apostila...</p>
+          <p className="text-gray-600 dark:text-gray-400">Carregando apostila...</p>
         </div>
       </div>
     )
@@ -101,12 +101,12 @@ export default function RevisorDetalhesPage() {
       <div className="mb-8">
         <button
           onClick={() => router.back()}
-          className="text-blue-600 hover:text-blue-700 font-medium mb-4"
+          className="text-rf-green hover:underline font-medium mb-4"
         >
           ← Voltar
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">{apostila.titulo}</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{apostila.titulo}</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           {apostila.materia} • {apostila.serie}
         </p>
         <span className="inline-block mt-3 px-3 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-700">
@@ -124,10 +124,10 @@ export default function RevisorDetalhesPage() {
         {/* Coluna Principal - Arquivos e Apontamentos */}
         <div className="col-span-2 space-y-6">
           {/* Arquivos */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">📄 Arquivos para Revisão</h2>
+          <div className="bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📄 Arquivos para Revisão</h2>
             {apostila.arquivos.length === 0 ? (
-              <p className="text-gray-600">Nenhum arquivo disponível</p>
+              <p className="text-gray-600 dark:text-gray-400">Nenhum arquivo disponível</p>
             ) : (
               <div className="space-y-2">
                 {apostila.arquivos.map((arquivo) => (
@@ -154,22 +154,22 @@ export default function RevisorDetalhesPage() {
           />
 
           {/* Apontamentos Existentes */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
               💬 Apontamentos ({apostila.comentarios.length})
             </h2>
             {apostila.comentarios.length === 0 ? (
-              <p className="text-gray-600">Nenhum apontamento realizado ainda</p>
+              <p className="text-gray-600 dark:text-gray-400">Nenhum apontamento realizado ainda</p>
             ) : (
               <div className="space-y-4">
                 {apostila.comentarios.map((comentario) => (
                   <div key={comentario.id} className="border-l-4 border-blue-500 p-4 bg-blue-50 rounded">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-gray-900 dark:text-white">
                           {comentario.usuario.nome}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           {new Date(comentario.criadoEm).toLocaleDateString('pt-BR')}{' '}
                           {new Date(comentario.criadoEm).toLocaleTimeString('pt-BR')}
                         </p>
@@ -178,7 +178,7 @@ export default function RevisorDetalhesPage() {
                         {comentario.tipo}
                       </span>
                     </div>
-                    <p className="text-gray-700 mt-3">{comentario.conteudo}</p>
+                    <p className="text-gray-700 dark:text-gray-300 mt-3">{comentario.conteudo}</p>
                   </div>
                 ))}
               </div>
@@ -187,12 +187,12 @@ export default function RevisorDetalhesPage() {
         </div>
 
         {/* Sidebar - Informações */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 h-fit">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">ℹ️ Informações</h3>
+        <div className="bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-6 h-fit">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">ℹ️ Informações</h3>
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-gray-600 uppercase font-semibold">Professor</p>
-              <p className="text-gray-900 font-medium">{apostila.professor.nome}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Professor</p>
+              <p className="text-gray-900 dark:text-white font-medium">{apostila.professor.nome}</p>
               <a
                 href={`mailto:${apostila.professor.email}`}
                 className="text-blue-600 text-sm hover:underline"
@@ -202,11 +202,11 @@ export default function RevisorDetalhesPage() {
             </div>
 
             <div className="border-t pt-4">
-              <p className="text-xs text-gray-600 uppercase font-semibold mb-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold mb-2">
                 Resumo de Apontamentos
               </p>
               <div className="space-y-1 text-sm">
-                <p className="text-gray-700">
+                <p className="text-gray-700 dark:text-gray-300">
                   <span className="font-semibold text-blue-600">
                     {apostila.comentarios.length}
                   </span>{' '}
@@ -216,10 +216,10 @@ export default function RevisorDetalhesPage() {
             </div>
 
             <div className="border-t pt-4">
-              <p className="text-xs text-gray-600 uppercase font-semibold mb-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold mb-2">
                 Categorias de Apontamentos
               </p>
-              <ul className="space-y-1 text-xs text-gray-700">
+              <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                 <li>🔤 Erros de Ortografia</li>
                 <li>📐 Erros de Diagramação</li>
                 <li>💡 Sugestões de Melhoria</li>

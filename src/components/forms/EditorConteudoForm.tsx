@@ -329,7 +329,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
                 key={index}
                 className="flex items-center justify-between bg-gray-100 p-3 rounded"
               >
-                <span className="text-gray-700">• {topico}</span>
+                <span className="text-gray-700 dark:text-gray-300">• {topico}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveTopico(index)}
@@ -380,7 +380,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
       <div>
         <div className="flex justify-between items-center mb-2">
           <label className="label-base">Conteúdo Completo *</label>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             ~{estimadoPaginas} página(s) | Máximo: 10 páginas
           </span>
         </div>
@@ -389,10 +389,10 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
         <div
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          className="mb-4 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition"
+          className="mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition"
         >
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               Arraste imagens aqui, cole (Ctrl+V) ou
             </p>
             <button
@@ -410,7 +410,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
               onChange={(e) => handleImageUpload(e.target.files!)}
               className="hidden"
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               {uploadingImage ? 'Enviando imagem...' : 'PNG, JPG, GIF até 5MB'}
             </p>
           </div>
@@ -428,7 +428,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           maxLength={30000}
           required
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           {formData.conteudo.length} / 30000 caracteres
         </p>
 

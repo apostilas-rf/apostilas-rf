@@ -116,11 +116,11 @@ export default function DiagramadorApostilaPage() {
           ← Voltar
         </button>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800/50 p-6 rounded-lg shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{apostila.titulo}</h1>
-              <p className="text-gray-600 mt-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{apostila.titulo}</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 {apostila.materia} • {apostila.serie}
               </p>
             </div>
@@ -131,25 +131,25 @@ export default function DiagramadorApostilaPage() {
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="font-medium text-gray-700">Professor:</span>
-              <p className="text-gray-600">{apostila.professor.nome}</p>
+              <span className="font-medium text-gray-700 dark:text-gray-300">Professor:</span>
+              <p className="text-gray-600 dark:text-gray-400">{apostila.professor.nome}</p>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Email:</span>
-              <p className="text-gray-600">{apostila.professor.email}</p>
+              <span className="font-medium text-gray-700 dark:text-gray-300">Email:</span>
+              <p className="text-gray-600 dark:text-gray-400">{apostila.professor.email}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-gray-200">
+      <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
         <button
           onClick={() => handleTabChange('progresso')}
           className={`px-4 py-3 font-medium border-b-2 transition-colors ${
             activeTab === 'progresso'
               ? 'border-rf-green text-rf-green'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'
           }`}
         >
           📊 Progresso
@@ -159,7 +159,7 @@ export default function DiagramadorApostilaPage() {
           className={`px-4 py-3 font-medium border-b-2 transition-colors ${
             activeTab === 'problemas'
               ? 'border-rf-green text-rf-green'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'
           }`}
         >
           ⚠️ Problemas ({apostila.problemasRelatados.length})
@@ -170,7 +170,7 @@ export default function DiagramadorApostilaPage() {
             className={`px-4 py-3 font-medium border-b-2 transition-colors ${
               activeTab === 'arquivos'
                 ? 'border-rf-green text-rf-green'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'
             }`}
           >
             📎 Arquivos
@@ -191,13 +191,13 @@ export default function DiagramadorApostilaPage() {
               />
 
               {progresso && (
-                <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-4">Status Atual</h3>
+                <div className="p-6 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-4">Status Atual</h3>
 
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-gray-700">Progresso Geral</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Progresso Geral</span>
                         <span className="text-2xl font-bold text-rf-green">
                           {progresso.percentualProgresso || 0}%
                         </span>
@@ -212,27 +212,27 @@ export default function DiagramadorApostilaPage() {
 
                     <div className="grid grid-cols-3 gap-4">
                       <div className="p-3 bg-blue-50 rounded">
-                        <p className="text-sm text-gray-600">Página Inicial</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Página Inicial</p>
                         <p className="text-2xl font-bold text-blue-700">
                           {progresso.paginaInicio || '—'}
                         </p>
                       </div>
                       <div className="p-3 bg-green-50 rounded">
-                        <p className="text-sm text-gray-600">Página Final</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Página Final</p>
                         <p className="text-2xl font-bold text-green-700">
                           {progresso.paginaFim || '—'}
                         </p>
                       </div>
-                      <div className="p-3 bg-gray-50 rounded">
-                        <p className="text-sm text-gray-600">Total</p>
-                        <p className="text-2xl font-bold text-gray-700">
+                      <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
+                        <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">
                           {progresso.paginasTotal || '—'}
                         </p>
                       </div>
                     </div>
 
                     {progresso.paginaInicio && progresso.paginaFim && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         <strong>Páginas diagramadas:</strong> {progresso.paginaFim - progresso.paginaInicio + 1}
                       </p>
                     )}
@@ -249,9 +249,9 @@ export default function DiagramadorApostilaPage() {
               {apostila.problemasRelatados.length > 0 ? (
                 <div className="space-y-3">
                   {apostila.problemasRelatados.map((problema) => (
-                    <div key={problema.id} className="p-4 bg-white rounded-lg border border-gray-200">
+                    <div key={problema.id} className="p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                       <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-medium text-gray-900">
+                        <h4 className="font-medium text-gray-900 dark:text-white">
                           {problema.descricao}
                         </h4>
                         <span className={`px-2 py-1 text-xs rounded font-medium ${
@@ -270,19 +270,19 @@ export default function DiagramadorApostilaPage() {
                           <p className="text-sm font-medium text-green-900 mb-1">
                             ✅ Resposta do Professor
                           </p>
-                          <p className="text-sm text-gray-700">{problema.respostaProf}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{problema.respostaProf}</p>
                         </div>
                       )}
 
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                         {new Date(problema.criadoEm).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-6 bg-gray-50 rounded-lg text-center">
-                  <p className="text-gray-600">Nenhum problema reportado ainda.</p>
+                <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center">
+                  <p className="text-gray-600 dark:text-gray-400">Nenhum problema reportado ainda.</p>
                 </div>
               )}
             </div>
@@ -298,11 +298,11 @@ export default function DiagramadorApostilaPage() {
                       href={arquivo.googleDriveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:border-rf-green hover:bg-green-50 transition-colors"
+                      className="flex items-center justify-between p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rf-green hover:bg-green-50 transition-colors"
                     >
                       <div>
-                        <p className="font-medium text-gray-900">📄 {arquivo.nomeOriginal}</p>
-                        <p className="text-sm text-gray-600">
+                        <p className="font-medium text-gray-900 dark:text-white">📄 {arquivo.nomeOriginal}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           {new Date(arquivo.criadoEm).toLocaleDateString('pt-BR')}
                         </p>
                       </div>
@@ -311,8 +311,8 @@ export default function DiagramadorApostilaPage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-6 bg-gray-50 rounded-lg text-center">
-                  <p className="text-gray-600">Nenhum arquivo disponível.</p>
+                <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center">
+                  <p className="text-gray-600 dark:text-gray-400">Nenhum arquivo disponível.</p>
                 </div>
               )}
             </div>
@@ -334,23 +334,23 @@ export default function DiagramadorApostilaPage() {
             )}
 
             {/* Card de Problemas */}
-            <div className="p-4 bg-white rounded-lg border border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-3">Problemas</p>
+            <div className="p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Problemas</p>
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-2 bg-red-50 rounded">
-                  <span className="text-sm text-gray-700">Abertos</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Abertos</span>
                   <span className="font-bold text-red-600">
                     {apostila.problemasRelatados.filter((p) => p.status === 'ABERTO').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-yellow-50 rounded">
-                  <span className="text-sm text-gray-700">Respondidos</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Respondidos</span>
                   <span className="font-bold text-yellow-600">
                     {apostila.problemasRelatados.filter((p) => p.status === 'RESPONDIDO').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 rounded">
-                  <span className="text-sm text-gray-700">Resolvidos</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Resolvidos</span>
                   <span className="font-bold text-green-600">
                     {apostila.problemasRelatados.filter((p) => p.status === 'RESOLVIDO').length}
                   </span>
