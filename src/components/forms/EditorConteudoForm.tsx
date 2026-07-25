@@ -1,0 +1,505 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+interface EditorConteudoFormProps {
+  apostilaId: string
+  onSuccess?: () => void
+  conteudoEditando?: any
+  onCancelEdit?: () => void
+}
+
+export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, onCancelEdit }: EditorConteudoFormProps) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+
+  useEffect(() => {
+    if (conteudoEditando) {
+      setFormData({
+        capitulo: conteudoEditando.capitulo,
+        frente: conteudoEditando.frente,
+        grupoConteudo: conteudoEditando.grupoConteudo,
+        tipo: conteudoEditando.tipo,
+        topicos: conteudoEditando.topicos,
+        novoTopico: '',
+        enemTopico: conteudoEditando.enemTopico || '',
+        enemEstrelas: conteudoEditando.enemEstrelas?.toString() || '3',
+        conteudo: conteudoEditando.conteudo,
+      })
+    }
+  }, [conteudoEditando])
+
+  const [formData, setFormData] = useState({
+    capitulo: '',
+    frente: 'A' as 'A' | 'B' | 'C',
+    grupoConteudo: 'NATUREZAS_MATEMATICA' as 'NATUREZAS_MATEMATICA' | 'HUMANAS_LINGUAGENS',
+    tipo: 'CONTEUDO' as 'CONTEUDO' | 'REVISAO',
+    topicos: [] as string[],
+    novoTopico: '',
+    enemTopico: '',
+    enemEstrelas: '3',
+    conteudo: '',
+  })
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleAddTopico = () => {
+    if (formData.novoTopico.trim() && formData.topicos.length < 10) {
+      setFormData((prev) => ({
+        ...prev,
+        topicos: [...prev.topicos, prev.novoTopico.trim()],
+        novoTopico: '',
+      }))
+    }
+  }
+
+  const handleRemoveTopico = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      topicos: prev.topicos.filter((_, i) => i !== index),
+    }))
+  }
+
+  const insertImageMarkdown = (imageUrl: string, fileName: string) => {
+    const markdown = `![${fileName}](${imageUrl})\n`
+    const textarea = textareaRef.current
+    if (textarea) {
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const newContent = formData.conteudo.substring(0, start) + markdown + formData.conteudo.substring(end)
+      setFormData((prev) => ({ ...prev, conteudo: newContent }))
+      setTimeout(() => {
+        textarea.focus()
+        textarea.selectionStart = start + markdown.length
+        textarea.selectionEnd = start + markdown.length
+      }, 0)
+    }
+  }
+
+  const handleImageUpload = async (files: FileList) => {
+    if (!files.length) return
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+
+      if (!file.type.startsWith('image/')) {
+        setError('Apenas arquivos de imagem são permitidos')
+        continue
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Imagem deve ter menos de 5MB')
+        continue
+      }
+
+      setUploadingImage(true)
+      try {
+        const formDataImg = new FormData()
+        formDataImg.append('file', file)
+        formDataImg.append('apostilaId', apostilaId)
+
+        const response = await fetch('/api/upload-imagem', {
+          method: 'POST',
+          credentials: 'include',
+          body: formDataImg,
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          setError(data.error || 'Erro ao fazer upload da imagem')
+          continue
+        }
+
+        const data = await response.json()
+        insertImageMarkdown(data.imageUrl, file.name)
+        setError('')
+      } catch (err) {
+        setError('Erro ao fazer upload da imagem')
+        console.error(err)
+      } finally {
+        setUploadingImage(false)
+      }
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.dataTransfer.files) {
+      handleImageUpload(e.dataTransfer.files)
+    }
+  }
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        e.preventDefault()
+        const file = items[i].getAsFile()
+        if (file) {
+          const dt = new DataTransfer()
+          dt.items.add(file)
+          handleImageUpload(dt.files)
+        }
+      }
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+    setLoading(true)
+
+    try {
+      if (!formData.capitulo.trim()) {
+        setError('Capítulo é obrigatório')
+        setLoading(false)
+        return
+      }
+
+      if (!formData.conteudo.trim()) {
+        setError('Conteúdo é obrigatório')
+        setLoading(false)
+        return
+      }
+
+      const url = conteudoEditando
+        ? `/api/conteudo-capitulos/${conteudoEditando.id}`
+        : '/api/conteudo-capitulos'
+
+      const response = await fetch(url, {
+        method: conteudoEditando ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          apostilaId,
+          capitulo: formData.capitulo,
+          frente: formData.frente,
+          grupoConteudo: formData.grupoConteudo,
+          tipo: formData.tipo,
+          topicos: formData.topicos,
+          enemTopico: formData.enemTopico || null,
+          enemEstrelas: formData.enemTopico ? Number(formData.enemEstrelas) : null,
+          conteudo: formData.conteudo,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        setError(data.error || 'Erro ao salvar capítulo')
+        return
+      }
+
+      setSuccess(conteudoEditando ? 'Capítulo atualizado com sucesso!' : 'Capítulo salvo com sucesso!')
+
+      setFormData({
+        capitulo: '',
+        frente: 'A',
+        grupoConteudo: 'NATUREZAS_MATEMATICA',
+        tipo: 'CONTEUDO',
+        topicos: [],
+        novoTopico: '',
+        enemTopico: '',
+        enemEstrelas: '3',
+        conteudo: '',
+      })
+
+      setTimeout(() => {
+        onSuccess?.()
+      }, 1000)
+    } catch (err) {
+      setError('Erro na conexão. Tente novamente.')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const estimadoPaginas = Math.ceil(formData.conteudo.length / 3000)
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Linha 1: Capítulo, Frente */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="label-base">Capítulo *</label>
+          <input
+            type="text"
+            name="capitulo"
+            value={formData.capitulo}
+            onChange={handleInputChange}
+            placeholder="Ex: Formação Geológica do Brasil"
+            className="input-base"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="label-base">Frente</label>
+          <select
+            name="frente"
+            value={formData.frente}
+            onChange={handleInputChange}
+            className="input-base"
+          >
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Grupo de Conteúdo */}
+      <div>
+        <label className="label-base">Área de Conhecimento</label>
+        <select
+          name="grupoConteudo"
+          value={formData.grupoConteudo}
+          onChange={handleInputChange}
+          className="input-base"
+        >
+          <option value="NATUREZAS_MATEMATICA">Naturezas e Matemática</option>
+          <option value="HUMANAS_LINGUAGENS">Humanas e Linguagens</option>
+        </select>
+      </div>
+
+      {/* Tipo de Conteúdo */}
+      <div>
+        <label className="label-base">Tipo</label>
+        <select
+          name="tipo"
+          value={formData.tipo}
+          onChange={handleInputChange}
+          className="input-base"
+        >
+          <option value="CONTEUDO">Conteúdo</option>
+          <option value="REVISAO">Revisão</option>
+        </select>
+      </div>
+
+      {/* Tópicos */}
+      <div>
+        <label className="label-base">O que vamos estudar nesse capítulo {formData.topicos.length}/10</label>
+        <div className="flex gap-2 mb-3">
+          <input
+            type="text"
+            value={formData.novoTopico}
+            onChange={(e) => setFormData((prev) => ({ ...prev, novoTopico: e.target.value }))}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleAddTopico()
+              }
+            }}
+            placeholder="Digite um tópico e pressione Enter"
+            className="input-base flex-1"
+            disabled={formData.topicos.length >= 10}
+          />
+          <button
+            type="button"
+            onClick={handleAddTopico}
+            disabled={formData.topicos.length >= 10 || !formData.novoTopico.trim()}
+            className="btn-primary"
+          >
+            Adicionar
+          </button>
+        </div>
+
+        {formData.topicos.length > 0 && (
+          <div className="space-y-2">
+            {formData.topicos.map((topico, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between bg-gray-100 p-3 rounded"
+              >
+                <span className="text-gray-700">• {topico}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTopico(index)}
+                  className="text-red-600 hover:text-red-800 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ENEM */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="label-base">Cai no ENEM? (tópico)</label>
+          <input
+            type="text"
+            name="enemTopico"
+            value={formData.enemTopico}
+            onChange={handleInputChange}
+            placeholder="Ex: Climatologia"
+            className="input-base"
+          />
+        </div>
+
+        {formData.enemTopico && (
+          <div>
+            <label className="label-base">Frequência no ENEM ⭐</label>
+            <select
+              name="enemEstrelas"
+              value={formData.enemEstrelas}
+              onChange={handleInputChange}
+              className="input-base"
+            >
+              <option value="1">⭐ Pouco</option>
+              <option value="2">⭐⭐ Raramente</option>
+              <option value="3">⭐⭐⭐ Às vezes</option>
+              <option value="4">⭐⭐⭐⭐ Frequente</option>
+              <option value="5">⭐⭐⭐⭐⭐ Muito Frequente</option>
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Conteúdo com Upload de Imagens */}
+      <div>
+        <div className="flex justify-between items-center mb-2">
+          <label className="label-base">Conteúdo Completo *</label>
+          <span className="text-sm text-gray-500">
+            ~{estimadoPaginas} página(s) | Máximo: 10 páginas
+          </span>
+        </div>
+
+        {/* Área de Upload */}
+        <div
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className="mb-4 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition"
+        >
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-2">
+              Arraste imagens aqui, cole (Ctrl+V) ou
+            </p>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-rf-green hover:underline font-medium text-sm"
+            >
+              clique para selecionar
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e.target.files!)}
+              className="hidden"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              {uploadingImage ? 'Enviando imagem...' : 'PNG, JPG, GIF até 5MB'}
+            </p>
+          </div>
+        </div>
+
+        <textarea
+          ref={textareaRef}
+          name="conteudo"
+          value={formData.conteudo}
+          onChange={handleInputChange}
+          onPaste={handlePaste}
+          placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
+          rows={14}
+          className="input-base font-mono text-sm"
+          maxLength={30000}
+          required
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          {formData.conteudo.length} / 30000 caracteres
+        </p>
+
+        {estimadoPaginas > 10 && (
+          <p className="text-red-600 text-sm mt-2">
+            ⚠️ Conteúdo ultrapassou 10 páginas! Reduza o texto.
+          </p>
+        )}
+      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+          ✓ {success}
+        </div>
+      )}
+
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          disabled={loading || estimadoPaginas > 10}
+          className="btn-primary flex-1"
+        >
+          {loading ? 'Salvando...' : conteudoEditando ? 'Atualizar Capítulo' : 'Salvar Capítulo'}
+        </button>
+        {conteudoEditando ? (
+          <button
+            type="button"
+            onClick={() => {
+              onCancelEdit?.()
+              setFormData({
+                capitulo: '',
+                frente: 'A',
+                grupoConteudo: 'NATUREZAS_MATEMATICA',
+                tipo: 'CONTEUDO',
+                topicos: [],
+                novoTopico: '',
+                enemTopico: '',
+                enemEstrelas: '3',
+                conteudo: '',
+              })
+            }}
+            className="btn-secondary"
+          >
+            Cancelar Edição
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setFormData({
+              capitulo: '',
+              frente: 'A',
+              grupoConteudo: 'NATUREZAS_MATEMATICA',
+              tipo: 'CONTEUDO',
+              topicos: [],
+              novoTopico: '',
+              enemTopico: '',
+              enemEstrelas: '3',
+              conteudo: '',
+            })}
+            className="btn-secondary"
+          >
+            Limpar
+          </button>
+        )}
+      </div>
+    </form>
+  )
+}

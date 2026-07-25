@@ -1,0 +1,371 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PROFESSOR
+  DIAGRAMADOR
+  ILUSTRADOR
+  REVISOR
+  EDITOR
+  GESTOR
+  DIRECAO
+  PROPRIETARIO
+}
+
+enum ApostilaStatus {
+  RECEBIDO
+  EM_REVISAO_INICIAL
+  DISTRIBUIDO
+  EM_CONFECCAO
+  EM_REVISAO_POS_EDICAO
+  EM_AJUSTE
+  FINALIZADO
+  ENVIADO_GRAFICA
+}
+
+enum Serie {
+  PRIMEIRO_ANO
+  SEGUNDO_ANO
+  TERCEIRO_ANO
+  CURSINHO
+}
+
+enum ArquivoTipo {
+  PROFESSOR
+  PROVA
+  FINAL
+}
+
+enum NotificacaoTipo {
+  ATRIBUICAO
+  STATUS_MUDOU
+  COMENTARIO
+  REVISAO
+  OUTRAS
+}
+
+enum ConteudoStatus {
+  NAO_INICIADO
+  EM_EDICAO
+  ENVIADO_REVISAO
+  EM_REVISAO
+  APROVADO
+  REJEITADO
+}
+
+enum StatusPrazo {
+  NO_PRAZO
+  VENCIMENTO_PROXIMO
+  VENCIDO
+  COMPLETADO
+}
+
+// User model
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  nome          String
+  senha         String    // bcrypt hash
+  role          Role      @default(PROFESSOR)
+  ativo         Boolean   @default(true)
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  // Relations
+  apostilasEnviadas     Apostila[]              @relation("ProfessorApostila")
+  atribuicoes           UserAssignment[]
+  notificacoes          Notificacao[]
+  historicoApostila     ApostilaHistory[]
+  comentarios           Comentario[]
+  arquivos              ApostilaArquivo[]       @relation("UsuarioArquivo")
+  conteudosCriados      ConteudoCapitulo[]
+  diagramacaoAtribuida  DiagramacaoProgresso[]  @relation("DiagramadorAtribuido")
+  problemasRelatados    ProblemaaDiagramacao[]  @relation("ProblemasRelatados")
+  problemasRecebidos    ProblemaaDiagramacao[]  @relation("ProblemasRecebidos")
+  fotoPerfil            FotoPerfil?
+
+  @@index([email])
+  @@index([role])
+  @@index([ativo])
+}
+
+// Template model
+model Template {
+  id            String    @id @default(cuid())
+  titulo        String
+  serie         Serie
+  descricao     String?
+  estrutura     Json      // Estrutura do template em JSON
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  // Relations
+  apostilas     Apostila[]
+
+  @@unique([titulo, serie])
+  @@index([serie])
+}
+
+// Apostila model
+model Apostila {
+  id                    String    @id @default(cuid())
+  titulo                String
+  materia               String
+  serie                 Serie
+  status                ApostilaStatus @default(RECEBIDO)
+  professorId           String
+  professor             User      @relation("ProfessorApostila", fields: [professorId], references: [id])
+  templateId            String?
+  template              Template? @relation(fields: [templateId], references: [id])
+
+  // Metadados de produção
+  prazoEstimado         DateTime?
+  dataFinal             DateTime?
+  observacoes           String?
+
+  criadoEm              DateTime  @default(now())
+  atualizadoEm          DateTime  @updatedAt
+
+  // Relations
+  atribuicoes           UserAssignment[]
+  arquivos              ApostilaArquivo[]
+  historicoStatus       ApostilaHistory[]
+  notificacoes          Notificacao[]
+  comentarios           Comentario[]
+  conteudosCapitulos    ConteudoCapitulo[]
+  diagramacaoProgresos  DiagramacaoProgresso[]
+  problemasRelatados    ProblemaaDiagramacao[]
+
+  @@index([serie])
+  @@index([status])
+  @@index([professorId])
+  @@index([materia])
+}
+
+// User Assignment (para atribuir tarefas)
+model UserAssignment {
+  id            String    @id @default(cuid())
+  usuarioId     String
+  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  // Tipo de tarefa (diagramação, ilustração, revisão)
+  tarefa        String    // "DIAGRAMACAO", "ILUSTRACAO", "REVISAO"
+
+  prazoAtribuido DateTime?
+  prazoEntrega   DateTime?
+  statusPrazo    StatusPrazo @default(NO_PRAZO)
+  concluido      Boolean   @default(false)
+
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@unique([usuarioId, apostilaId, tarefa])
+  @@index([apostilaId])
+  @@index([usuarioId])
+  @@index([statusPrazo])
+}
+
+// Apostila History (audit log)
+model ApostilaHistory {
+  id            String    @id @default(cuid())
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  usuarioId     String
+  usuario       User      @relation(fields: [usuarioId], references: [id])
+
+  statusAnterior ApostilaStatus?
+  statusNovo     ApostilaStatus
+
+  acao          String    // "STATUS_MUDOU", "ARQUIVO_ENVIADO", "ATRIBUIDO", etc
+  descricao     String?
+
+  criadoEm      DateTime  @default(now())
+
+  @@index([apostilaId])
+  @@index([usuarioId])
+  @@index([criadoEm])
+}
+
+// Apostila Files
+model ApostilaArquivo {
+  id            String    @id @default(cuid())
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  tipo          ArquivoTipo
+  nomeOriginal  String
+  nomeServidor  String
+  googleDriveId String?
+  googleDriveUrl String?
+
+  usuarioId     String    // Quem fez upload
+  usuario       User      @relation("UsuarioArquivo", fields: [usuarioId], references: [id])
+
+  tamanho       BigInt?
+  mimeType      String?
+
+  criadoEm      DateTime  @default(now())
+
+  @@index([apostilaId])
+  @@index([tipo])
+  @@index([usuarioId])
+}
+
+// Notificacao model
+model Notificacao {
+  id            String    @id @default(cuid())
+  usuarioId     String
+  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  apostilaId    String?
+  apostila      Apostila? @relation(fields: [apostilaId], references: [id], onDelete: SetNull)
+
+  tipo          NotificacaoTipo
+  titulo        String
+  mensagem      String
+
+  lido          Boolean   @default(false)
+  urlAcao       String?   // Link para onde a notificação leva
+
+  criadoEm      DateTime  @default(now())
+  lidoEm        DateTime?
+
+  @@index([usuarioId])
+  @@index([apostilaId])
+  @@index([lido])
+}
+
+// Comentarios
+model Comentario {
+  id            String    @id @default(cuid())
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  usuarioId     String
+  usuario       User      @relation(fields: [usuarioId], references: [id])
+
+  conteudo      String
+  tipo          String?   // "REVISAO", "AJUSTE", "COMENTARIO_GERAL"
+
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@index([apostilaId])
+  @@index([usuarioId])
+}
+
+// Progresso de Diagramação
+model DiagramacaoProgresso {
+  id            String    @id @default(cuid())
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  diagramadorId String
+  diagramador   User      @relation("DiagramadorAtribuido", fields: [diagramadorId], references: [id])
+
+  paginaInicio  Int?      // Página de início da diagramação
+  paginaFim     Int?      // Página de término
+  paginasTotal  Int?      // Total de páginas da apostila
+  percentualProgresso Int? @default(0) // 0-100%
+
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@unique([apostilaId, diagramadorId])
+  @@index([apostilaId])
+  @@index([diagramadorId])
+}
+
+// Problemas/Comentários de Diagramação
+model ProblemaaDiagramacao {
+  id            String    @id @default(cuid())
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  diagramadorId String
+  diagramador   User      @relation("ProblemasRelatados", fields: [diagramadorId], references: [id])
+
+  professorId   String
+  professor     User      @relation("ProblemasRecebidos", fields: [professorId], references: [id])
+
+  descricao     String    // Descrição do problema
+  status        String    @default("ABERTO") // ABERTO, RESPONDIDO, RESOLVIDO
+
+  respostaProf  String?   // Resposta do professor
+  respostaPorId String?   // Quem respondeu
+  respondidoEm  DateTime?
+
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@index([apostilaId])
+  @@index([diagramadorId])
+  @@index([professorId])
+  @@index([status])
+}
+
+// Conteúdo estruturado (editor inline)
+model ConteudoCapitulo {
+  id            String    @id @default(cuid())
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  capitulo      String    // Nome do capítulo
+  frente        String    // A, B ou C
+  grupoConteudo String?   // "NATUREZAS_MATEMATICA" ou "HUMANAS_LINGUAGENS"
+  tipo          String    // "CONTEUDO" ou "REVISAO"
+
+  // O que vamos estudar (array de tópicos, máx 10)
+  topicos       String[]  @default([])
+
+  // Cai no ENEM
+  enemTopico    String?
+  enemEstrelas  Int?      // 1-5 estrelas
+
+  // Conteúdo completo
+  conteudo      String    // Rich text ou markdown
+
+  // Imagens
+  imagensUrls   String[]  @default([])
+
+  // Metadados
+  estimadoPaginas Int?    // Estimativa de páginas
+  paginasUtilizadas Int?  // Páginas realmente usadas
+  status        ConteudoStatus @default(NAO_INICIADO)
+  usuarioId     String
+  usuario       User      @relation(fields: [usuarioId], references: [id])
+
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@index([apostilaId])
+  @@index([usuarioId])
+  @@index([status])
+}
+
+// Foto de Perfil do Usuário
+model FotoPerfil {
+  id            String    @id @default(cuid())
+  usuarioId     String    @unique
+  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  dataUrl       String    // base64 encoded image
+  nomeArquivo   String
+  tipo          String    // image/jpeg, image/png, etc
+  tamanho       Int       // tamanho em bytes
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@index([usuarioId])
+}
