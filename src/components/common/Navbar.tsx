@@ -86,26 +86,18 @@ export function Navbar() {
     <nav
       className="sticky top-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle"
       style={{
-        backgroundColor: '#ffffff',
-        backgroundImage: "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')",
+        // O pattern disponivel e verde escuro, entao so entra no tema
+        // escuro; no claro o topo fica branco para acompanhar o resto
+        backgroundColor: darkMode ? '#111827' : '#ffffff',
+        backgroundImage: darkMode
+          ? "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')"
+          : 'none',
         backgroundRepeat: 'repeat-x',
         backgroundSize: '105px 100%',
         backgroundAttachment: 'scroll',
         backgroundPosition: '0 center',
       }}
     >
-      <style>{`
-        @media (prefers-color-scheme: dark) {
-          nav {
-            background-color: #111827 !important;
-            background-image: none !important;
-          }
-        }
-        html.dark nav {
-          background-color: #111827 !important;
-          background-image: none !important;
-        }
-      `}</style>
       <div className="px-6 sm:px-8 lg:px-10">
         <div className="flex justify-between items-center h-20">
           <Link href="/dashboard" className="flex items-center gap-3 group">
