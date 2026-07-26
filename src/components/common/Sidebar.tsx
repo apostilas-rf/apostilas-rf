@@ -79,7 +79,7 @@ export function Sidebar({ userRole }: { userRole: UserRole }) {
         <h2 className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">Menu Principal</h2>
       </div>
 
-      <nav className="space-y-2 px-3 py-4">
+      <nav className="mx-3 my-4 px-3 py-4 space-y-2 rounded-2xl border-2 border-rf-green/30 bg-rf-green/5 dark:bg-rf-green/10">
         {filteredLinks.map((link) => {
           const isActive = link.href === '/dashboard'
             ? pathname === link.href
@@ -91,8 +91,11 @@ export function Sidebar({ userRole }: { userRole: UserRole }) {
               className={`flex items-center gap-3 px-4 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
                 isActive
                   ? 'bg-gradient-to-r from-rf-green to-emerald-600 text-white shadow-elevated hover:shadow-floating'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100/60 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                  : 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
               }`}
+              style={!isActive ? {
+                backgroundImage: 'linear-gradient(30deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%)',
+              } : undefined}
             >
               {link.label}
             </Link>
