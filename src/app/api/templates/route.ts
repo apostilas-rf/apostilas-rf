@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
           select: { apostilas: true },
         },
       },
-      orderBy: { criadoEm: 'desc' },
+      // Ordem definida arrastando os cards; criadoEm desempata
+      orderBy: [{ ordem: 'asc' }, { criadoEm: 'desc' }],
     })
 
     return NextResponse.json(

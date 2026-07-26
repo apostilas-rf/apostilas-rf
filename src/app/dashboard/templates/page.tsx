@@ -34,6 +34,50 @@ export default function TemplatesPage() {
   const [filtroSerie, setFiltroSerie] = useState<'TODOS' | 'PRIMEIRO_ANO' | 'SEGUNDO_ANO' | 'TERCEIRO_ANO' | 'CURSINHO'>('TODOS')
   const [userRole, setUserRole] = useState<string | null>(null)
   const [userLoading, setUserLoading] = useState(true)
+  const [arrastandoId, setArrastandoId] = useState<string | null>(null)
+  const [erroOrdem, setErroOrdem] = useState('')
+
+  // Reordena a lista completa movendo um card para a posicao de outro.
+  // A troca acontece na lista inteira, e nao apenas no subconjunto
+  // filtrado, para a ordem salva continuar coerente com todos os filtros.
+  function moverTemplate(idArrastado: string, idAlvo: string) {
+    if (idArrastado === idAlvo) return
+
+    setTemplates((atuais) => {
+      const de = atuais.findIndex((t) => t.id === idArrastado)
+      const para = atuais.findIndex((t) => t.id === idAlvo)
+      if (de === -1 || para === -1) return atuais
+
+      const nova = [...atuais]
+      const [movido] = nova.splice(de, 1)
+      nova.splice(para, 0, movido)
+
+      salvarOrdem(nova.map((t) => t.id), atuais)
+      return nova
+    })
+  }
+
+  async function salvarOrdem(ids: string[], anterior: Template[]) {
+    setErroOrdem('')
+    try {
+      const response = await fetch('/api/templates/ordem', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      })
+
+      if (!response.ok) {
+        const erro = await response.json().catch(() => null)
+        throw new Error(erro?.error || 'Erro ao salvar a ordem')
+      }
+    } catch (err) {
+      // Volta ao estado anterior para a tela nao mostrar uma ordem
+      // que o banco nao tem
+      setTemplates(anterior)
+      setErroOrdem(err instanceof Error ? err.message : 'Erro ao salvar a ordem')
+    }
+  }
 
   useEffect(() => {
     fetchUser()
@@ -188,18 +232,49 @@ export default function TemplatesPage() {
         </div>
       </div>
 
+      {erroOrdem && (
+        <div className="mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+          {erroOrdem} — a ordem anterior foi restaurada.
+        </div>
+      )}
+
       {/* Lista de Templates */}
       {filtrados.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtrados.map((template) => (
-            <TemplateCard
+            <div
               key={template.id}
-              template={template}
-              serieLabel={serieLabels[template.serie]}
-              onEdit={setEditingTemplate}
-              onDelete={handleDelete}
-              isGestor={userRole === 'GESTOR'}
-            />
+              draggable={userRole === 'GESTOR'}
+              onDragStart={(e) => {
+                setArrastandoId(template.id)
+                e.dataTransfer.effectAllowed = 'move'
+                // Firefox so inicia o arrasto se algo for definido aqui
+                e.dataTransfer.setData('text/plain', template.id)
+              }}
+              onDragOver={(e) => {
+                if (!arrastandoId) return
+                e.preventDefault()
+                e.dataTransfer.dropEffect = 'move'
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                const origem = arrastandoId || e.dataTransfer.getData('text/plain')
+                if (origem) moverTemplate(origem, template.id)
+                setArrastandoId(null)
+              }}
+              onDragEnd={() => setArrastandoId(null)}
+              className={`transition-opacity ${
+                userRole === 'GESTOR' ? 'cursor-grab active:cursor-grabbing' : ''
+              } ${arrastandoId === template.id ? 'opacity-40' : ''}`}
+            >
+              <TemplateCard
+                template={template}
+                serieLabel={serieLabels[template.serie]}
+                onEdit={setEditingTemplate}
+                onDelete={handleDelete}
+                isGestor={userRole === 'GESTOR'}
+              />
+            </div>
           ))}
         </div>
       ) : (

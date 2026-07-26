@@ -105,6 +105,7 @@ model Template {
   serie         Serie
   descricao     String?
   estrutura     Json      // Estrutura do template em JSON
+  ordem         Int       @default(0) // Posicao definida arrastando os cards
   criadoEm      DateTime  @default(now())
   atualizadoEm  DateTime  @updatedAt
 
@@ -113,6 +114,7 @@ model Template {
 
   @@unique([titulo, serie])
   @@index([serie])
+  @@index([ordem])
 }
 
 // Apostila model
