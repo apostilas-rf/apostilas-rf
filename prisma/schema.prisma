@@ -91,6 +91,7 @@ model User {
   diagramacaoAtribuida  DiagramacaoProgresso[]  @relation("DiagramadorAtribuido")
   problemasRelatados    ProblemaaDiagramacao[]  @relation("ProblemasRelatados")
   problemasRecebidos    ProblemaaDiagramacao[]  @relation("ProblemasRecebidos")
+  alertasEmail          AlertaEmail[]
   fotoPerfil            FotoPerfil?
 
   @@index([email])
@@ -146,6 +147,7 @@ model Apostila {
   conteudosCapitulos    ConteudoCapitulo[]
   diagramacaoProgresos  DiagramacaoProgresso[]
   problemasRelatados    ProblemaaDiagramacao[]
+  alertasEmail          AlertaEmail[]
 
   @@index([serie])
   @@index([status])
@@ -355,6 +357,30 @@ model ConteudoCapitulo {
   @@index([apostilaId])
   @@index([usuarioId])
   @@index([status])
+}
+
+// Rastreamento de alertas por email enviados
+model AlertaEmail {
+  id            String    @id @default(cuid())
+  usuarioId     String
+  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  apostilaId    String
+  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+
+  tipo          String    // "PRAZO_PROXIMO", "PRAZO_VENCIDO", "PROBLEMA_AGUARDANDO", etc
+  diasRestantes Int       // Dias quando o alerta foi enviado
+
+  enviado       Boolean   @default(true)
+  emailEnviado  String    // Email para qual foi enviado
+
+  criadoEm      DateTime  @default(now())
+
+  @@unique([usuarioId, apostilaId, tipo])
+  @@index([usuarioId])
+  @@index([apostilaId])
+  @@index([tipo])
+  @@index([criadoEm])
 }
 
 // Foto de Perfil do Usuário
