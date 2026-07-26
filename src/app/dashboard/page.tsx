@@ -181,84 +181,83 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={apostila.id}
-                    className="card p-6 dark:bg-gray-800 dark:border-gray-700"
+                    className="card p-4 dark:bg-gray-800 dark:border-gray-700"
                   >
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <div className="flex justify-between items-start gap-4 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                           {apostila.titulo}
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                           {apostila.materia} • {apostila.serie} • {apostila.bimestre}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <div className={`text-3xl font-bold ${getStatusColor(diasRestantes)}`}>
-                          {diasRestantes >= 0 ? `${diasRestantes}d` : `${Math.abs(diasRestantes)}d atrasado`}
+                      <div className="text-right flex-shrink-0">
+                        <div className={`text-xl font-bold ${getStatusColor(diasRestantes)}`}>
+                          {diasRestantes >= 0 ? `${diasRestantes}d` : `${Math.abs(diasRestantes)}d`}
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Até {formatarData(apostila.prazoEntrega)}
+                          {formatarData(apostila.prazoEntrega)}
                         </p>
                       </div>
                     </div>
 
                     {apostila.alertas.length > 0 && (
-                      <div className="mb-6 space-y-2">
+                      <div className="mb-3 space-y-1">
                         {apostila.alertas.map((alerta, idx) => (
                           <div
                             key={idx}
-                            className={`p-3 rounded-lg border ${getAlertColor(alerta.tipo)}`}
+                            className={`p-2 rounded text-xs border ${getAlertColor(alerta.tipo)}`}
                           >
-                            <p className={`text-sm font-medium ${getAlertTextColor(alerta.tipo)}`}>
-                              {alerta.tipo === 'CRITICO' ? '🔴' : alerta.tipo === 'AVISO' ? '⚠️' : 'ℹ️'}{' '}
-                              {alerta.mensagem}
+                            <p className={`font-medium ${getAlertTextColor(alerta.tipo)}`}>
+                              {alerta.tipo === 'CRITICO' ? '🔴' : alerta.tipo === 'AVISO' ? '⚠️' : 'ℹ️'} {alerta.mensagem}
                             </p>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="grid grid-cols-3 gap-3 mb-3">
                       <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Conteúdo</span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Conteúdo</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {apostila.conteudoRecebido}/{apostila.conteudoTotal}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
-                            className="bg-blue-600 h-3 rounded-full transition-all"
+                            className="bg-blue-600 h-2 rounded-full transition-all"
                             style={{ width: `${Math.min(percentualConteudo, 100)}%` }}
                           />
                         </div>
                       </div>
 
                       <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Diagramação</span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Diagramação</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {apostila.diagramacaoCompleta}/{apostila.diagramacaoTotal}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
-                            className="bg-purple-600 h-3 rounded-full transition-all"
+                            className="bg-purple-600 h-2 rounded-full transition-all"
                             style={{ width: `${Math.min(percentualDiagramacao, 100)}%` }}
                           />
                         </div>
                       </div>
 
                       <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Revisão</span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Revisão</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {apostila.revisaoCompleta}/{apostila.revisaoTotal}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
-                            className="bg-green-600 h-3 rounded-full transition-all"
+                            className="bg-green-600 h-2 rounded-full transition-all"
                             style={{ width: `${Math.min(percentualRevisao, 100)}%` }}
                           />
                         </div>
@@ -268,9 +267,9 @@ export default function DashboardPage() {
                     <div className="flex justify-end">
                       <Link
                         href={`/dashboard/apostilas/${apostila.id}`}
-                        className="px-4 py-2 rounded-full bg-rf-green text-white font-medium hover:bg-emerald-600 transition-colors"
+                        className="text-xs px-3 py-1 rounded-full bg-rf-green text-white font-medium hover:bg-emerald-600 transition-colors"
                       >
-                        Ver Detalhes
+                        Detalhes
                       </Link>
                     </div>
                   </div>
