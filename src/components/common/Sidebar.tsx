@@ -75,11 +75,11 @@ export function Sidebar({ userRole }: { userRole: UserRole }) {
 
   return (
     <aside className="w-64 backdrop-blur-sm border-r border-gray-200/60 bg-white dark:bg-gray-900 dark:border-gray-800 min-h-screen sticky top-0">
-      <div className="p-6 border-b border-gray-200/60 dark:border-gray-800">
-        <h2 className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">Menu Principal</h2>
+      <div className="px-3 py-4 text-center">
+        <h2 className="text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">Menu Principal</h2>
       </div>
 
-      <nav className="mx-3 my-4 px-3 py-4 space-y-2 rounded-2xl border-2 border-rf-green/30 bg-rf-green/5 dark:bg-rf-green/10">
+      <nav className="mx-3 mb-4 px-3 py-4 space-y-2 rounded-2xl border-2 border-rf-green/30 bg-rf-green/5 dark:bg-rf-green/10">
         {filteredLinks.map((link) => {
           const isActive = link.href === '/dashboard'
             ? pathname === link.href

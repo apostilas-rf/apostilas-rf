@@ -106,7 +106,7 @@ export function Navbar() {
                 className="object-contain"
               />
             </div>
-            <span className="font-bold text-lg text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
+            <span className="font-ubuntu font-bold text-lg text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
           </Link>
 
           <div className="flex items-center gap-6">

@@ -20,6 +20,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'sans-serif'],
+        ubuntu: ['var(--font-ubuntu)', 'sans-serif'],
       },
       scale: {
         '98': '0.98',

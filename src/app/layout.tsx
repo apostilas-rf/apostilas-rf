@@ -1,10 +1,16 @@
 import type { Metadata } from 'next'
-import { Open_Sans } from 'next/font/google'
+import { Open_Sans, Ubuntu } from 'next/font/google'
 import './globals.css'
 
 const openSans = Open_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
+})
+
+const ubuntu = Ubuntu({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-ubuntu',
 })
 
 export const metadata: Metadata = {
@@ -23,7 +29,7 @@ export default function RootLayout({
   return (
     // suppressHydrationWarning: o script abaixo altera a classe do <html>
     // antes da hidratacao, entao servidor e cliente divergem de proposito
-    <html lang="pt-BR" className={openSans.variable} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${openSans.variable} ${ubuntu.variable}`} suppressHydrationWarning>
       <head>
         {/* Aplica o tema antes da primeira pintura, evitando piscar
             e mantendo a classe consistente em todas as paginas */}
