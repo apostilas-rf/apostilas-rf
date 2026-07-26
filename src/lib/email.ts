@@ -159,6 +159,42 @@ export function templateRevisaoFinalizada(
         .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
         .footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
         .button { display: inline-block; background-color: ${cor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        .status-box { background: white; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 4px solid ${cor}; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>${titulo}</h1>
+        </div>
+        <div class="content">
+          <p>Olá <strong>${nomeUsuario}</strong>,</p>
+          <p>Sua apostila foi revisada:</p>
+
+          <div class="status-box">
+            <p><strong>📚 ${tituloApostila}</strong></p>
+            <p>${status === 'aprovada' ? '✅ <strong>APROVADA</strong> - Pode prosseguir para a gráfica!' : '📝 <strong>DEVOLVIDA</strong> - Necessárias correções'}</p>
+            ${comentario ? `<p><strong>Comentário:</strong> ${comentario}</p>` : ''}
+          </div>
+
+          <a href="${process.env.APP_URL}/dashboard/apostilas" class="button">Ver Detalhes</a>
+        </div>
+        <div class="footer">
+          <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </body>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${titulo}</title>
+      <style>
+        body { font-family: 'Open Sans', sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: ${cor}; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+        .button { display: inline-block; background-color: ${cor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; }
       </style>
     </head>
     <body>
@@ -291,6 +327,116 @@ export function templateRespostaProblemaDiagramacao(
           <p>Acesse a plataforma para ver mais detalhes.</p>
 
           <a href="${process.env.APP_URL}/dashboard/diagramadores" class="button">Acessar Plataforma</a>
+        </div>
+        <div class="footer">
+          <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+export function templateAlertaPrazoProximo(
+  nomeUsuario: string,
+  tituloApostila: string,
+  diasRestantes: number,
+  prazoEntrega: string
+) {
+  const urgencia = diasRestantes <= 3 ? 'CRÍTICO' : diasRestantes <= 7 ? 'ATENÇÃO' : 'INFORMATIVO'
+  const corFundo = diasRestantes <= 3 ? '#FFE8E8' : diasRestantes <= 7 ? '#FFF3E0' : '#E3F2FD'
+  const corBorda = diasRestantes <= 3 ? '#D32F2F' : diasRestantes <= 7 ? '#F57C00' : '#1976D2'
+
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Alerta de Prazo - Apostila</title>
+      <style>
+        body { font-family: 'Open Sans', sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #009B60; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+        .button { display: inline-block; background-color: #009B60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        .alert-box { background: ${corFundo}; padding: 20px; border-radius: 4px; margin: 15px 0; border-left: 6px solid ${corBorda}; }
+        .urgencia { color: ${corBorda}; font-weight: bold; font-size: 16px; }
+        .dias { font-size: 24px; font-weight: bold; color: ${corBorda}; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>⏰ Alerta de Prazo</h1>
+        </div>
+        <div class="content">
+          <p>Olá <strong>${nomeUsuario}</strong>,</p>
+          <p>A seguinte apostila está com prazo próximo:</p>
+
+          <div class="alert-box">
+            <p class="urgencia">🔔 ${urgencia}</p>
+            <p><strong>📚 ${tituloApostila}</strong></p>
+            <p>Dias restantes: <span class="dias">${diasRestantes} dias</span></p>
+            <p>Prazo: <strong>${prazoEntrega}</strong></p>
+          </div>
+
+          <p>Verifique o status e atualize a produção na plataforma.</p>
+
+          <a href="${process.env.APP_URL}/dashboard" class="button">Acessar Dashboard</a>
+        </div>
+        <div class="footer">
+          <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+export function templateAlertaPrazoVencido(
+  nomeUsuario: string,
+  tituloApostila: string,
+  diasAtraso: number,
+  prazoEntrega: string
+) {
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>CRÍTICO - Prazo Vencido</title>
+      <style>
+        body { font-family: 'Open Sans', sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #D32F2F; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+        .button { display: inline-block; background-color: #D32F2F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        .alert-box { background: #FFE8E8; padding: 20px; border-radius: 4px; margin: 15px 0; border-left: 6px solid #D32F2F; }
+        .dias { font-size: 24px; font-weight: bold; color: #D32F2F; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🚨 PRAZO VENCIDO</h1>
+        </div>
+        <div class="content">
+          <p>Olá <strong>${nomeUsuario}</strong>,</p>
+          <p><strong>AÇÃO IMEDIATA NECESSÁRIA!</strong></p>
+          <p>A seguinte apostila está <strong>ATRASADA</strong>:</p>
+
+          <div class="alert-box">
+            <p><strong>📚 ${tituloApostila}</strong></p>
+            <p>Dias de atraso: <span class="dias">${diasAtraso} dias</span></p>
+            <p>Prazo era: <strong>${prazoEntrega}</strong></p>
+            <p>Este item requer atenção imediata do gestor.</p>
+          </div>
+
+          <a href="${process.env.APP_URL}/dashboard" class="button">Ver Dashboard Urgente</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
