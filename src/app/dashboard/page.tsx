@@ -295,24 +295,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Progresso por Série */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-rf-green mb-6 flex items-center gap-2">
-              <span>📈</span> Progresso por Série
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.keys(SERIES).map((serie) => (
-                <SerieProgressCard
-                  key={serie}
-                  serie={serie}
-                  total={data.porSerie[serie]?.total || 0}
-                  concluidas={data.porSerie[serie]?.concluidas || 0}
-                  atrasadas={data.porSerie[serie]?.atrasadas || 0}
-                />
-              ))}
-            </div>
-          </div>
-
           {/* Gráfico de Status */}
           <StatusChart data={data.porStatus} />
 
