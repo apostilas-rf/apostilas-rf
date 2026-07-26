@@ -32,6 +32,11 @@ const links: SidebarLink[] = [
     roles: ['DIAGRAMADOR'],
   },
   {
+    href: '/dashboard/ilustrador',
+    label: 'Ilustração',
+    roles: ['ILUSTRADOR'],
+  },
+  {
     href: '/dashboard/revisores',
     label: 'Revisão',
     roles: ['REVISOR'],
@@ -55,6 +60,11 @@ const links: SidebarLink[] = [
     href: '/dashboard/templates',
     label: 'Templates',
     roles: ['PROFESSOR', 'DIAGRAMADOR', 'ILUSTRADOR', 'REVISOR', 'EDITOR', 'GESTOR', 'DIRECAO', 'PROPRIETARIO'],
+  },
+  {
+    href: '/dashboard/gestor',
+    label: 'Dashboard',
+    roles: ['GESTOR'],
   },
   {
     href: '/dashboard/prazos',
