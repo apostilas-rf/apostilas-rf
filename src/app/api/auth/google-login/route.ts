@@ -4,7 +4,7 @@ import { generateCSRFState } from '@/lib/csrf'
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_REDIRECT_URI = 'http://localhost:3000/api/auth/google-callback-login'
 
-export async function POST(request: NextRequest) {
+export async function POST(_: any) {
   try {
     if (!GOOGLE_CLIENT_ID) {
       return NextResponse.json(
