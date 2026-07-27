@@ -56,8 +56,8 @@ export function Navbar() {
     >
       <div className="px-6 sm:px-8 lg:px-10">
         <div className="flex justify-between items-center h-24">
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-16 h-16 relative transition-all duration-300 group-hover:scale-110">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <div className="w-16 h-16 relative">
               <Image
                 src={darkMode ? "/logo-white.png" : "/logo.png"}
                 alt="Logo RF Educação"

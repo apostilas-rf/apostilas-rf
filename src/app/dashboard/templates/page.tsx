@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useUser } from '@/contexts/UserContext'
 import { TemplateCard } from '@/components/templates/TemplateCard'
 import { CreateTemplateModal } from '@/components/templates/CreateTemplateModal'
 import { EditTemplateModal } from '@/components/templates/EditTemplateModal'
@@ -26,14 +27,13 @@ const serieLabels: Record<string, string> = {
 }
 
 export default function TemplatesPage() {
+  const { usuario } = useUser()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [filtroSerie, setFiltroSerie] = useState<'TODOS' | 'PRIMEIRO_ANO' | 'SEGUNDO_ANO' | 'TERCEIRO_ANO' | 'CURSINHO'>('TODOS')
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [userLoading, setUserLoading] = useState(true)
   const [arrastandoId, setArrastandoId] = useState<string | null>(null)
   const [erroOrdem, setErroOrdem] = useState('')
 
@@ -80,27 +80,8 @@ export default function TemplatesPage() {
   }
 
   useEffect(() => {
-    fetchUser()
     fetchTemplates()
   }, [])
-
-  async function fetchUser() {
-    try {
-      setUserLoading(true)
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setUserRole(data.data.role)
-      }
-    } catch (err) {
-      console.error('Erro ao buscar usuário:', err)
-    } finally {
-      setUserLoading(false)
-    }
-  }
 
   async function fetchTemplates() {
     try {
@@ -165,12 +146,12 @@ export default function TemplatesPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">📋 Templates</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            {userRole === 'GESTOR'
+            {usuario?.role === 'GESTOR'
               ? 'Gerencie templates de estrutura das apostilas'
               : 'Visualize templates de estrutura das apostilas'}
           </p>
         </div>
-        {userRole === 'GESTOR' && (
+        {usuario?.role === 'GESTOR' && (
           <button
             onClick={() => setShowCreateModal(true)}
             className="btn-primary"
@@ -244,7 +225,7 @@ export default function TemplatesPage() {
           {filtrados.map((template) => (
             <div
               key={template.id}
-              draggable={userRole === 'GESTOR'}
+              draggable={usuario?.role === 'GESTOR'}
               onDragStart={(e) => {
                 setArrastandoId(template.id)
                 e.dataTransfer.effectAllowed = 'move'
@@ -264,7 +245,7 @@ export default function TemplatesPage() {
               }}
               onDragEnd={() => setArrastandoId(null)}
               className={`transition-opacity ${
-                userRole === 'GESTOR' ? 'cursor-grab active:cursor-grabbing' : ''
+                usuario?.role === 'GESTOR' ? 'cursor-grab active:cursor-grabbing' : ''
               } ${arrastandoId === template.id ? 'opacity-40' : ''}`}
             >
               <TemplateCard
@@ -272,7 +253,7 @@ export default function TemplatesPage() {
                 serieLabel={serieLabels[template.serie]}
                 onEdit={setEditingTemplate}
                 onDelete={handleDelete}
-                isGestor={userRole === 'GESTOR'}
+                isGestor={usuario?.role === 'GESTOR'}
               />
             </div>
           ))}
@@ -284,7 +265,7 @@ export default function TemplatesPage() {
       )}
 
       {/* Modais */}
-      {userRole === 'GESTOR' && showCreateModal && (
+      {usuario?.role === 'GESTOR' && showCreateModal && (
         <CreateTemplateModal
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
@@ -294,7 +275,7 @@ export default function TemplatesPage() {
         />
       )}
 
-      {userRole === 'GESTOR' && editingTemplate && (
+      {usuario?.role === 'GESTOR' && editingTemplate && (
         <EditTemplateModal
           template={editingTemplate}
           onClose={() => setEditingTemplate(null)}

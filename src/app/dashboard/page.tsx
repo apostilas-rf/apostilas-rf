@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useUser } from '@/contexts/UserContext'
 import { SerieProgressCard } from '@/components/dashboard/SerieProgressCard'
 import { StatusChart } from '@/components/dashboard/StatusChart'
 import { ActivityLog } from '@/components/dashboard/ActivityLog'
 import { SERIES } from '@/lib/constants'
-import type { UserSession } from '@/types'
 
 interface DashboardData {
   totalApostilas: number
@@ -39,7 +39,7 @@ interface Apostila {
 }
 
 export default function DashboardPage() {
-  const [usuario, setUsuario] = useState<UserSession | null>(null)
+  const { usuario } = useUser()
   const [data, setData] = useState<DashboardData | null>(null)
   const [apostilasProducao, setApostilasProducao] = useState<Apostila[]>([])
   const [loading, setLoading] = useState(true)
@@ -51,26 +51,10 @@ export default function DashboardPage() {
 
   async function fetchDados() {
     try {
-      const [usuarioRes, statsRes, apostilasRes] = await Promise.all([
-        fetch('/api/auth/me', { credentials: 'include' }),
+      const [statsRes, apostilasRes] = await Promise.all([
         fetch('/api/dashboard/stats', { credentials: 'include' }),
         fetch('/api/apostilas/em-producao', { credentials: 'include' }),
       ])
-
-      if (usuarioRes.ok) {
-        const userData = await usuarioRes.json()
-        if (userData.data) {
-          setUsuario({
-            id: userData.data.id,
-            nome: userData.data.nome || 'Usuário',
-            email: userData.data.email || '',
-            role: userData.data.role || 'PROFESSOR',
-            ativo: true,
-            criadoEm: new Date(),
-            atualizadoEm: new Date(),
-          })
-        }
-      }
 
       if (statsRes.ok) {
         const result = await statsRes.json()

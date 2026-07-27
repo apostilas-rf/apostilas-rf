@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useUser } from '@/contexts/UserContext'
 import { StatusBadge } from '@/components/cards/StatusBadge'
 import { FileUploadForm } from '@/components/forms/FileUploadForm'
 import { EditorConteudoForm } from '@/components/forms/EditorConteudoForm'
@@ -14,6 +15,7 @@ import type { Apostila, ApostilaStatus, ApostilaArquivo } from '@/types'
 export default function ApostilaDetailPage() {
   const router = useRouter()
   const params = useParams()
+  const { usuario } = useUser()
   const id = params.id as string
 
   const [apostila, setApostila] = useState<any>(null)
@@ -23,14 +25,12 @@ export default function ApostilaDetailPage() {
   const [error, setError] = useState('')
   const [changeStatusLoading, setChangeStatusLoading] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('')
-  const [userRole, setUserRole] = useState<string | null>(null)
   const [conteudoEditando, setConteudoEditando] = useState<any>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const editorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchApostila()
-    fetchUserRole()
   }, [id])
 
   useEffect(() => {
@@ -104,19 +104,6 @@ export default function ApostilaDetailPage() {
     setConteudoEditando(conteudo)
   }
 
-  async function fetchUserRole() {
-    try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setUserRole(data.data.role)
-      }
-    } catch (err) {
-      console.error('Erro ao buscar role:', err)
-    }
-  }
 
   async function handleStatusChange() {
     if (!selectedStatus || selectedStatus === apostila?.status) return

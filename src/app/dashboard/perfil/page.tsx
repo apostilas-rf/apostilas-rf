@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useUser } from '@/contexts/UserContext'
 
 interface UserProfile {
   id: string
@@ -18,9 +19,9 @@ interface FotoData {
 }
 
 export default function PerfilPage() {
-  const [usuario, setUsuario] = useState<UserProfile | null>(null)
+  const { usuario: usuarioContext, foto: fotoContext } = useUser()
   const [foto, setFoto] = useState<FotoData | null>(null)
-  const [carregando, setCarregando] = useState(true)
+  const [carregando, setCarregando] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -32,7 +33,7 @@ export default function PerfilPage() {
   const [modoEscuro, setModoEscuro] = useState(false)
 
   useEffect(() => {
-    carregarDados()
+    carregarFoto()
     const isDark = localStorage.getItem('dark-mode') === 'true'
     setModoEscuro(isDark)
     if (isDark) {
@@ -40,18 +41,9 @@ export default function PerfilPage() {
     }
   }, [])
 
-  async function carregarDados() {
+  async function carregarFoto() {
     try {
-      const [usuarioRes, fotoRes] = await Promise.all([
-        fetch('/api/auth/me', { credentials: 'include' }),
-        fetch('/api/usuario/foto', { credentials: 'include' }),
-      ])
-
-      if (usuarioRes.ok) {
-        const userData = await usuarioRes.json()
-        setUsuario(userData.data)
-      }
-
+      const fotoRes = await fetch('/api/usuario/foto', { credentials: 'include' })
       if (fotoRes.ok) {
         const fotoData = await fotoRes.json()
         if (fotoData.foto) {
@@ -62,8 +54,6 @@ export default function PerfilPage() {
     } catch (err) {
       console.error('Erro ao carregar dados:', err)
       setError('Erro ao carregar perfil')
-    } finally {
-      setCarregando(false)
     }
   }
 
@@ -280,7 +270,7 @@ export default function PerfilPage() {
             <label className="label-base dark:text-gray-300">Nome</label>
             <input
               type="text"
-              value={usuario?.nome || ''}
+              value={usuarioContext?.nome || ''}
               disabled
               className="input-base dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
             />
@@ -290,7 +280,7 @@ export default function PerfilPage() {
             <label className="label-base dark:text-gray-300">Email</label>
             <input
               type="email"
-              value={usuario?.email || ''}
+              value={usuarioContext?.email || ''}
               disabled
               className="input-base dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
             />
@@ -300,7 +290,7 @@ export default function PerfilPage() {
             <label className="label-base dark:text-gray-300">Função</label>
             <input
               type="text"
-              value={usuario?.role || ''}
+              value={usuarioContext?.role || ''}
               disabled
               className="input-base dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
             />
