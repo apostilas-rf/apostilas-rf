@@ -15,7 +15,7 @@ import type { ApostilaStatus, ApostilaArquivo } from '@/types'
 export default function ApostilaDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const { usuario } = useUser()
+  useUser()
   const id = params.id as string
 
   const [apostila, setApostila] = useState<any>(null)
