@@ -22,7 +22,7 @@ const MATERIAS = [
   { id: 'redacao', nome: 'Redação' },
 ]
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
