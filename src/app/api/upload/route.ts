@@ -93,7 +93,6 @@ export async function POST(request: NextRequest) {
 
     // Gerar nome único para o arquivo
     const timestamp = Date.now()
-    const nomeServidor = `${apostilaId}_${tipo}_${timestamp}_${file.name}`
 
     // Gerar ID único
     const googleDriveId = file ? `local_${timestamp}` : `drive_${timestamp}`
