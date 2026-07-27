@@ -187,66 +187,125 @@ export default function RevisoresPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filtradas.map((apostila) => (
-                <div key={apostila.id} className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800/50 overflow-hidden">
-                  <div className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {apostila.titulo}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {apostila.materia} • {apostila.serie}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                          👤 Professor: {apostila.professor.nome}
-                        </p>
-                      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtradas.map((apostila) => {
+                const temApontamentos = apostila.comentarios.length > 0
+                const statusApostila = statusLabels[apostila.status] || apostila.status
 
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                          {statusLabels[apostila.status] || apostila.status}
+                return (
+                  <div
+                    key={apostila.id}
+                    className={`rounded-xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 ${
+                      temApontamentos
+                        ? 'border-l-amber-500 bg-amber-50 dark:bg-amber-950/20'
+                        : 'border-l-green-500 bg-white dark:bg-gray-800'
+                    }`}
+                  >
+                    <div className="p-6 bg-white dark:bg-gray-800">
+                      {/* Header */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                            {apostila.titulo}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {apostila.materia} • {apostila.serie}
+                          </p>
+                        </div>
+                        <span className={`text-sm font-bold px-3 py-1 rounded-full ${
+                          temApontamentos
+                            ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                            : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                        }`}>
+                          {temApontamentos ? '💬 Apontamentos' : '✓ Pronto'}
                         </span>
-                        {apostila.comentarios.length > 0 && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
-                            💬 {apostila.comentarios.length} apontamentos
-                          </span>
-                        )}
                       </div>
-                    </div>
 
-                    {/* Arquivos */}
-                    {apostila.arquivos.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">📄 Arquivos:</p>
-                        <div className="space-y-1">
-                          {apostila.arquivos.map((arquivo) => (
-                            <a
-                              key={arquivo.id}
-                              href={arquivo.googleDriveUrl || '#'}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 dark:text-blue-400 hover:underline block"
-                            >
-                              📎 {arquivo.nomeOriginal}
-                            </a>
-                          ))}
+                      {/* Professor Info */}
+                      <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Professor:</span> {apostila.professor.nome}
+                        </p>
+                      </div>
+
+                      {/* Status e Apontamentos */}
+                      <div className="mb-4 grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Status</p>
+                          <p className="text-sm text-blue-900 dark:text-blue-200 font-bold">
+                            {statusApostila}
+                          </p>
+                        </div>
+                        <div className={`p-3 rounded-lg border ${
+                          temApontamentos
+                            ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800'
+                            : 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
+                        }`}>
+                          <p className={`text-xs font-medium mb-1 ${
+                            temApontamentos
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-green-600 dark:text-green-400'
+                          }`}>
+                            Apontamentos
+                          </p>
+                          <p className={`text-sm font-bold ${
+                            temApontamentos
+                              ? 'text-amber-900 dark:text-amber-200'
+                              : 'text-green-900 dark:text-green-200'
+                          }`}>
+                            {apostila.comentarios.length > 0 ? `${apostila.comentarios.length}` : '0'}
+                          </p>
                         </div>
                       </div>
-                    )}
 
-                    <div className="mt-4 flex gap-2">
-                      <Link
-                        href={`/dashboard/revisores/${apostila.id}`}
-                        className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded font-medium transition-colors"
-                      >
-                        Revisar
+                      {/* Arquivos */}
+                      {apostila.arquivos.length > 0 && (
+                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                            📄 {apostila.arquivos.length} arquivo(s)
+                          </p>
+                          <div className="space-y-1">
+                            {apostila.arquivos.slice(0, 2).map((arquivo) => (
+                              <a
+                                key={arquivo.id}
+                                href={arquivo.googleDriveUrl || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate"
+                              >
+                                📎 {arquivo.nomeOriginal}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Apontamentos Resumo */}
+                      {temApontamentos && (
+                        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2">
+                            ⚠️ {apostila.comentarios.length} apontamento(s) para revisar
+                          </p>
+                          <div className="space-y-1 max-h-16 overflow-y-auto">
+                            {apostila.comentarios.slice(0, 2).map((comentario) => (
+                              <p key={comentario.id} className="text-xs text-amber-900 dark:text-amber-200">
+                                • {comentario.conteudo.substring(0, 40)}...
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Botão de Ação */}
+                      <Link href={`/dashboard/revisores/${apostila.id}`}>
+                        <button className="w-full px-4 py-2 bg-rf-green hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors text-sm">
+                          → Revisar
+                        </button>
                       </Link>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </>
