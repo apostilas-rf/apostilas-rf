@@ -15,7 +15,7 @@ export function LayoutClient({ userRole, children }: LayoutClientProps) {
     <UserProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navbar />
-        <div className="flex">
+        <div className="flex pt-24">
           <Sidebar userRole={userRole} />
           <main className="flex-1 dark:bg-gray-900">
             <div className="p-8">

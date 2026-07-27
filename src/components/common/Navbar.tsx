@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
 
-export function Navbar() {
+function NavbarComponent() {
   const router = useRouter()
   const { usuario, foto, carregando } = useUser()
   const [abrirMenu, setAbrirMenu] = useState(false)
@@ -43,9 +43,8 @@ export function Navbar() {
 
   return (
     <nav
-      className="sticky top-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle"
+      className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle"
       style={{
-        // O pattern vale nos dois temas; so o fundo atras dele muda
         backgroundColor: darkMode ? '#111827' : '#ffffff',
         backgroundImage: "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')",
         backgroundRepeat: 'repeat-x',
@@ -128,3 +127,5 @@ export function Navbar() {
     </nav>
   )
 }
+
+export const Navbar = memo(NavbarComponent)
