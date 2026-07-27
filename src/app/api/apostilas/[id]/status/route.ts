@@ -29,13 +29,12 @@ export async function PATCH(
     const userId = headersList.get('x-user-id')
     const userRole = headersList.get('x-user-role')
 
-    console.log('PATCH /api/apostilas/:id/status', { id: params.id, userId, userRole })
-
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { id } = await params
+    console.log('PATCH /api/apostilas/:id/status', { id, userId, userRole })
     const body = await request.json()
     console.log('Body recebido:', body)
 
