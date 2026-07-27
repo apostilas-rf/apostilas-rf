@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 import { z } from 'zod'
@@ -7,7 +7,7 @@ import type { UserRole } from '@/types'
 // Security: Validate role enum
 const roleSchema = z.enum(['GESTOR', 'PROFESSOR', 'DIAGRAMADOR', 'REVISOR', 'ILUSTRADOR', 'DIRECAO', 'PROPRIETARIO'] as const)
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')

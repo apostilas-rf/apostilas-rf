@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID

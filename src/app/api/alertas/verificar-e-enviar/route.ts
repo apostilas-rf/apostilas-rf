@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { enviarEmail, templateAlertaPrazoProximo, templateAlertaPrazoVencido } from '@/lib/email'
 import { headers } from 'next/headers'

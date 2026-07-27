@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
 // In-memory storage (será substituído por banco de dados depois)
@@ -22,7 +22,7 @@ const MATERIAS = [
   { id: 'redacao', nome: 'Redação' },
 ]
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Deletar tema/pasta
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')

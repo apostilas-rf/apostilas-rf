@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 import { APOSTILA_STATUS, SERIES } from '@/lib/constants'
 import type { ApostilaStatus } from '@/types'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')

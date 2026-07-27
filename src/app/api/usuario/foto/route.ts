@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const userId = request.headers.get('x-user-id')
     if (!userId) {

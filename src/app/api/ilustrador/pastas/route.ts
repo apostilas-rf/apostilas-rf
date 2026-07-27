@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
 // Get temas por matéria do admin endpoint (será substituído por banco de dados)
 const PASTA_MAPPING: Record<string, string> = {}
 const TEMAS_POR_MATERIA: Record<string, string[]> = {}
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
