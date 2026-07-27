@@ -9,7 +9,7 @@ const updateProblemaSchema = z.object({
 })
 
 export async function PATCH(
-  _: any,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -21,6 +21,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validation = updateProblemaSchema.safeParse(body)
 
@@ -33,7 +34,7 @@ export async function PATCH(
 
     // Buscar problema
     const problema = await db.problemaaDiagramacao.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         diagramador: true,
         professor: true,
