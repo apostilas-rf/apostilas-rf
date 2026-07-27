@@ -13,9 +13,11 @@ if (!process.env.JWT_SECRET) {
 }
 
 const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || process.env.NODE_ENV === 'production'
-    ? (() => { throw new Error('JWT_SECRET required') })()
-    : 'dev-jwt-secret-change-in-production'
+  process.env.JWT_SECRET || (
+    process.env.NODE_ENV === 'production'
+      ? (() => { throw new Error('JWT_SECRET required in production') })()
+      : 'dev-jwt-secret-change-in-production'
+  )
 )
 
 export async function hashPassword(password: string): Promise<string> {
