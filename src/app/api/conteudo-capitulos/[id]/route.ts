@@ -15,7 +15,7 @@ const updateConteudoSchema = z.object({
 })
 
 export async function PUT(
-  _: any,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
