@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const serie = searchParams.get('serie')
 
     const templates = await db.template.findMany({
-      where: serie && serie !== 'TODOS' ? { serie } : {},
+      where: serie && serie !== 'TODOS' ? { serie: serie as any } : {},
       include: {
         _count: {
           select: { apostilas: true },
