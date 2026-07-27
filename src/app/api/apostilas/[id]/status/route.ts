@@ -20,7 +20,7 @@ const statusSchema = z.object({
 })
 
 export async function PATCH(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

@@ -20,7 +20,7 @@ const updateTemplateSchema = z.object({
 })
 
 export async function GET(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -66,7 +66,7 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -125,7 +125,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

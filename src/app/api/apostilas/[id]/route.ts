@@ -98,7 +98,7 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
