@@ -92,7 +92,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
