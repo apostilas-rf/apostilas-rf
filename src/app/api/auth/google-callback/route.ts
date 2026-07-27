@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
@@ -18,7 +18,7 @@ interface GoogleUserInfo {
   picture?: string
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
