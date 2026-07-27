@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 
 export async function POST(
-  request: NextRequest,
+  _: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

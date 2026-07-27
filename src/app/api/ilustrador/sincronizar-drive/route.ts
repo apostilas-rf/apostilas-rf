@@ -23,7 +23,7 @@ const MATERIAS = [
 // TODO: Set this to your Google Drive folder ID
 const ILUSTRADOR_ROOT_FOLDER = process.env.GOOGLE_DRIVE_ILUSTRADOR_ROOT_FOLDER || ''
 
-export async function POST(request: NextRequest) {
+export async function POST(_: any) {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
