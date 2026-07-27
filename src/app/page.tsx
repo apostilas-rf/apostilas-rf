@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
+// Deployed to Vercel
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-rf-green to-rf-teal flex items-center justify-center">
