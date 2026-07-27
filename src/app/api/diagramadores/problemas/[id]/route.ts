@@ -76,11 +76,11 @@ export async function PATCH(
         problema.professor.nome
       )
 
-      await enviarEmail(
-        problema.diagramador.email,
-        `Resposta ao Problema: ${problema.apostila.titulo}`,
+      await enviarEmail({
+        para: problema.diagramador.email,
+        assunto: `Resposta ao Problema: ${problema.apostila.titulo}`,
         html
-      )
+      })
     } catch (emailError) {
       console.error('Erro ao enviar email:', emailError)
     }
