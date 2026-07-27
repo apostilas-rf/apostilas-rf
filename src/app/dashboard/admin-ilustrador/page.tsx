@@ -9,11 +9,11 @@ const MATERIAS = [
   { id: 'matematica', nome: 'Matemática' },
   { id: 'filosofia', nome: 'Filosofia' },
   { id: 'geografia', nome: 'Geografia' },
+  { id: 'historia', nome: 'História' },
+  { id: 'sociologia', nome: 'Sociologia' },
   { id: 'portugues', nome: 'Língua Portuguesa' },
   { id: 'literatura', nome: 'Literatura' },
   { id: 'redacao', nome: 'Redação' },
-  { id: 'historia', nome: 'História' },
-  { id: 'sociologia', nome: 'Sociologia' },
 ]
 
 interface Pasta {
