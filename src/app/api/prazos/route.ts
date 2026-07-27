@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { apostilaId, setor, usuarioId, prazoEntrega, descricao } = body
+    const { apostilaId, setor, usuarioId, prazoEntrega } = body
 
     if (!apostilaId || !prazoEntrega) {
       return NextResponse.json(
