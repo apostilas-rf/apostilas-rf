@@ -176,10 +176,11 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-6 mb-10">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="mb-10">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                 Apostilas em Produção ({apostilasProducao.length}/2)
               </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {apostilasProducao.map((apostila) => {
                 const diasRestantes = apostila.diasRestantes
                 const percentualConteudo = (apostila.conteudoRecebido / apostila.conteudoTotal) * 100
@@ -212,7 +213,9 @@ export default function DashboardPage() {
 
                     {apostila.alertas.length > 0 && (
                       <div className="mb-3 space-y-1">
-                        {apostila.alertas.map((alerta, idx) => (
+                        {apostila.alertas
+                          .filter(alerta => !alerta.mensagem.includes('Nenhum professor'))
+                          .map((alerta, idx) => (
                           <div
                             key={idx}
                             className={`p-2 rounded text-xs border ${getAlertColor(alerta.tipo)}`}
@@ -283,6 +286,7 @@ export default function DashboardPage() {
                   </div>
                 )
               })}
+              </div>
             </div>
           )}
         </div>
