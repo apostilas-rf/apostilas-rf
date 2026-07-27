@@ -240,7 +240,7 @@ export default function PrazosPage() {
 
       {/* Lista de Prazos */}
       {prazosFiltrads.length > 0 ? (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {prazosFiltrads.map((prazo) => (
             <PrazoCard
               key={prazo.id}
@@ -254,7 +254,7 @@ export default function PrazosPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-gray-600 dark:text-gray-400 text-lg">
             {prazos.length === 0
               ? 'Nenhum prazo adicionado ainda.'

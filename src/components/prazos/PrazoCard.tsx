@@ -33,42 +33,55 @@ export function PrazoCard({
     })
   }
 
-  const getStatusColor = () => {
+  const getBorderColor = () => {
     switch (statusPrazo) {
       case 'VENCIDO':
-        return 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800'
+        return 'border-l-red-500'
       case 'VENCIMENTO_PROXIMO':
-        return 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800'
+        return 'border-l-amber-500'
       case 'COMPLETADO':
-        return 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'
+        return 'border-l-green-500'
       default:
-        return 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+        return 'border-l-blue-500'
+    }
+  }
+
+  const getBackgroundColor = () => {
+    switch (statusPrazo) {
+      case 'VENCIDO':
+        return 'bg-red-50 dark:bg-red-950/20'
+      case 'VENCIMENTO_PROXIMO':
+        return 'bg-amber-50 dark:bg-amber-950/20'
+      case 'COMPLETADO':
+        return 'bg-green-50 dark:bg-green-950/20'
+      default:
+        return 'bg-white dark:bg-gray-800'
     }
   }
 
   const getStatusBadgeColor = () => {
     switch (statusPrazo) {
       case 'VENCIDO':
-        return 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200'
+        return 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
       case 'VENCIMENTO_PROXIMO':
-        return 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200'
+        return 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
       case 'COMPLETADO':
-        return 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200'
+        return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
       default:
-        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
     }
   }
 
   const getStatusLabel = () => {
     switch (statusPrazo) {
       case 'VENCIDO':
-        return '⚠️ Vencido'
+        return '🚨 Vencido'
       case 'VENCIMENTO_PROXIMO':
-        return '🔔 Vencimento próximo'
+        return '⏰ Próximo Vencimento'
       case 'COMPLETADO':
         return '✓ Concluído'
       default:
-        return 'No prazo'
+        return '✓ No Prazo'
     }
   }
 
@@ -85,44 +98,48 @@ export function PrazoCard({
   }
 
   return (
-    <div className={`p-4 rounded-lg border transition-all duration-200 ${getStatusColor()}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{titulo}</h3>
-            <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusBadgeColor()}`}>
-              {getStatusLabel()}
-            </span>
-          </div>
-
-          {descricao && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{descricao}</p>
-          )}
-
-          <div className="flex items-center gap-4">
-            {prazoEntrega && (
-              <div className="text-sm">
-                <p className="text-gray-500 dark:text-gray-400">Prazo de entrega</p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {formatarData(prazoEntrega)}
-                </p>
-              </div>
+    <div className={`rounded-xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 ${getBorderColor()} ${getBackgroundColor()}`}>
+      <div className="p-6 bg-white dark:bg-gray-800">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+              {titulo}
+            </h3>
+            {descricao && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {descricao}
+              </p>
             )}
           </div>
+          <span className={`text-sm font-bold px-3 py-1 rounded-full whitespace-nowrap ml-2 ${getStatusBadgeColor()}`}>
+            {getStatusLabel()}
+          </span>
         </div>
 
+        {/* Data */}
+        {prazoEntrega && (
+          <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">📅 Prazo de Entrega</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">
+              {formatarData(prazoEntrega)}
+            </p>
+          </div>
+        )}
+
+        {/* Ação */}
         {!concluido && onMarcaConcluido && (
           <button
             onClick={handleToggleConcluido}
             disabled={marcando}
-            className="px-4 py-2 rounded-lg bg-rf-green text-white font-medium hover:bg-emerald-600 transition-colors disabled:opacity-50 whitespace-nowrap"
+            className="w-full px-4 py-2 bg-rf-green hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50 text-sm"
           >
-            {marcando ? 'Marcando...' : 'Marcar concluído'}
+            {marcando ? '⏳ Marcando...' : '✓ Marcar Concluído'}
           </button>
         )}
 
         {concluido && (
-          <div className="px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200 font-medium">
+          <div className="w-full px-4 py-2 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 font-medium rounded-lg text-center text-sm">
             ✓ Concluído
           </div>
         )}
