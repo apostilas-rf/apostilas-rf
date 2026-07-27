@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
