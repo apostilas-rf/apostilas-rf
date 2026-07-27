@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { UserRole } from '@/types'
 
@@ -22,6 +21,11 @@ const links: SidebarLink[] = [
     roles: ['PROFESSOR', 'DIAGRAMADOR', 'ILUSTRADOR', 'REVISOR', 'EDITOR', 'GESTOR', 'DIRECAO', 'PROPRIETARIO'],
   },
   {
+    href: '/dashboard/professores',
+    label: 'Professores',
+    roles: ['GESTOR'],
+  },
+  {
     href: '/dashboard/meus-capitulos',
     label: 'Meus Capítulos',
     roles: ['PROFESSOR'],
@@ -29,22 +33,17 @@ const links: SidebarLink[] = [
   {
     href: '/dashboard/diagramadores',
     label: 'Diagramação',
-    roles: ['DIAGRAMADOR'],
+    roles: ['DIAGRAMADOR', 'GESTOR'],
   },
   {
     href: '/dashboard/ilustrador',
     label: 'Ilustração',
-    roles: ['ILUSTRADOR'],
+    roles: ['ILUSTRADOR', 'GESTOR'],
   },
   {
     href: '/dashboard/revisores',
     label: 'Revisão',
-    roles: ['REVISOR'],
-  },
-  {
-    href: '/dashboard/professores',
-    label: 'Professores',
-    roles: ['GESTOR'],
+    roles: ['REVISOR', 'GESTOR'],
   },
   {
     href: '/dashboard/templates',
@@ -80,17 +79,17 @@ export function Sidebar({ userRole }: { userRole: UserRole }) {
             ? pathname === link.href
             : pathname === link.href || pathname.startsWith(link.href + '/')
           return (
-            <Link
+            <a
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-full text-sm font-semibold transition-all duration-300 block ${
                 isActive
                   ? 'bg-gradient-to-r from-rf-green to-emerald-600 text-white shadow-elevated hover:shadow-floating'
                   : 'text-gray-700 dark:text-gray-200 bg-gray-400/10 dark:bg-gray-700/40 hover:bg-gray-400/20 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               {link.label}
-            </Link>
+            </a>
           )
         })}
       </nav>
