@@ -56,6 +56,11 @@ const links: SidebarLink[] = [
     roles: ['GESTOR'],
   },
   {
+    href: '/dashboard/admin-cadastros',
+    label: '👥 Aprovar Cadastros',
+    roles: ['GESTOR'],
+  },
+  {
     href: '/dashboard/perfil',
     label: 'Meu Perfil',
     roles: ['PROFESSOR', 'DIAGRAMADOR', 'ILUSTRADOR', 'REVISOR', 'EDITOR', 'GESTOR', 'DIRECAO', 'PROPRIETARIO'],

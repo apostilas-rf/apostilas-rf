@@ -38,12 +38,19 @@ export async function POST(request: NextRequest) {
     // Verificar se usuário está ativo
     if (!usuario.ativo) {
       return NextResponse.json(
-        { error: 'Usuário desativado' },
+        { error: 'Sua conta está pendente de aprovação. Você receberá um email quando for aprovado.' },
         { status: 403 }
       )
     }
 
-    // Verificar senha
+    // Verificar senha (usuários Google OAuth não têm senha)
+    if (!usuario.senha) {
+      return NextResponse.json(
+        { error: 'Use o login com Google' },
+        { status: 401 }
+      )
+    }
+
     const senhaValida = await verifyPassword(senha, usuario.senha)
     if (!senhaValida) {
       return NextResponse.json(

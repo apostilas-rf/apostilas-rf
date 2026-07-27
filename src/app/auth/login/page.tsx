@@ -102,11 +102,17 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-500">
+      <div className="mt-6 space-y-3 text-center text-sm text-gray-500">
         <p>
           Não tem acesso?{' '}
           <Link href="/" className="text-rf-green font-medium hover:underline">
             Volte à página inicial
+          </Link>
+        </p>
+        <p>
+          Novo por aqui?{' '}
+          <Link href="/auth/signup" className="text-rf-green font-medium hover:underline">
+            Faça seu cadastro
           </Link>
         </p>
       </div>
