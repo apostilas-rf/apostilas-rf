@@ -8,11 +8,13 @@ import { useUser } from '@/contexts/UserContext'
 
 function NavbarComponent() {
   const router = useRouter()
-  const { usuario, foto, carregando } = useUser()
+  const { usuario, foto } = useUser()
   const [abrirMenu, setAbrirMenu] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     // Detectar dark mode ao carregar
     const isDark = localStorage.getItem('dark-mode') === 'true' ||
                    document.documentElement.classList.contains('dark')
@@ -35,10 +37,6 @@ function NavbarComponent() {
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }
-  }
-
-  if (carregando) {
-    return <nav className="bg-white border-b border-gray-200"></nav>
   }
 
   return (
@@ -68,59 +66,57 @@ function NavbarComponent() {
           </Link>
 
           <div className="flex items-center gap-6">
-            {!carregando && (
-              <div className="relative">
-                <button
-                  onClick={() => setAbrirMenu(!abrirMenu)}
-                  className="flex items-center gap-3 px-4 py-2 rounded-2xl hover:bg-gray-100/60 dark:hover:bg-gray-800 transition-all duration-300"
-                >
-                  {foto ? (
-                    <div className="w-10 h-10 relative rounded-full overflow-hidden shadow-elevated">
-                      <Image
-                        src={foto}
-                        alt="Foto do perfil"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-rf-green to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-elevated">
-                      {usuario?.nome?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                  )}
-                  <div className="hidden sm:block text-left">
+            <div className="relative">
+              <button
+                onClick={() => setAbrirMenu(!abrirMenu)}
+                className="flex items-center gap-3 px-4 py-2 rounded-2xl hover:bg-gray-100/60 dark:hover:bg-gray-800 transition-all duration-300"
+              >
+                {foto ? (
+                  <div className="w-10 h-10 relative rounded-full overflow-hidden shadow-elevated">
+                    <Image
+                      src={foto}
+                      alt="Foto do perfil"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-br from-rf-green to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-elevated">
+                    {usuario?.nome?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )}
+                <div className="hidden sm:block text-left">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {usuario?.nome || 'Usuário'}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-tight">
+                    {usuario?.role || 'usuário'}
+                  </p>
+                </div>
+              </button>
+
+              {abrirMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-floating z-50 border border-gray-200/60 dark:border-gray-700 animate-slide-in">
+                  <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {usuario?.nome || 'Usuário'}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-tight">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      {usuario?.email || 'sem email'}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-tight">
                       {usuario?.role || 'usuário'}
                     </p>
                   </div>
-                </button>
-
-                {abrirMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-floating z-50 border border-gray-200/60 dark:border-gray-700 animate-slide-in">
-                    <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {usuario?.nome || 'Usuário'}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        {usuario?.email || 'sem email'}
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-tight">
-                        {usuario?.role || 'usuário'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-5 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-300 flex items-center gap-2"
-                    >
-                      Sair
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-5 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-300 flex items-center gap-2"
+                  >
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
