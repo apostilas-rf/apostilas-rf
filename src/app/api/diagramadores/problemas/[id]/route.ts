@@ -15,7 +15,6 @@ export async function PATCH(
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
-    const userRole = headersList.get('x-user-role')
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
