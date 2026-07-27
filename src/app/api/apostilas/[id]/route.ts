@@ -11,7 +11,7 @@ const updateApostilaSchema = z.object({
 })
 
 export async function GET(
-  request: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
