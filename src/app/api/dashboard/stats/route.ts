@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 import { APOSTILA_STATUS, SERIES } from '@/lib/constants'
-import type { ApostilaStatus } from '@/types'
 
 export async function GET() {
   try {
