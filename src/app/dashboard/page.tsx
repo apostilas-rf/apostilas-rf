@@ -162,6 +162,11 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Dashboard Geral - Gráfico de Status (aparece primeiro) */}
+      {data && (
+        <StatusChart data={data.porStatus} />
+      )}
+
       {/* Dashboard do Gestor - Apostilas em Produção */}
       {isGestor && (
         <div>
@@ -292,15 +297,9 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Dashboard Geral - Stats e Gráficos */}
+      {/* Dashboard Geral - Atividades Recentes */}
       {data && (
-        <>
-          {/* Gráfico de Status */}
-          <StatusChart data={data.porStatus} />
-
-          {/* Atividades Recentes */}
-          <ActivityLog atividades={data.atividades} />
-        </>
+        <ActivityLog atividades={data.atividades} />
       )}
 
       {/* Rodapé com Última Atualização */}
