@@ -140,12 +140,20 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10">
-      {/* Header */}
-      <div className="mb-10">
-        <h1 className="section-title dark:text-white">📊 {isGestor ? 'Dashboard do Gestor' : 'Dashboard'}</h1>
-        <p className="section-subtitle dark:text-gray-400">
-          {isGestor ? 'Acompanhamento de apostilas em produção' : 'Acompanhamento em tempo real de produção de apostilas'}
-        </p>
+      {/* Header com Total */}
+      <div className="mb-10 flex justify-between items-start">
+        <div>
+          <h1 className="text-4xl font-bold text-rf-green dark:text-emerald-400">{isGestor ? 'Dashboard do Gestor' : 'Dashboard'}</h1>
+          <p className="section-subtitle dark:text-gray-400 mt-2">
+            {isGestor ? 'Acompanhamento de apostilas em produção' : 'Acompanhamento em tempo real de produção de apostilas'}
+          </p>
+        </div>
+        {data && (
+          <div className="card-elevated dark:bg-gray-800/50 dark:border-gray-700 p-4 text-center min-w-max">
+            <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold uppercase tracking-wide">Total</p>
+            <p className="text-4xl font-bold text-rf-green mt-2">{data.totalApostilas}</p>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -283,18 +291,6 @@ export default function DashboardPage() {
       {/* Dashboard Geral - Stats e Gráficos */}
       {data && (
         <>
-          {/* Card Total */}
-          <div className="card-elevated dark:bg-gray-800/50 dark:border-gray-700 group">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wide">Total de Apostilas</p>
-                <p className="text-6xl font-bold text-rf-green mt-4">{data.totalApostilas}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Em produção</p>
-              </div>
-              <div className="text-8xl opacity-10 group-hover:opacity-20 transition-opacity duration-300">📚</div>
-            </div>
-          </div>
-
           {/* Gráfico de Status */}
           <StatusChart data={data.porStatus} />
 
