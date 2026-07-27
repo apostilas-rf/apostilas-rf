@@ -52,7 +52,7 @@ export async function PATCH(
 
     // Atualizar problema
     const problemaAtualizado = await db.problemaaDiagramacao.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         respostaProf: validation.data.respostaProf,
         status: 'RESPONDIDO',
