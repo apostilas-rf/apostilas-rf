@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { enviarEmail, templateAlertaPrazoProximo, templateAlertaPrazoVencido } from '@/lib/email'
 import { headers } from 'next/headers'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const headersList = await headers()
     const userRole = headersList.get('x-user-role')
