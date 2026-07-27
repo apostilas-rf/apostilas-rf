@@ -11,7 +11,6 @@ const statusSchema = z.object({
     'RECEBIDO',
     'EM_REVISAO_INICIAL',
     'EM_DIAGRAMACAO',
-    'EM_DIAGRAMACAO',
     'EM_REVISAO_FINAL',
     'EM_AJUSTE',
     'FINALIZADO',
