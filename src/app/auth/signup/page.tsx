@@ -12,7 +12,7 @@ const ROLES = [
   { id: 'EDITOR', nome: 'Editor', emoji: '📖' },
   { id: 'GESTOR', nome: 'Gestor', emoji: '👨‍💼' },
   { id: 'DIRECAO', nome: 'Diretor', emoji: '🎓' },
-  { id: 'PROPRIETARIO', nome: 'Dono da Escola', emoji: '👑' },
+  { id: 'PROPRIETARIO', nome: 'Raphael Faleiro', emoji: '👑' },
 ]
 
 export default function SignupPage() {
