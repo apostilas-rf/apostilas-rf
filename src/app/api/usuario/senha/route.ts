@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       where: { id: userId },
     })
 
-    if (!usuario) {
-      return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
+    if (!usuario || !usuario.senha) {
+      return NextResponse.json({ error: 'Usuário não encontrado ou sem senha' }, { status: 404 })
     }
 
     const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha)
