@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, memo } from 'react'
+import { useState, memo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -10,25 +10,6 @@ function NavbarComponent() {
   const router = useRouter()
   const { usuario, foto } = useUser()
   const [abrirMenu, setAbrirMenu] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    // Detectar dark mode ao carregar
-    const isDark = localStorage.getItem('dark-mode') === 'true' ||
-                   document.documentElement.classList.contains('dark')
-    setDarkMode(isDark)
-
-    // Observar mudanças no dark mode
-    const observer = new MutationObserver(() => {
-      const isDarkNow = document.documentElement.classList.contains('dark')
-      setDarkMode(isDarkNow)
-    })
-
-    observer.observe(document.documentElement, { attributes: true })
-    return () => observer.disconnect()
-  }, [])
 
   async function handleLogout() {
     try {
@@ -41,9 +22,8 @@ function NavbarComponent() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle"
+      className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle bg-white dark:bg-gray-800"
       style={{
-        backgroundColor: darkMode ? '#111827' : '#ffffff',
         backgroundImage: "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')",
         backgroundRepeat: 'repeat-x',
         backgroundSize: '105px 100%',
@@ -56,10 +36,16 @@ function NavbarComponent() {
           <Link href="/dashboard" className="flex items-center gap-3">
             <div className="w-16 h-16 relative">
               <Image
-                src={darkMode ? "/logo-white.png" : "/logo.png"}
+                src="/logo.png"
                 alt="Logo RF Educação"
                 fill
-                className="object-contain"
+                className="object-contain dark:hidden"
+              />
+              <Image
+                src="/logo-white.png"
+                alt="Logo RF Educação"
+                fill
+                className="object-contain hidden dark:block"
               />
             </div>
             <span className="font-ubuntu font-bold text-xl text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
