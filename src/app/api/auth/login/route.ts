@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createToken, verifyPassword, setSessionCookie } from '@/lib/auth'
 import { z } from 'zod'

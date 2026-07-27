@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { generateCSRFState } from '@/lib/csrf'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
