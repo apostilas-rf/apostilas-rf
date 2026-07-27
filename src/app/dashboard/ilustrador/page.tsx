@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const BIMESTRES = ['P1', 'P2', 'P3', 'P4']
 const SERIES = ['1º Ano', '2º Ano', '3º Ano', 'Cursinho']
@@ -18,31 +18,57 @@ const MATERIAS = [
   { id: 'sociologia', nome: 'Sociologia' },
 ]
 
+interface PastaInfo {
+  success: boolean
+  driveUrl?: string
+  error?: string
+  message?: string
+}
+
 export default function IlustradorPage() {
   const [bimestre, setBimestre] = useState('')
   const [serie, setSerie] = useState('')
   const [materia, setMateria] = useState('')
+  const [pastaInfo, setPastaInfo] = useState<PastaInfo | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const getDriveUrl = () => {
-    if (!bimestre || !serie || !materia) return null
-    // Template: será configurado pelo gestor
-    // Formato: https://drive.google.com/drive/folders/[FOLDER_ID]?usp=sharing
-    const serieSlug = serie.replace('º Ano', '').replace('Cursinho', 'cursinho').toLowerCase()
-    const materiaObj = MATERIAS.find(m => m.id === materia)
+  // Buscar informações da pasta quando mudar a seleção
+  useEffect(() => {
+    if (!bimestre || !serie || !materia) {
+      setPastaInfo(null)
+      return
+    }
 
-    // Placeholder - você vai configurar os IDs reais do Drive depois
-    return `https://drive.google.com/drive/folders/[CONFIGURAR_${bimestre}_${serieSlug}_${materia.toUpperCase()}]?usp=sharing`
-  }
+    const fetchPasta = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(
+          `/api/ilustrador/pastas?bimestre=${encodeURIComponent(bimestre)}&serie=${encodeURIComponent(serie)}&materia=${encodeURIComponent(materia)}`
+        )
+        const data = await response.json()
+        setPastaInfo(data)
+      } catch (error) {
+        setPastaInfo({
+          success: false,
+          error: 'Erro ao buscar pasta',
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPasta()
+  }, [bimestre, serie, materia])
 
   const handleAccessDrive = () => {
-    const url = getDriveUrl()
-    if (url) {
-      window.open(url, '_blank')
+    if (pastaInfo?.driveUrl) {
+      window.open(pastaInfo.driveUrl, '_blank')
     }
   }
 
   const isComplete = bimestre && serie && materia
-  const driveUrl = getDriveUrl()
+  const hasPasta = pastaInfo?.success
+  const driveUrl = pastaInfo?.driveUrl
 
   return (
     <div>
@@ -119,13 +145,33 @@ export default function IlustradorPage() {
         </div>
 
         {/* Info Box */}
-        {isComplete && (
-          <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              📂 <strong>Pasta:</strong> {bimestre} • {serie} • {MATERIAS.find(m => m.id === materia)?.nome}
+        {isComplete && loading && (
+          <div className="mt-6 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">⏳ Carregando...</p>
+          </div>
+        )}
+
+        {isComplete && !loading && hasPasta && (
+          <div className="mt-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <p className="text-sm text-green-700 dark:text-green-300">
+              ✅ <strong>Pasta encontrada:</strong> {bimestre} • {serie} • {MATERIAS.find(m => m.id === materia)?.nome}
             </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+            <p className="text-xs text-green-600 dark:text-green-400 mt-2 break-all">
               {driveUrl}
+            </p>
+          </div>
+        )}
+
+        {isComplete && !loading && !hasPasta && (
+          <div className="mt-6 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              ⚠️ <strong>Pasta não configurada</strong>
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+              {pastaInfo?.message || pastaInfo?.error}
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+              Entre em contato com o gestor para configurar as pastas do Drive.
             </p>
           </div>
         )}
@@ -136,13 +182,20 @@ export default function IlustradorPage() {
         <div className="mb-8">
           <button
             onClick={handleAccessDrive}
-            className="w-full px-6 py-4 rounded-full bg-rf-green text-white font-bold text-lg hover:bg-emerald-600 transition-colors shadow-lg"
+            disabled={!hasPasta || loading}
+            className={`w-full px-6 py-4 rounded-full font-bold text-lg transition-colors shadow-lg ${
+              hasPasta && !loading
+                ? 'bg-rf-green text-white hover:bg-emerald-600 cursor-pointer'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            }`}
           >
-            🚀 Acessar Drive
+            {loading ? '⏳ Carregando...' : hasPasta ? '🚀 Acessar Drive' : '❌ Pasta não disponível'}
           </button>
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-3">
-            Você será redirecionado para a pasta no Google Drive
-          </p>
+          {hasPasta && !loading && (
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-3">
+              Você será redirecionado para a pasta no Google Drive
+            </p>
+          )}
         </div>
       )}
 

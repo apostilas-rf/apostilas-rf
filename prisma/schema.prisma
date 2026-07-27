@@ -397,3 +397,20 @@ model FotoPerfil {
 
   @@index([usuarioId])
 }
+
+// Pastas de Ilustração no Google Drive
+model IlustradorPasta {
+  id            String    @id @default(cuid())
+  bimestre      String    // P1, P2, P3, P4
+  serie         String    // 1º Ano, 2º Ano, 3º Ano, Cursinho
+  materia       String    // id da matéria (biologia, fisica, etc)
+  driveFolder   String    // ID da pasta no Google Drive
+  driveUrl      String    // URL para acesso direto
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  @@unique([bimestre, serie, materia])
+  @@index([bimestre])
+  @@index([serie])
+  @@index([materia])
+}
