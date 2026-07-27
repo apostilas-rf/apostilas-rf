@@ -40,7 +40,7 @@ async function main() {
         materia: 'Matemática',
         serie: 'PRIMEIRO_ANO',
         professorId: professor.id,
-        status: 'DISTRIBUIDO',
+        status: 'RECEBIDO',
       },
     })
     console.log('Apostila criada:', apostila.id)
