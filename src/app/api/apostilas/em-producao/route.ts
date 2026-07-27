@@ -49,7 +49,6 @@ export async function GET() {
       // Contar atribuições por tarefa
       const conteudoProfessores = apostila.atribuicoes.filter(a => a.tarefa === 'CONTEUDO').length
       const diagramadores = apostila.atribuicoes.filter(a => a.tarefa === 'DIAGRAMACAO').length
-      const ilustradores = apostila.atribuicoes.filter(a => a.tarefa === 'ILUSTRACAO').length
       const revisores = apostila.atribuicoes.filter(a => a.tarefa === 'REVISAO').length
 
       // Gerar alertas
