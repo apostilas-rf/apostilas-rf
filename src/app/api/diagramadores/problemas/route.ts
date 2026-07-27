@@ -66,11 +66,11 @@ export async function POST(request: NextRequest) {
         problema.diagramador.nome
       )
 
-      await enviarEmail(
-        apostila.professor.email,
-        `Problema na Diagramação: ${apostila.titulo}`,
+      await enviarEmail({
+        para: apostila.professor.email,
+        assunto: `Problema na Diagramação: ${apostila.titulo}`,
         html
-      )
+      })
     } catch (emailError) {
       console.error('Erro ao enviar email:', emailError)
     }
