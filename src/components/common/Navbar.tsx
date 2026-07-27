@@ -22,7 +22,7 @@ function NavbarComponent() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle bg-white dark:bg-gray-800"
+      className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle bg-white dark:bg-gray-900"
       style={{
         backgroundImage: "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')",
         backgroundRepeat: 'repeat-x',
