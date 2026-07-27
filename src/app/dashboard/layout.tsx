@@ -1,7 +1,6 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/common/Navbar'
-import { Sidebar } from '@/components/common/Sidebar'
+import { LayoutClient } from './layout-client'
 import type { UserRole } from '@/types'
 
 export default async function DashboardLayout({
@@ -17,16 +16,8 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Navbar />
-      <div className="flex">
-        <Sidebar userRole={userRole} />
-        <main className="flex-1 dark:bg-gray-900">
-          <div className="p-8">
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
+    <LayoutClient userRole={userRole}>
+      {children}
+    </LayoutClient>
   )
 }

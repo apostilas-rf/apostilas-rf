@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import type { UserSession } from '@/types'
+import { useUser } from '@/contexts/UserContext'
 
 export function Navbar() {
   const router = useRouter()
-  const [usuario, setUsuario] = useState<UserSession | null>(null)
-  const [foto, setFoto] = useState<string | null>(null)
-  const [carregando, setCarregando] = useState(true)
+  const { usuario, foto, carregando } = useUser()
   const [abrirMenu, setAbrirMenu] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
 
@@ -28,45 +26,6 @@ export function Navbar() {
 
     observer.observe(document.documentElement, { attributes: true })
     return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    async function buscarDados() {
-      try {
-        const [usuarioRes, fotoRes] = await Promise.all([
-          fetch('/api/auth/me', { credentials: 'include' }),
-          fetch('/api/usuario/foto', { credentials: 'include' }),
-        ])
-
-        if (usuarioRes.ok) {
-          const data = await usuarioRes.json()
-          if (data.data) {
-            setUsuario({
-              id: data.data.id,
-              nome: data.data.nome || 'Usuário',
-              email: data.data.email || '',
-              role: data.data.role || 'PROFESSOR',
-              ativo: true,
-              criadoEm: new Date(),
-              atualizadoEm: new Date(),
-            })
-          }
-        }
-
-        if (fotoRes.ok) {
-          const fotoData = await fotoRes.json()
-          if (fotoData.foto?.dataUrl) {
-            setFoto(fotoData.foto.dataUrl)
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error)
-      } finally {
-        setCarregando(false)
-      }
-    }
-
-    buscarDados()
   }, [])
 
   async function handleLogout() {
@@ -96,9 +55,9 @@ export function Navbar() {
       }}
     >
       <div className="px-6 sm:px-8 lg:px-10">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-24">
           <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 relative transition-all duration-300 group-hover:scale-110">
+            <div className="w-16 h-16 relative transition-all duration-300 group-hover:scale-110">
               <Image
                 src={darkMode ? "/logo-white.png" : "/logo.png"}
                 alt="Logo RF Educação"
@@ -106,7 +65,7 @@ export function Navbar() {
                 className="object-contain"
               />
             </div>
-            <span className="font-ubuntu font-bold text-lg text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
+            <span className="font-ubuntu font-bold text-xl text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
           </Link>
 
           <div className="flex items-center gap-6">
