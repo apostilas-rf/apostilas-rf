@@ -4,8 +4,18 @@ import type { JWTPayload, UserRole, UserSession } from '@/types'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+// Security: Require JWT_SECRET in environment, don't allow weak defaults
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production')
+  }
+  console.warn('⚠️ WARNING: JWT_SECRET not set, using development default. This is NOT secure!')
+}
+
 const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'seu-chave-secreta-super-segura-aqui-change-in-production'
+  process.env.JWT_SECRET || process.env.NODE_ENV === 'production'
+    ? (() => { throw new Error('JWT_SECRET required') })()
+    : 'dev-jwt-secret-change-in-production'
 )
 
 export async function hashPassword(password: string): Promise<string> {

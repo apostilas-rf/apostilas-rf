@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
+import { z } from 'zod'
+import type { UserRole } from '@/types'
+
+// Security: Validate role enum
+const roleSchema = z.enum(['GESTOR', 'PROFESSOR', 'DIAGRAMADOR', 'REVISOR', 'ILUSTRADOR', 'DIRECAO', 'PROPRIETARIO'] as const)
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,12 +18,25 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const role = searchParams.get('role')
+    const roleParam = searchParams.get('role')
+
+    // Security: Validate role parameter before using
+    let role: UserRole | undefined
+    if (roleParam) {
+      const validation = roleSchema.safeParse(roleParam)
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: 'Invalid role parameter' },
+          { status: 400 }
+        )
+      }
+      role = validation.data
+    }
 
     const usuarios = await db.user.findMany({
       where: {
         ativo: true,
-        ...(role ? { role: role as any } : {}),
+        ...(role ? { role } : {}),
       },
       select: { id: true, nome: true, email: true, role: true },
       orderBy: { nome: 'asc' },

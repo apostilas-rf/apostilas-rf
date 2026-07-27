@@ -71,6 +71,19 @@ export async function GET(
       )
     }
 
+    // Security: Check if user has permission to access this apostila
+    const userRole = headersList.get('x-user-role')
+    const isOwner = apostila.professor.id === userId
+    const isGestor = userRole === 'GESTOR'
+    const isAtribuido = apostila.atribuicoes.some(a => a.usuario.id === userId)
+
+    if (!isOwner && !isGestor && !isAtribuido) {
+      return NextResponse.json(
+        { error: 'Acesso negado: você não tem permissão para acessar esta apostila' },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(
       { success: true, data: apostila },
       { status: 200 }
