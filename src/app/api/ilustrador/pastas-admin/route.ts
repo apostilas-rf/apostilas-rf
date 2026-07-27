@@ -2,7 +2,25 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
 // In-memory storage (será substituído por banco de dados depois)
+// Formato: { "materia|tema": "driveFolder" }
 const pastas: Record<string, string> = {}
+
+// Temas por matéria: { "materia": ["tema1", "tema2"] }
+const temasPorMateria: Record<string, string[]> = {}
+
+const MATERIAS = [
+  { id: 'biologia', nome: 'Biologia' },
+  { id: 'fisica', nome: 'Física' },
+  { id: 'quimica', nome: 'Química' },
+  { id: 'matematica', nome: 'Matemática' },
+  { id: 'filosofia', nome: 'Filosofia' },
+  { id: 'geografia', nome: 'Geografia' },
+  { id: 'portugues', nome: 'Língua Portuguesa' },
+  { id: 'literatura', nome: 'Literatura' },
+  { id: 'redacao', nome: 'Redação' },
+  { id: 'historia', nome: 'História' },
+  { id: 'sociologia', nome: 'Sociologia' },
+]
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     if (!userId || !['GESTOR', 'PROPRIETARIO'].includes(userRole || '')) {
       return NextResponse.json(
-        { error: 'Acesso negado. Apenas gestor pode gerenciar pastas.' },
+        { error: 'Acesso negado' },
         { status: 403 }
       )
     }
@@ -20,6 +38,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       pastas,
+      temasPorMateria,
     })
   } catch (error) {
     console.error('GET /api/ilustrador/pastas-admin error:', error)
@@ -30,6 +49,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Adicionar tema a uma matéria
 export async function POST(request: NextRequest) {
   try {
     const headersList = await headers()
@@ -44,16 +64,35 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { bimestre, serie, materia, driveFolder } = body
+    const { materia, tema, driveFolder } = body
 
-    if (!bimestre || !serie || !materia || !driveFolder) {
+    if (!materia || !tema || !driveFolder) {
       return NextResponse.json(
-        { error: 'Parâmetros obrigatórios: bimestre, serie, materia, driveFolder' },
+        { error: 'Parâmetros obrigatórios: materia, tema, driveFolder' },
         { status: 400 }
       )
     }
 
-    const key = `${bimestre}|${serie}|${materia}`
+    // Validar matéria
+    if (!MATERIAS.find((m) => m.id === materia)) {
+      return NextResponse.json(
+        { error: 'Matéria inválida' },
+        { status: 400 }
+      )
+    }
+
+    // Adicionar tema à lista se não existir
+    if (!temasPorMateria[materia]) {
+      temasPorMateria[materia] = []
+    }
+
+    if (!temasPorMateria[materia].includes(tema)) {
+      temasPorMateria[materia].push(tema)
+      temasPorMateria[materia].sort()
+    }
+
+    // Salvar pasta
+    const key = `${materia}|${tema}`
     pastas[key] = driveFolder
 
     return NextResponse.json({
@@ -71,6 +110,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Deletar tema/pasta
 export async function DELETE(request: NextRequest) {
   try {
     const headersList = await headers()

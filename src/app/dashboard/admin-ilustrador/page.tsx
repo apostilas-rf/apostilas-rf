@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 
-const BIMESTRES = ['P1', 'P2', 'P3', 'P4']
-const SERIES = ['1º Ano', '2º Ano', '3º Ano', 'Cursinho']
 const MATERIAS = [
   { id: 'biologia', nome: 'Biologia' },
   { id: 'fisica', nome: 'Física' },
@@ -22,19 +20,25 @@ interface Pasta {
   key: string
   driveFolder: string
   driveUrl: string
+  materia: string
+  tema: string
+}
+
+interface TemasPorMateria {
+  [key: string]: string[]
 }
 
 export default function AdminIlustradorPage() {
   const [pastas, setPastas] = useState<Pasta[]>([])
+  const [temasPorMateria, setTemasPorMateria] = useState<TemasPorMateria>({})
   const [loading, setLoading] = useState(true)
-  const [bimestre, setBimestre] = useState('')
-  const [serie, setSerie] = useState('')
   const [materia, setMateria] = useState('')
+  const [tema, setTema] = useState('')
   const [driveFolder, setDriveFolder] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Carregar pastas
+  // Carregar pastas e temas
   useEffect(() => {
     const fetchPastas = async () => {
       try {
@@ -42,12 +46,18 @@ export default function AdminIlustradorPage() {
         const data = await response.json()
 
         if (data.success) {
-          const pastasList = Object.entries(data.pastas).map(([key, driveFolder]) => ({
-            key,
-            driveFolder: driveFolder as string,
-            driveUrl: `https://drive.google.com/drive/folders/${driveFolder}?usp=sharing`,
-          }))
+          const pastasList = Object.entries(data.pastas).map(([key, driveFolder]) => {
+            const [mat, tem] = key.split('|')
+            return {
+              key,
+              driveFolder: driveFolder as string,
+              driveUrl: `https://drive.google.com/drive/folders/${driveFolder}?usp=sharing`,
+              materia: mat,
+              tema: tem,
+            }
+          })
           setPastas(pastasList)
+          setTemasPorMateria(data.temasPorMateria || {})
         }
       } catch (error) {
         setMessage({
@@ -65,7 +75,7 @@ export default function AdminIlustradorPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!bimestre || !serie || !materia || !driveFolder) {
+    if (!materia || !tema || !driveFolder) {
       setMessage({
         type: 'error',
         text: 'Preencha todos os campos',
@@ -80,9 +90,8 @@ export default function AdminIlustradorPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          bimestre,
-          serie,
           materia,
+          tema,
           driveFolder,
         }),
       })
@@ -96,20 +105,29 @@ export default function AdminIlustradorPage() {
         })
 
         // Atualizar lista
-        const novoKey = `${bimestre}|${serie}|${materia}`
+        const novoKey = `${materia}|${tema}`
         setPastas([
           ...pastas.filter((p) => p.key !== novoKey),
           {
             key: novoKey,
             driveFolder,
             driveUrl: `https://drive.google.com/drive/folders/${driveFolder}?usp=sharing`,
+            materia,
+            tema,
           },
         ])
 
+        // Atualizar temas se novo
+        if (!temasPorMateria[materia]?.includes(tema)) {
+          setTemasPorMateria({
+            ...temasPorMateria,
+            [materia]: [...(temasPorMateria[materia] || []), tema].sort(),
+          })
+        }
+
         // Limpar formulário
-        setBimestre('')
-        setSerie('')
         setMateria('')
+        setTema('')
         setDriveFolder('')
       } else {
         setMessage({
@@ -175,53 +193,17 @@ export default function AdminIlustradorPage() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Bimestre
-              </label>
-              <select
-                value={bimestre}
-                onChange={(e) => setBimestre(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
-              >
-                <option value="">Selecione</option>
-                {BIMESTRES.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Série
-              </label>
-              <select
-                value={serie}
-                onChange={(e) => setSerie(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
-              >
-                <option value="">Selecione</option>
-                {SERIES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Matéria
+                Matéria *
               </label>
               <select
                 value={materia}
                 onChange={(e) => setMateria(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
               >
-                <option value="">Selecione</option>
+                <option value="">Selecione uma matéria</option>
                 {MATERIAS.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.nome}
@@ -232,7 +214,20 @@ export default function AdminIlustradorPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                ID da Pasta (Google Drive)
+                Tema *
+              </label>
+              <input
+                type="text"
+                value={tema}
+                onChange={(e) => setTema(e.target.value)}
+                placeholder="Ex: Célula, Fotossíntese..."
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                ID da Pasta (Google Drive) *
               </label>
               <input
                 type="text"
@@ -294,13 +289,10 @@ export default function AdminIlustradorPage() {
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
-                    Bimestre
-                  </th>
-                  <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
-                    Série
-                  </th>
-                  <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
                     Matéria
+                  </th>
+                  <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
+                    Tema
                   </th>
                   <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
                     ID da Pasta
@@ -312,19 +304,17 @@ export default function AdminIlustradorPage() {
               </thead>
               <tbody>
                 {pastas.map((pasta) => {
-                  const [bim, ser, mat] = pasta.key.split('|')
-                  const materiaObj = MATERIAS.find((m) => m.id === mat)
+                  const materiaObj = MATERIAS.find((m) => m.id === pasta.materia)
 
                   return (
                     <tr
                       key={pasta.key}
                       className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                     >
-                      <td className="py-3 px-2 text-gray-900 dark:text-white">{bim}</td>
-                      <td className="py-3 px-2 text-gray-900 dark:text-white">{ser}</td>
-                      <td className="py-3 px-2 text-gray-900 dark:text-white">
+                      <td className="py-3 px-2 text-gray-900 dark:text-white font-medium">
                         {materiaObj?.nome}
                       </td>
+                      <td className="py-3 px-2 text-gray-900 dark:text-white">{pasta.tema}</td>
                       <td className="py-3 px-2 text-gray-600 dark:text-gray-400 text-xs font-mono">
                         {pasta.driveFolder.substring(0, 15)}...
                       </td>

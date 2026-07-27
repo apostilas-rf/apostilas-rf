@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
-// Mapeamento de pastas do Google Drive para cada combinação
-// TODO: Preencher com os IDs reais das pastas no Google Drive
-const PASTA_MAPPING: Record<string, string> = {
-  // Formato: "P1|1º Ano|biologia": "FOLDER_ID"
-  // Você pode obter o ID da pasta do Drive abrindo a pasta e copiando da URL
-  // URL formato: https://drive.google.com/drive/folders/[FOLDER_ID]
-}
+// Get temas por matéria do admin endpoint (será substituído por banco de dados)
+const PASTA_MAPPING: Record<string, string> = {}
+const TEMAS_POR_MATERIA: Record<string, string[]> = {}
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,25 +15,35 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const bimestre = searchParams.get('bimestre')
-    const serie = searchParams.get('serie')
     const materia = searchParams.get('materia')
+    const tema = searchParams.get('tema')
 
-    if (!bimestre || !serie || !materia) {
+    // Se só materia, retornar lista de temas
+    if (materia && !tema) {
+      const temas = TEMAS_POR_MATERIA[materia] || []
+      return NextResponse.json({
+        success: true,
+        materia,
+        temas,
+      })
+    }
+
+    // Se materia e tema, retornar a pasta
+    if (!materia || !tema) {
       return NextResponse.json(
-        { error: 'Parâmetros obrigatórios: bimestre, serie, materia' },
+        { error: 'Parâmetros obrigatórios: materia, tema' },
         { status: 400 }
       )
     }
 
-    const key = `${bimestre}|${serie}|${materia}`
+    const key = `${materia}|${tema}`
     const driveFolder = PASTA_MAPPING[key]
 
     if (!driveFolder) {
       return NextResponse.json(
         {
           error: 'Pasta não configurada para esta combinação',
-          message: `Configurar o ID da pasta para: ${key}`,
+          message: `Tema "${tema}" não foi configurado para ${materia}`,
           configKey: key,
         },
         { status: 404 }
@@ -48,9 +54,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      bimestre,
-      serie,
       materia,
+      tema,
       driveFolder,
       driveUrl,
     })
