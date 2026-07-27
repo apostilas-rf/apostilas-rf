@@ -180,7 +180,7 @@ export default function PerfilPage() {
     )
   }
 
-  const getInitial = () => usuario?.nome?.charAt(0).toUpperCase() || 'U'
+  const getInitial = () => usuarioContext?.nome?.charAt(0).toUpperCase() || 'U'
 
   return (
     <div className="space-y-8 max-w-2xl">
