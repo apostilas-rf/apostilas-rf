@@ -10,7 +10,7 @@ import { ArquivosList } from '@/components/cards/ArquivosList'
 import { ConteudoCard } from '@/components/dashboard/ConteudoCard'
 import { ProblemasDiagramacaoCard } from '@/components/professor/ProblemasDiagramacaoCard'
 import { APOSTILA_STATUS, SERIES, STATUS_TRANSITIONS } from '@/lib/constants'
-import type { Apostila, ApostilaStatus, ApostilaArquivo } from '@/types'
+import type { ApostilaStatus, ApostilaArquivo } from '@/types'
 
 export default function ApostilaDetailPage() {
   const router = useRouter()
