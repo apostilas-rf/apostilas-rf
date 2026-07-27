@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Deletar tema/pasta
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
