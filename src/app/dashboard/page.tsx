@@ -178,7 +178,7 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-6 mb-10">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                🚀 Apostilas em Produção ({apostilasProducao.length}/2)
+                Apostilas em Produção ({apostilasProducao.length}/2)
               </h2>
               {apostilasProducao.map((apostila) => {
                 const diasRestantes = apostila.diasRestantes

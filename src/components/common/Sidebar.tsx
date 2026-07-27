@@ -32,23 +32,23 @@ const links: SidebarLink[] = [
     roles: ['DIAGRAMADOR'],
   },
   {
+    href: '/dashboard/ilustrador',
+    label: 'Ilustração',
+    roles: ['ILUSTRADOR'],
+  },
+  {
     href: '/dashboard/revisores',
     label: 'Revisão',
     roles: ['REVISOR'],
   },
   {
-    href: '/dashboard/ilustrador',
-    label: 'Ilustração',
-    roles: ['ILUSTRADOR', 'GESTOR'],
-  },
-  {
-    href: '/dashboard/professores',
-    label: 'Professores',
+    href: '/dashboard/diagramadores',
+    label: 'Diagramadores',
     roles: ['GESTOR'],
   },
   {
-    href: '/dashboard/diagramadores',
-    label: 'Diagramadores',
+    href: '/dashboard/ilustrador',
+    label: 'Ilustração',
     roles: ['GESTOR'],
   },
   {
