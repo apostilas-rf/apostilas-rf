@@ -74,13 +74,16 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   nome          String
-  senha         String    // bcrypt hash
-  role          Role      @default(PROFESSOR)
-  ativo         Boolean   @default(true)
+  senha         String?   // bcrypt hash (opcional para OAuth)
+  role          Role      @default(PROFESSOR) // Role principal
+  ativo         Boolean   @default(false) // Precisa aprovação para ficar ativo
+  googleId      String?   @unique // Para Google OAuth
+  aprovadoEm    DateTime? // Quando o gestor aprovou
   criadoEm      DateTime  @default(now())
   atualizadoEm  DateTime  @updatedAt
 
   // Relations
+  rolesAdicionais       UserRole[]
   apostilasEnviadas     Apostila[]              @relation("ProfessorApostila")
   atribuicoes           UserAssignment[]
   notificacoes          Notificacao[]
@@ -97,6 +100,19 @@ model User {
   @@index([email])
   @@index([role])
   @@index([ativo])
+  @@index([googleId])
+}
+
+// Roles adicionais do usuário
+model UserRole {
+  id        String   @id @default(cuid())
+  usuarioId String
+  usuario   User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  role      Role
+  criadoEm  DateTime @default(now())
+
+  @@unique([usuarioId, role])
+  @@index([usuarioId])
 }
 
 // Template model
