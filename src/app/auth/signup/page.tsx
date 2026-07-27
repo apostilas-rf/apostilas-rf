@@ -16,7 +16,6 @@ const ROLES = [
 ]
 
 export default function SignupPage() {
-  const [step, setStep] = useState<'roles' | 'info' | 'pending'>('roles')
   const [primaryRole, setPrimaryRole] = useState('')
   const [secondaryRole, setSecondaryRole] = useState('')
   const [loading, setLoading] = useState(false)
