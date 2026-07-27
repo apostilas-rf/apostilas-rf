@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const [carregandoGoogle, setCarregandoGoogle] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -47,6 +48,35 @@ export default function LoginPage() {
     }
   }
 
+  async function handleGoogleLogin() {
+    setCarregandoGoogle(true)
+    setErro('')
+
+    try {
+      const response = await fetch('/api/auth/google-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErro(data.error || 'Erro ao iniciar login com Google')
+        return
+      }
+
+      // Redirecionar para Google OAuth
+      if (data.authUrl) {
+        window.location.href = data.authUrl
+      }
+    } catch (err) {
+      setErro('Erro ao conectar com Google')
+      console.error(err)
+    } finally {
+      setCarregandoGoogle(false)
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-xl p-8">
       <div className="text-center mb-8">
@@ -60,6 +90,24 @@ export default function LoginPage() {
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Apostilas RF</h1>
         <p className="text-gray-500 text-sm mt-1">Plataforma de Produção de Apostilas</p>
+      </div>
+
+      {/* Botão Google */}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={carregandoGoogle}
+        className="w-full mb-6 py-3 px-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-3 bg-white border-2 border-gray-300 text-gray-900 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+      >
+        {carregandoGoogle ? '⏳ Conectando...' : '🔓 Continuar com Google'}
+      </button>
+
+      <div className="relative mb-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Ou faça login com email</span>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

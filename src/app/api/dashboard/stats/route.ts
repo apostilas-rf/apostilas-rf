@@ -41,12 +41,12 @@ export async function GET(request: NextRequest) {
       porSerie[serie].total++
 
       // Verificar se concluída
-      if (apostila.status === 'FINALIZADO' || apostila.status === 'ENVIADO_GRAFICA') {
+      if (apostila.status === 'FINALIZADO' || apostila.status === 'ENVIADO') {
         porSerie[serie].concluidas++
       }
 
       // Verificar se atrasada
-      if (apostila.dataFinal && new Date(apostila.dataFinal) < agora && apostila.status !== 'FINALIZADO' && apostila.status !== 'ENVIADO_GRAFICA') {
+      if (apostila.dataFinal && new Date(apostila.dataFinal) < agora && apostila.status !== 'FINALIZADO' && apostila.status !== 'ENVIADO') {
         porSerie[serie].atrasadas++
       }
 

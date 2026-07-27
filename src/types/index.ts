@@ -17,12 +17,11 @@ export type UserSession = Omit<User, 'senha'>
 export type ApostilaStatus =
   | 'RECEBIDO'
   | 'EM_REVISAO_INICIAL'
-  | 'DISTRIBUIDO'
-  | 'EM_CONFECCAO'
-  | 'EM_REVISAO_POS_EDICAO'
+  | 'EM_DIAGRAMACAO'
+  | 'EM_REVISAO_FINAL'
   | 'EM_AJUSTE'
   | 'FINALIZADO'
-  | 'ENVIADO_GRAFICA'
+  | 'ENVIADO'
 
 export type Serie = 'PRIMEIRO_ANO' | 'SEGUNDO_ANO' | 'TERCEIRO_ANO' | 'CURSINHO'
 

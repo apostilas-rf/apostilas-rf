@@ -42,27 +42,22 @@ export const APOSTILA_STATUS: Record<ApostilaStatus, { label: string; color: str
     bgColor: 'bg-blue-100 dark:bg-blue-900/40',
   },
   EM_REVISAO_INICIAL: {
-    label: 'Em Revisão Inicial',
+    label: 'Em revisão inicial',
     color: 'text-yellow-600 dark:text-yellow-300',
     bgColor: 'bg-yellow-100 dark:bg-yellow-900/40',
   },
-  DISTRIBUIDO: {
-    label: 'Distribuído',
+  EM_DIAGRAMACAO: {
+    label: 'Em diagramação',
     color: 'text-purple-600 dark:text-purple-300',
     bgColor: 'bg-purple-100 dark:bg-purple-900/40',
   },
-  EM_CONFECCAO: {
-    label: 'Em Confecção',
-    color: 'text-rf-teal dark:text-teal-200',
-    bgColor: 'bg-rf-gray dark:bg-teal-900/40',
-  },
-  EM_REVISAO_POS_EDICAO: {
-    label: 'Em Revisão Pós-Edição',
+  EM_REVISAO_FINAL: {
+    label: 'Em revisão final',
     color: 'text-orange-600 dark:text-orange-300',
     bgColor: 'bg-orange-100 dark:bg-orange-900/40',
   },
   EM_AJUSTE: {
-    label: 'Em Ajuste',
+    label: 'Em ajuste',
     color: 'text-red-600 dark:text-red-300',
     bgColor: 'bg-red-100 dark:bg-red-900/40',
   },
@@ -71,8 +66,8 @@ export const APOSTILA_STATUS: Record<ApostilaStatus, { label: string; color: str
     color: 'text-green-800 dark:text-green-200',
     bgColor: 'bg-rf-green/20 dark:bg-green-900/40',
   },
-  ENVIADO_GRAFICA: {
-    label: 'Enviado à Gráfica',
+  ENVIADO: {
+    label: 'Enviado',
     color: 'text-rf-teal dark:text-teal-200',
     bgColor: 'bg-rf-gray dark:bg-teal-900/40',
   },
@@ -87,13 +82,12 @@ export const SERIES: Record<Serie, { label: string }> = {
 
 export const STATUS_TRANSITIONS: Record<ApostilaStatus, ApostilaStatus[]> = {
   RECEBIDO: ['EM_REVISAO_INICIAL'],
-  EM_REVISAO_INICIAL: ['DISTRIBUIDO'],
-  DISTRIBUIDO: ['EM_CONFECCAO'],
-  EM_CONFECCAO: ['EM_REVISAO_POS_EDICAO'],
-  EM_REVISAO_POS_EDICAO: ['EM_AJUSTE', 'FINALIZADO'],
-  EM_AJUSTE: ['EM_REVISAO_POS_EDICAO'],
-  FINALIZADO: ['ENVIADO_GRAFICA'],
-  ENVIADO_GRAFICA: [],
+  EM_REVISAO_INICIAL: ['EM_DIAGRAMACAO'],
+  EM_DIAGRAMACAO: ['EM_REVISAO_FINAL'],
+  EM_REVISAO_FINAL: ['EM_AJUSTE', 'FINALIZADO'],
+  EM_AJUSTE: ['EM_REVISAO_FINAL'],
+  FINALIZADO: ['ENVIADO'],
+  ENVIADO: [],
 }
 
 // Permissões por rota (quais roles podem acessar)

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const apostilas = await db.apostila.findMany({
       where: {
         status: {
-          notIn: ['ENVIADO_GRAFICA', 'FINALIZADO'],
+          notIn: ['ENVIADO', 'FINALIZADO'],
         },
         dataFinal: {
           not: null,

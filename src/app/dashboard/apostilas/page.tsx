@@ -111,13 +111,12 @@ export default function ApostilasPage() {
             >
               <option value="TODOS">Todos</option>
               <option value="RECEBIDO">Recebido</option>
-              <option value="EM_REVISAO_INICIAL">Em Revisão Inicial</option>
-              <option value="DISTRIBUIDO">Distribuído</option>
-              <option value="EM_CONFECCAO">Em Confecção</option>
-              <option value="EM_REVISAO_POS_EDICAO">Em Revisão Pós-Edição</option>
-              <option value="EM_AJUSTE">Em Ajuste</option>
+              <option value="EM_REVISAO_INICIAL">Em revisão inicial</option>
+              <option value="EM_DIAGRAMACAO">Em diagramação</option>
+              <option value="EM_REVISAO_FINAL">Em revisão final</option>
+              <option value="EM_AJUSTE">Em ajuste</option>
               <option value="FINALIZADO">Finalizado</option>
-              <option value="ENVIADO_GRAFICA">Enviado à Gráfica</option>
+              <option value="ENVIADO">Enviado</option>
             </select>
           </div>
         </div>

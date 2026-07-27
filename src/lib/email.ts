@@ -446,3 +446,91 @@ export function templateAlertaPrazoVencido(
     </html>
   `
 }
+
+export function templateAprovacaoCadastro(nomeUsuario: string) {
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Cadastro Aprovado - Apostilas RF</title>
+      <style>
+        body { font-family: 'Open Sans', sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+        .content { background-color: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+        .button { display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; margin-top: 20px; font-weight: bold; }
+        .success-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>✅ Cadastro Aprovado!</h1>
+        </div>
+        <div class="content">
+          <p>Olá <strong>${nomeUsuario}</strong>,</p>
+
+          <div class="success-box">
+            <p>Sua conta na plataforma <strong>Apostilas RF</strong> foi <strong>aprovada com sucesso!</strong></p>
+            <p>Você já pode fazer login e começar a usar a plataforma.</p>
+          </div>
+
+          <p>Clique no botão abaixo para acessar sua conta:</p>
+
+          <center>
+            <a href="http://localhost:3000/auth/login" class="button">Acessar Plataforma</a>
+          </center>
+
+          <div class="footer">
+            <p style="margin-top: 30px;">Se você não criou essa conta, ignore este email.</p>
+            <p>© 2026 RF Apostilas - Todos os direitos reservados</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+export function templateRejeicaoCadastro(nomeUsuario: string) {
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Cadastro Não Aprovado - Apostilas RF</title>
+      <style>
+        body { font-family: 'Open Sans', sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+        .content { background-color: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+        .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>ℹ️ Cadastro Não Aprovado</h1>
+        </div>
+        <div class="content">
+          <p>Olá <strong>${nomeUsuario}</strong>,</p>
+
+          <div class="info-box">
+            <p>Infelizmente, sua solicitação de cadastro na plataforma <strong>Apostilas RF</strong> foi <strong>não aprovada</strong>.</p>
+            <p>Se você tiver dúvidas ou gostaria de maiores informações, entre em contato com o administrador da plataforma.</p>
+          </div>
+
+          <div class="footer">
+            <p style="margin-top: 30px;">© 2026 RF Apostilas - Todos os direitos reservados</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}

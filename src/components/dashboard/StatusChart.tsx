@@ -11,12 +11,12 @@ interface StatusChartProps {
 const COLORS = {
   RECEBIDO: '#9CA3AF',
   EM_REVISAO_INICIAL: '#FCD34D',
-  DISTRIBUIDO: '#60A5FA',
-  EM_CONFECCAO: '#A78BFA',
-  EM_REVISAO_POS_EDICAO: '#F97316',
+  EM_DIAGRAMACAO: '#60A5FA',
+  EM_DIAGRAMACAO: '#A78BFA',
+  EM_REVISAO_FINAL: '#F97316',
   EM_AJUSTE: '#EF4444',
   FINALIZADO: '#22C55E',
-  ENVIADO_GRAFICA: '#059669',
+  ENVIADO: '#059669',
 }
 
 export function StatusChart({ data }: StatusChartProps) {

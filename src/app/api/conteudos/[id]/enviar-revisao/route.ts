@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const headersList = await headers()
@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Buscar conteúdo
     const conteudo = await db.conteudoCapitulo.findUnique({

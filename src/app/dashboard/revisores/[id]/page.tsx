@@ -39,8 +39,8 @@ interface Apostila {
 }
 
 const statusLabels: Record<string, string> = {
-  EM_CONFECCAO: '🎨 Em Confecção',
-  EM_REVISAO_POS_EDICAO: '🔍 Em Revisão Pós-Edição',
+  EM_DIAGRAMACAO: '🎨 Em Confecção',
+  EM_REVISAO_FINAL: '🔍 Em Revisão Pós-Edição',
   EM_AJUSTE: '⚙️ Em Ajuste',
 }
 

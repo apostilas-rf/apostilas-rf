@@ -17,11 +17,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Buscar apostilas que estão em produção (status não é ENVIADO_GRAFICA ou FINALIZADO)
+    // Buscar apostilas que estão em produção (status não é ENVIADO ou FINALIZADO)
     const apostilas = await db.apostila.findMany({
       where: {
         status: {
-          notIn: ['ENVIADO_GRAFICA', 'FINALIZADO'],
+          notIn: ['ENVIADO', 'FINALIZADO'],
         },
       },
       include: {
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
         })
       }
 
-      if (revisores === 0 && apostila.status === 'EM_CONFECCAO') {
+      if (revisores === 0 && apostila.status === 'EM_DIAGRAMACAO') {
         alertas.push({
           tipo: 'AVISO',
           mensagem: 'Nenhum revisor atribuído',

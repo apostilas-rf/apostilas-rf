@@ -10,19 +10,19 @@ const statusSchema = z.object({
   novoStatus: z.enum([
     'RECEBIDO',
     'EM_REVISAO_INICIAL',
-    'DISTRIBUIDO',
-    'EM_CONFECCAO',
-    'EM_REVISAO_POS_EDICAO',
+    'EM_DIAGRAMACAO',
+    'EM_DIAGRAMACAO',
+    'EM_REVISAO_FINAL',
     'EM_AJUSTE',
     'FINALIZADO',
-    'ENVIADO_GRAFICA',
+    'ENVIADO',
   ]),
   descricao: z.string().optional(),
 })
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const headersList = await headers()
@@ -35,7 +35,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     console.log('Body recebido:', body)
 
@@ -83,7 +83,7 @@ export async function PATCH(
 
     // Validar permissões por tipo de transição
     if (
-      ['EM_REVISAO_INICIAL', 'DISTRIBUIDO', 'EM_CONFECCAO', 'EM_REVISAO_POS_EDICAO'].includes(
+      ['EM_REVISAO_INICIAL', 'EM_DIAGRAMACAO', 'EM_DIAGRAMACAO', 'EM_REVISAO_FINAL'].includes(
         novoStatus
       )
     ) {
@@ -106,7 +106,7 @@ export async function PATCH(
       }
     }
 
-    if (novoStatus === 'ENVIADO_GRAFICA') {
+    if (novoStatus === 'ENVIADO') {
       // Apenas EDITOR pode finalizar
       if (userRole !== 'EDITOR' && userRole !== 'GESTOR') {
         return NextResponse.json(
@@ -122,7 +122,7 @@ export async function PATCH(
       where: { id },
       data: {
         status: novoStatus as ApostilaStatus,
-        dataFinal: novoStatus === 'ENVIADO_GRAFICA' ? new Date() : undefined,
+        dataFinal: novoStatus === 'ENVIADO' ? new Date() : undefined,
       },
     })
 

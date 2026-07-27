@@ -17,11 +17,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Buscar apostilas em status "EM_CONFECCAO" ou superior (prontas para revisão)
+    // Buscar apostilas em status "EM_DIAGRAMACAO" ou superior (prontas para revisão)
     const apostilas = await db.apostila.findMany({
       where: {
         status: {
-          in: ['EM_CONFECCAO', 'EM_REVISAO_POS_EDICAO', 'EM_AJUSTE'],
+          in: ['EM_DIAGRAMACAO', 'EM_REVISAO_FINAL', 'EM_AJUSTE'],
         },
       },
       include: {

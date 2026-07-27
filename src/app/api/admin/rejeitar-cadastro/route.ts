@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
+import { enviarEmail, templateRejeicaoCadastro } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,12 +37,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Enviar email de rejeição antes de deletar
+    const htmlContent = templateRejeicaoCadastro(user.nome)
+    await enviarEmail({
+      para: user.email,
+      assunto: 'Apostilas RF - Cadastro não aprovado',
+      html: htmlContent,
+    })
+
     // Deletar usuário (cascata remove roles adicionais)
     await db.user.delete({
       where: { id: pendingUserId },
     })
-
-    // TODO: Enviar email de rejeição
 
     return NextResponse.json({
       success: true,

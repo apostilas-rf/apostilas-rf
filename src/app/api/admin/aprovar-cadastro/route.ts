@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
+import { enviarEmail, templateAprovacaoCadastro } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,7 +53,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // TODO: Enviar email de aprovação
+    // Enviar email de aprovação
+    const htmlContent = templateAprovacaoCadastro(user.nome)
+    await enviarEmail({
+      para: user.email,
+      assunto: '✅ Sua conta foi aprovada - Apostilas RF',
+      html: htmlContent,
+    })
 
     return NextResponse.json({
       success: true,
