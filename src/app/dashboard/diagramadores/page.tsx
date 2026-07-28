@@ -204,6 +204,7 @@ export default function DiagramadoresPage() {
                   key={apostila.id}
                   {...apostila}
                   progresso={apostila.diagramacaoProgresos[0]}
+                  problemas={apostila.problemasRelatados || []}
                   onRefresh={fetchApostilas}
                 />
               ))}
