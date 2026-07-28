@@ -71,31 +71,31 @@ enum StatusPrazo {
 
 // User model
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  nome          String
-  senha         String?   // bcrypt hash (opcional para OAuth)
-  role          Role      @default(PROFESSOR) // Role principal
-  ativo         Boolean   @default(false) // Precisa aprovação para ficar ativo
-  googleId      String?   @unique // Para Google OAuth
-  aprovadoEm    DateTime? // Quando o gestor aprovou
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  email        String    @unique
+  nome         String
+  senha        String? // bcrypt hash (opcional para OAuth)
+  role         Role      @default(PROFESSOR) // Role principal
+  ativo        Boolean   @default(false) // Precisa aprovação para ficar ativo
+  googleId     String?   @unique // Para Google OAuth
+  aprovadoEm   DateTime? // Quando o gestor aprovou
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
 
   // Relations
-  rolesAdicionais       UserRole[]
-  apostilasEnviadas     Apostila[]              @relation("ProfessorApostila")
-  atribuicoes           UserAssignment[]
-  notificacoes          Notificacao[]
-  historicoApostila     ApostilaHistory[]
-  comentarios           Comentario[]
-  arquivos              ApostilaArquivo[]       @relation("UsuarioArquivo")
-  conteudosCriados      ConteudoCapitulo[]
-  diagramacaoAtribuida  DiagramacaoProgresso[]  @relation("DiagramadorAtribuido")
-  problemasRelatados    ProblemaaDiagramacao[]  @relation("ProblemasRelatados")
-  problemasRecebidos    ProblemaaDiagramacao[]  @relation("ProblemasRecebidos")
-  alertasEmail          AlertaEmail[]
-  fotoPerfil            FotoPerfil?
+  rolesAdicionais      UserRole[]
+  apostilasEnviadas    Apostila[]             @relation("ProfessorApostila")
+  atribuicoes          UserAssignment[]
+  notificacoes         Notificacao[]
+  historicoApostila    ApostilaHistory[]
+  comentarios          Comentario[]
+  arquivos             ApostilaArquivo[]      @relation("UsuarioArquivo")
+  conteudosCriados     ConteudoCapitulo[]
+  diagramacaoAtribuida DiagramacaoProgresso[] @relation("DiagramadorAtribuido")
+  problemasRelatados   ProblemaaDiagramacao[] @relation("ProblemasRelatados")
+  problemasRecebidos   ProblemaaDiagramacao[] @relation("ProblemasRecebidos")
+  alertasEmail         AlertaEmail[]
+  fotoPerfil           FotoPerfil?
 
   @@index([email])
   @@index([role])
@@ -117,17 +117,17 @@ model UserRole {
 
 // Template model
 model Template {
-  id            String    @id @default(cuid())
-  titulo        String
-  serie         Serie
-  descricao     String?
-  estrutura     Json      // Estrutura do template em JSON
-  ordem         Int       @default(0) // Posicao definida arrastando os cards
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  titulo       String
+  serie        Serie
+  descricao    String?
+  estrutura    Json // Estrutura do template em JSON
+  ordem        Int      @default(0) // Posicao definida arrastando os cards
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   // Relations
-  apostilas     Apostila[]
+  apostilas Apostila[]
 
   @@unique([titulo, serie])
   @@index([serie])
@@ -136,34 +136,34 @@ model Template {
 
 // Apostila model
 model Apostila {
-  id                    String    @id @default(cuid())
-  titulo                String
-  materia               String
-  serie                 Serie
-  status                ApostilaStatus @default(RECEBIDO)
-  professorId           String
-  professor             User      @relation("ProfessorApostila", fields: [professorId], references: [id])
-  templateId            String?
-  template              Template? @relation(fields: [templateId], references: [id])
+  id          String         @id @default(cuid())
+  titulo      String
+  materia     String
+  serie       Serie
+  status      ApostilaStatus @default(RECEBIDO)
+  professorId String
+  professor   User           @relation("ProfessorApostila", fields: [professorId], references: [id])
+  templateId  String?
+  template    Template?      @relation(fields: [templateId], references: [id])
 
   // Metadados de produção
-  prazoEstimado         DateTime?
-  dataFinal             DateTime?
-  observacoes           String?
+  prazoEstimado DateTime?
+  dataFinal     DateTime?
+  observacoes   String?
 
-  criadoEm              DateTime  @default(now())
-  atualizadoEm          DateTime  @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   // Relations
-  atribuicoes           UserAssignment[]
-  arquivos              ApostilaArquivo[]
-  historicoStatus       ApostilaHistory[]
-  notificacoes          Notificacao[]
-  comentarios           Comentario[]
-  conteudosCapitulos    ConteudoCapitulo[]
-  diagramacaoProgresos  DiagramacaoProgresso[]
-  problemasRelatados    ProblemaaDiagramacao[]
-  alertasEmail          AlertaEmail[]
+  atribuicoes          UserAssignment[]
+  arquivos             ApostilaArquivo[]
+  historicoStatus      ApostilaHistory[]
+  notificacoes         Notificacao[]
+  comentarios          Comentario[]
+  conteudosCapitulos   ConteudoCapitulo[]
+  diagramacaoProgresos DiagramacaoProgresso[]
+  problemasRelatados   ProblemaaDiagramacao[]
+  alertasEmail         AlertaEmail[]
 
   @@index([serie])
   @@index([status])
@@ -173,22 +173,22 @@ model Apostila {
 
 // User Assignment (para atribuir tarefas)
 model UserAssignment {
-  id            String    @id @default(cuid())
-  usuarioId     String
-  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  usuarioId  String
+  usuario    User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
   // Tipo de tarefa (diagramação, ilustração, revisão)
-  tarefa        String    // "DIAGRAMACAO", "ILUSTRACAO", "REVISAO"
+  tarefa String // "DIAGRAMACAO", "ILUSTRACAO", "REVISAO"
 
   prazoAtribuido DateTime?
   prazoEntrega   DateTime?
   statusPrazo    StatusPrazo @default(NO_PRAZO)
-  concluido      Boolean   @default(false)
+  concluido      Boolean     @default(false)
 
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@unique([usuarioId, apostilaId, tarefa])
   @@index([apostilaId])
@@ -198,20 +198,20 @@ model UserAssignment {
 
 // Apostila History (audit log)
 model ApostilaHistory {
-  id            String    @id @default(cuid())
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
-  usuarioId     String
-  usuario       User      @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+  usuario   User   @relation(fields: [usuarioId], references: [id])
 
   statusAnterior ApostilaStatus?
   statusNovo     ApostilaStatus
 
-  acao          String    // "STATUS_MUDOU", "ARQUIVO_ENVIADO", "ATRIBUIDO", etc
-  descricao     String?
+  acao      String // "STATUS_MUDOU", "ARQUIVO_ENVIADO", "ATRIBUIDO", etc
+  descricao String?
 
-  criadoEm      DateTime  @default(now())
+  criadoEm DateTime @default(now())
 
   @@index([apostilaId])
   @@index([usuarioId])
@@ -220,23 +220,23 @@ model ApostilaHistory {
 
 // Apostila Files
 model ApostilaArquivo {
-  id            String    @id @default(cuid())
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
-  tipo          ArquivoTipo
-  nomeOriginal  String
-  nomeServidor  String
-  googleDriveId String?
+  tipo           ArquivoTipo
+  nomeOriginal   String
+  nomeServidor   String
+  googleDriveId  String?
   googleDriveUrl String?
 
-  usuarioId     String    // Quem fez upload
-  usuario       User      @relation("UsuarioArquivo", fields: [usuarioId], references: [id])
+  usuarioId String // Quem fez upload
+  usuario   User   @relation("UsuarioArquivo", fields: [usuarioId], references: [id])
 
-  tamanho       BigInt?
-  mimeType      String?
+  tamanho  BigInt?
+  mimeType String?
 
-  criadoEm      DateTime  @default(now())
+  criadoEm DateTime @default(now())
 
   @@index([apostilaId])
   @@index([tipo])
@@ -245,22 +245,22 @@ model ApostilaArquivo {
 
 // Notificacao model
 model Notificacao {
-  id            String    @id @default(cuid())
-  usuarioId     String
-  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  id        String @id @default(cuid())
+  usuarioId String
+  usuario   User   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
-  apostilaId    String?
-  apostila      Apostila? @relation(fields: [apostilaId], references: [id], onDelete: SetNull)
+  apostilaId String?
+  apostila   Apostila? @relation(fields: [apostilaId], references: [id], onDelete: SetNull)
 
-  tipo          NotificacaoTipo
-  titulo        String
-  mensagem      String
+  tipo     NotificacaoTipo
+  titulo   String
+  mensagem String
 
-  lido          Boolean   @default(false)
-  urlAcao       String?   // Link para onde a notificação leva
+  lido    Boolean @default(false)
+  urlAcao String? // Link para onde a notificação leva
 
-  criadoEm      DateTime  @default(now())
-  lidoEm        DateTime?
+  criadoEm DateTime  @default(now())
+  lidoEm   DateTime?
 
   @@index([usuarioId])
   @@index([apostilaId])
@@ -269,18 +269,18 @@ model Notificacao {
 
 // Comentarios
 model Comentario {
-  id            String    @id @default(cuid())
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
-  usuarioId     String
-  usuario       User      @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+  usuario   User   @relation(fields: [usuarioId], references: [id])
 
-  conteudo      String
-  tipo          String?   // "REVISAO", "AJUSTE", "COMENTARIO_GERAL"
+  conteudo String
+  tipo     String? // "REVISAO", "AJUSTE", "COMENTARIO_GERAL"
 
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@index([apostilaId])
   @@index([usuarioId])
@@ -288,20 +288,20 @@ model Comentario {
 
 // Progresso de Diagramação
 model DiagramacaoProgresso {
-  id            String    @id @default(cuid())
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
   diagramadorId String
-  diagramador   User      @relation("DiagramadorAtribuido", fields: [diagramadorId], references: [id])
+  diagramador   User   @relation("DiagramadorAtribuido", fields: [diagramadorId], references: [id])
 
-  paginaInicio  Int?      // Página de início da diagramação
-  paginaFim     Int?      // Página de término
-  paginasTotal  Int?      // Total de páginas da apostila
+  paginaInicio        Int? // Página de início da diagramação
+  paginaFim           Int? // Página de término
+  paginasTotal        Int? // Total de páginas da apostila
   percentualProgresso Int? @default(0) // 0-100%
 
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@unique([apostilaId, diagramadorId])
   @@index([apostilaId])
@@ -310,25 +310,25 @@ model DiagramacaoProgresso {
 
 // Problemas/Comentários de Diagramação
 model ProblemaaDiagramacao {
-  id            String    @id @default(cuid())
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
   diagramadorId String
-  diagramador   User      @relation("ProblemasRelatados", fields: [diagramadorId], references: [id])
+  diagramador   User   @relation("ProblemasRelatados", fields: [diagramadorId], references: [id])
 
-  professorId   String
-  professor     User      @relation("ProblemasRecebidos", fields: [professorId], references: [id])
+  professorId String
+  professor   User   @relation("ProblemasRecebidos", fields: [professorId], references: [id])
 
-  descricao     String    // Descrição do problema
-  status        String    @default("ABERTO") // ABERTO, RESPONDIDO, RESOLVIDO
+  descricao String // Descrição do problema
+  status    String @default("ABERTO") // ABERTO, RESPONDIDO, RESOLVIDO
 
-  respostaProf  String?   // Resposta do professor
-  respostaPorId String?   // Quem respondeu
+  respostaProf  String? // Resposta do professor
+  respostaPorId String? // Quem respondeu
   respondidoEm  DateTime?
 
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@index([apostilaId])
   @@index([diagramadorId])
@@ -338,37 +338,37 @@ model ProblemaaDiagramacao {
 
 // Conteúdo estruturado (editor inline)
 model ConteudoCapitulo {
-  id            String    @id @default(cuid())
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
-  capitulo      String    // Nome do capítulo
-  frente        String    // A, B ou C
-  grupoConteudo String?   // "NATUREZAS_MATEMATICA" ou "HUMANAS_LINGUAGENS"
-  tipo          String    // "CONTEUDO" ou "REVISAO"
+  capitulo      String // Nome do capítulo
+  frente        String // A, B ou C
+  grupoConteudo String? // "NATUREZAS_MATEMATICA" ou "HUMANAS_LINGUAGENS"
+  tipo          String // "CONTEUDO" ou "REVISAO"
 
   // O que vamos estudar (array de tópicos, máx 10)
-  topicos       String[]  @default([])
+  topicos String[] @default([])
 
   // Cai no ENEM
-  enemTopico    String?
-  enemEstrelas  Int?      // 1-5 estrelas
+  enemTopico   String?
+  enemEstrelas Int? // 1-5 estrelas
 
   // Conteúdo completo
-  conteudo      String    // Rich text ou markdown
+  conteudo String // Rich text ou markdown
 
   // Imagens
-  imagensUrls   String[]  @default([])
+  imagensUrls String[] @default([])
 
   // Metadados
-  estimadoPaginas Int?    // Estimativa de páginas
-  paginasUtilizadas Int?  // Páginas realmente usadas
-  status        ConteudoStatus @default(NAO_INICIADO)
-  usuarioId     String
-  usuario       User      @relation(fields: [usuarioId], references: [id])
+  estimadoPaginas   Int? // Estimativa de páginas
+  paginasUtilizadas Int? // Páginas realmente usadas
+  status            ConteudoStatus @default(NAO_INICIADO)
+  usuarioId         String
+  usuario           User           @relation(fields: [usuarioId], references: [id])
 
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@index([apostilaId])
   @@index([usuarioId])
@@ -377,20 +377,20 @@ model ConteudoCapitulo {
 
 // Rastreamento de alertas por email enviados
 model AlertaEmail {
-  id            String    @id @default(cuid())
-  usuarioId     String
-  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  id        String @id @default(cuid())
+  usuarioId String
+  usuario   User   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
-  apostilaId    String
-  apostila      Apostila  @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  apostilaId String
+  apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
-  tipo          String    // "PRAZO_PROXIMO", "PRAZO_VENCIDO", "PROBLEMA_AGUARDANDO", etc
-  diasRestantes Int       // Dias quando o alerta foi enviado
+  tipo          String // "PRAZO_PROXIMO", "PRAZO_VENCIDO", "PROBLEMA_AGUARDANDO", etc
+  diasRestantes Int // Dias quando o alerta foi enviado
 
-  enviado       Boolean   @default(true)
-  emailEnviado  String    // Email para qual foi enviado
+  enviado      Boolean @default(true)
+  emailEnviado String // Email para qual foi enviado
 
-  criadoEm      DateTime  @default(now())
+  criadoEm DateTime @default(now())
 
   @@unique([usuarioId, apostilaId, tipo])
   @@index([usuarioId])
@@ -401,32 +401,47 @@ model AlertaEmail {
 
 // Foto de Perfil do Usuário
 model FotoPerfil {
-  id            String    @id @default(cuid())
-  usuarioId     String    @unique
-  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  dataUrl       String    // base64 encoded image
-  nomeArquivo   String
-  tipo          String    // image/jpeg, image/png, etc
-  tamanho       Int       // tamanho em bytes
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  usuarioId    String   @unique
+  usuario      User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  dataUrl      String // base64 encoded image
+  nomeArquivo  String
+  tipo         String // image/jpeg, image/png, etc
+  tamanho      Int // tamanho em bytes
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@index([usuarioId])
 }
 
 // Pastas de Ilustração no Google Drive
 model IlustradorPasta {
-  id            String    @id @default(cuid())
-  bimestre      String    // P1, P2, P3, P4
-  serie         String    // 1º Ano, 2º Ano, 3º Ano, Cursinho
-  materia       String    // id da matéria (biologia, fisica, etc)
-  driveFolder   String    // ID da pasta no Google Drive
-  driveUrl      String    // URL para acesso direto
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  bimestre     String // P1, P2, P3, P4
+  serie        String // 1º Ano, 2º Ano, 3º Ano, Cursinho
+  materia      String // id da matéria (biologia, fisica, etc)
+  driveFolder  String // ID da pasta no Google Drive
+  driveUrl     String // URL para acesso direto
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   @@unique([bimestre, serie, materia])
   @@index([bimestre])
   @@index([serie])
+  @@index([materia])
+}
+
+// Pasta do Drive por matéria + tema, usada pela tela de Ilustração.
+// Substitui o armazenamento em memória, que se perdia entre requisições.
+model PastaIlustracao {
+  id           String   @id @default(cuid())
+  materia      String // id da matéria (biologia, fisica, ...)
+  tema         String // texto livre definido pelo gestor
+  driveFolder  String // ID da pasta no Google Drive
+  driveUrl     String // URL para acesso direto
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@unique([materia, tema])
   @@index([materia])
 }

@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
+import { db } from '@/lib/db'
 
-// Get temas por matéria do admin endpoint (será substituído por banco de dados)
-const PASTA_MAPPING: Record<string, string> = {}
-const TEMAS_POR_MATERIA: Record<string, string[]> = {}
-
+/**
+ * Consulta das pastas de ilustração, para qualquer usuário autenticado.
+ *
+ * - só `materia`: devolve os temas cadastrados para ela
+ * - `materia` + `tema`: devolve a pasta correspondente
+ */
 export async function GET(request: NextRequest) {
   try {
     const headersList = await headers()
@@ -18,52 +21,49 @@ export async function GET(request: NextRequest) {
     const materia = searchParams.get('materia')
     const tema = searchParams.get('tema')
 
-    // Se só materia, retornar lista de temas
-    if (materia && !tema) {
-      const temas = TEMAS_POR_MATERIA[materia] || []
-      return NextResponse.json({
-        success: true,
-        materia,
-        temas,
-      })
-    }
-
-    // Se materia e tema, retornar a pasta
-    if (!materia || !tema) {
+    if (!materia) {
       return NextResponse.json(
-        { error: 'Parâmetros obrigatórios: materia, tema' },
+        { error: 'Parâmetro obrigatório: materia' },
         { status: 400 }
       )
     }
 
-    const key = `${materia}|${tema}`
-    const driveFolder = PASTA_MAPPING[key]
+    if (!tema) {
+      const pastas = await db.pastaIlustracao.findMany({
+        where: { materia },
+        orderBy: { tema: 'asc' },
+        select: { tema: true },
+      })
 
-    if (!driveFolder) {
+      return NextResponse.json({
+        success: true,
+        materia,
+        temas: pastas.map((p) => p.tema),
+      })
+    }
+
+    const pasta = await db.pastaIlustracao.findUnique({
+      where: { materia_tema: { materia, tema } },
+    })
+
+    if (!pasta) {
       return NextResponse.json(
         {
           error: 'Pasta não configurada para esta combinação',
-          message: `Tema "${tema}" não foi configurado para ${materia}`,
-          configKey: key,
+          message: `O tema "${tema}" ainda não tem pasta cadastrada.`,
         },
         { status: 404 }
       )
     }
 
-    const driveUrl = `https://drive.google.com/drive/folders/${driveFolder}?usp=sharing`
-
     return NextResponse.json({
       success: true,
       materia,
       tema,
-      driveFolder,
-      driveUrl,
+      driveUrl: pasta.driveUrl,
     })
   } catch (error) {
-    console.error('GET /api/ilustrador/pastas error:', error)
-    return NextResponse.json(
-      { error: 'Erro ao buscar pasta' },
-      { status: 500 }
-    )
+    console.error('Erro ao buscar pasta de ilustração:', error)
+    return NextResponse.json({ error: 'Erro ao buscar pasta' }, { status: 500 })
   }
 }

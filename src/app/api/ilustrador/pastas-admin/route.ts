@@ -1,150 +1,98 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
+import { db } from '@/lib/db'
+import { extrairFolderId, urlDaPasta, isMateriaValida } from '@/lib/ilustracao'
 
-// In-memory storage (será substituído por banco de dados depois)
-// Formato: { "materia|tema": "driveFolder" }
-const pastas: Record<string, string> = {}
+const ROLES_ADMIN = ['GESTOR', 'PROPRIETARIO']
 
-// Temas por matéria: { "materia": ["tema1", "tema2"] }
-const temasPorMateria: Record<string, string[]> = {}
+async function exigirGestor() {
+  const headersList = await headers()
+  const userId = headersList.get('x-user-id')
+  const userRole = headersList.get('x-user-role')
 
-const MATERIAS = [
-  { id: 'biologia', nome: 'Biologia' },
-  { id: 'fisica', nome: 'Física' },
-  { id: 'quimica', nome: 'Química' },
-  { id: 'matematica', nome: 'Matemática' },
-  { id: 'filosofia', nome: 'Filosofia' },
-  { id: 'geografia', nome: 'Geografia' },
-  { id: 'historia', nome: 'História' },
-  { id: 'sociologia', nome: 'Sociologia' },
-  { id: 'portugues', nome: 'Língua Portuguesa' },
-  { id: 'literatura', nome: 'Literatura' },
-  { id: 'redacao', nome: 'Redação' },
-]
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  if (!ROLES_ADMIN.includes(userRole || '')) {
+    return NextResponse.json(
+      { error: 'Acesso negado. Apenas gestor pode configurar pastas.' },
+      { status: 403 }
+    )
+  }
+  return null
+}
 
 export async function GET(_: any) {
   try {
-    const headersList = await headers()
-    const userId = headersList.get('x-user-id')
-    const userRole = headersList.get('x-user-role')
+    const negado = await exigirGestor()
+    if (negado) return negado
 
-    if (!userId || !['GESTOR', 'PROPRIETARIO'].includes(userRole || '')) {
-      return NextResponse.json(
-        { error: 'Acesso negado' },
-        { status: 403 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      pastas,
-      temasPorMateria,
+    const pastas = await db.pastaIlustracao.findMany({
+      orderBy: [{ materia: 'asc' }, { tema: 'asc' }],
     })
+
+    return NextResponse.json({ success: true, pastas })
   } catch (error) {
-    console.error('GET /api/ilustrador/pastas-admin error:', error)
-    return NextResponse.json(
-      { error: 'Erro ao buscar pastas' },
-      { status: 500 }
-    )
+    console.error('Erro ao listar pastas de ilustração:', error)
+    return NextResponse.json({ error: 'Erro ao listar pastas' }, { status: 500 })
   }
 }
 
-// Adicionar tema a uma matéria
 export async function POST(request: NextRequest) {
   try {
-    const headersList = await headers()
-    const userId = headersList.get('x-user-id')
-    const userRole = headersList.get('x-user-role')
-
-    if (!userId || !['GESTOR', 'PROPRIETARIO'].includes(userRole || '')) {
-      return NextResponse.json(
-        { error: 'Acesso negado' },
-        { status: 403 }
-      )
-    }
+    const negado = await exigirGestor()
+    if (negado) return negado
 
     const body = await request.json()
-    const { materia, tema, driveFolder } = body
+    const materia = String(body.materia || '').trim()
+    const tema = String(body.tema || '').trim()
+    const driveFolder = String(body.driveFolder || '').trim()
 
     if (!materia || !tema || !driveFolder) {
       return NextResponse.json(
-        { error: 'Parâmetros obrigatórios: materia, tema, driveFolder' },
+        { error: 'Campos obrigatórios: materia, tema, driveFolder' },
         { status: 400 }
       )
     }
 
-    // Validar matéria
-    if (!MATERIAS.find((m) => m.id === materia)) {
-      return NextResponse.json(
-        { error: 'Matéria inválida' },
-        { status: 400 }
-      )
+    if (!isMateriaValida(materia)) {
+      return NextResponse.json({ error: 'Matéria inválida' }, { status: 400 })
     }
 
-    // Adicionar tema à lista se não existir
-    if (!temasPorMateria[materia]) {
-      temasPorMateria[materia] = []
+    const folderId = extrairFolderId(driveFolder)
+    if (!folderId) {
+      return NextResponse.json({ error: 'ID ou link da pasta inválido' }, { status: 400 })
     }
 
-    if (!temasPorMateria[materia].includes(tema)) {
-      temasPorMateria[materia].push(tema)
-      temasPorMateria[materia].sort()
-    }
-
-    // Salvar pasta
-    const key = `${materia}|${tema}`
-    pastas[key] = driveFolder
-
-    return NextResponse.json({
-      success: true,
-      message: 'Pasta configurada com sucesso',
-      key,
-      driveFolder,
+    // Regravar a mesma matéria+tema apenas atualiza o link, sem duplicar.
+    const pasta = await db.pastaIlustracao.upsert({
+      where: { materia_tema: { materia, tema } },
+      update: { driveFolder: folderId, driveUrl: urlDaPasta(folderId) },
+      create: { materia, tema, driveFolder: folderId, driveUrl: urlDaPasta(folderId) },
     })
+
+    return NextResponse.json({ success: true, pasta })
   } catch (error) {
-    console.error('POST /api/ilustrador/pastas-admin error:', error)
-    return NextResponse.json(
-      { error: 'Erro ao salvar pasta' },
-      { status: 500 }
-    )
+    console.error('Erro ao salvar pasta de ilustração:', error)
+    return NextResponse.json({ error: 'Erro ao salvar pasta' }, { status: 500 })
   }
 }
 
-// Deletar tema/pasta
 export async function DELETE(request: NextRequest) {
   try {
-    const headersList = await headers()
-    const userId = headersList.get('x-user-id')
-    const userRole = headersList.get('x-user-role')
+    const negado = await exigirGestor()
+    if (negado) return negado
 
-    if (!userId || !['GESTOR', 'PROPRIETARIO'].includes(userRole || '')) {
-      return NextResponse.json(
-        { error: 'Acesso negado' },
-        { status: 403 }
-      )
+    const id = new URL(request.url).searchParams.get('id')
+    if (!id) {
+      return NextResponse.json({ error: 'Parâmetro obrigatório: id' }, { status: 400 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const key = searchParams.get('key')
+    await db.pastaIlustracao.delete({ where: { id } })
 
-    if (!key) {
-      return NextResponse.json(
-        { error: 'Parâmetro obrigatório: key' },
-        { status: 400 }
-      )
-    }
-
-    delete pastas[key]
-
-    return NextResponse.json({
-      success: true,
-      message: 'Pasta removida com sucesso',
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('DELETE /api/ilustrador/pastas-admin error:', error)
-    return NextResponse.json(
-      { error: 'Erro ao remover pasta' },
-      { status: 500 }
-    )
+    console.error('Erro ao remover pasta de ilustração:', error)
+    return NextResponse.json({ error: 'Erro ao remover pasta' }, { status: 500 })
   }
 }

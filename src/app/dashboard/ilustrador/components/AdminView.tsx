@@ -1,36 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-const MATERIAS = [
-  { id: 'biologia', nome: 'Biologia' },
-  { id: 'fisica', nome: 'Física' },
-  { id: 'quimica', nome: 'Química' },
-  { id: 'matematica', nome: 'Matemática' },
-  { id: 'filosofia', nome: 'Filosofia' },
-  { id: 'geografia', nome: 'Geografia' },
-  { id: 'historia', nome: 'História' },
-  { id: 'sociologia', nome: 'Sociologia' },
-  { id: 'portugues', nome: 'Língua Portuguesa' },
-  { id: 'literatura', nome: 'Literatura' },
-  { id: 'redacao', nome: 'Redação' },
-]
+import { MATERIAS_ILUSTRACAO, nomeMateria } from '@/lib/ilustracao'
 
 interface Pasta {
-  key: string
-  driveFolder: string
-  driveUrl: string
+  id: string
   materia: string
   tema: string
-}
-
-interface TemasPorMateria {
-  [key: string]: string[]
+  driveFolder: string
+  driveUrl: string
 }
 
 export default function AdminView() {
   const [pastas, setPastas] = useState<Pasta[]>([])
-  const [temasPorMateria, setTemasPorMateria] = useState<TemasPorMateria>({})
   const [loading, setLoading] = useState(true)
   const [materia, setMateria] = useState('')
   const [tema, setTema] = useState('')
@@ -38,142 +20,88 @@ export default function AdminView() {
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Carregar pastas e temas
   useEffect(() => {
-    const fetchPastas = async () => {
-      try {
-        const response = await fetch('/api/ilustrador/pastas-admin')
-        const data = await response.json()
-
-        if (data.success) {
-          const pastasList = Object.entries(data.pastas).map(([key, driveFolder]) => {
-            const [mat, tem] = key.split('|')
-            return {
-              key,
-              driveFolder: driveFolder as string,
-              driveUrl: `https://drive.google.com/drive/folders/${driveFolder}?usp=sharing`,
-              materia: mat,
-              tema: tem,
-            }
-          })
-          setPastas(pastasList)
-          setTemasPorMateria(data.temasPorMateria || {})
-        }
-      } catch (error) {
-        setMessage({
-          type: 'error',
-          text: 'Erro ao carregar pastas',
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPastas()
+    carregarPastas()
   }, [])
+
+  async function carregarPastas() {
+    try {
+      const response = await fetch('/api/ilustrador/pastas-admin')
+      const data = await response.json()
+
+      if (data.success) {
+        setPastas(data.pastas)
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao carregar pastas' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Erro ao carregar pastas' })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!materia || !tema || !driveFolder) {
-      setMessage({
-        type: 'error',
-        text: 'Preencha todos os campos',
-      })
+    if (!materia || !tema.trim() || !driveFolder.trim()) {
+      setMessage({ type: 'error', text: 'Preencha todos os campos' })
       return
     }
 
     setSubmitting(true)
+    setMessage(null)
 
     try {
       const response = await fetch('/api/ilustrador/pastas-admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          materia,
-          tema,
-          driveFolder,
-        }),
+        body: JSON.stringify({ materia, tema, driveFolder }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({
-          type: 'success',
-          text: 'Pasta configurada com sucesso!',
-        })
-
-        // Atualizar lista
-        const novoKey = `${materia}|${tema}`
-        setPastas([
-          ...pastas.filter((p) => p.key !== novoKey),
-          {
-            key: novoKey,
-            driveFolder,
-            driveUrl: `https://drive.google.com/drive/folders/${driveFolder}?usp=sharing`,
-            materia,
-            tema,
-          },
-        ])
-
-        // Atualizar temas se novo
-        if (!temasPorMateria[materia]?.includes(tema)) {
-          setTemasPorMateria({
-            ...temasPorMateria,
-            [materia]: [...(temasPorMateria[materia] || []), tema].sort(),
-          })
-        }
-
-        // Limpar formulário
-        setMateria('')
+        setMessage({ type: 'success', text: 'Pasta salva com sucesso!' })
         setTema('')
         setDriveFolder('')
+        await carregarPastas()
       } else {
-        setMessage({
-          type: 'error',
-          text: data.error || 'Erro ao salvar pasta',
-        })
+        setMessage({ type: 'error', text: data.error || 'Erro ao salvar pasta' })
       }
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: 'Erro ao salvar pasta',
-      })
+    } catch {
+      setMessage({ type: 'error', text: 'Erro ao salvar pasta' })
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleDelete = async (key: string) => {
-    if (!confirm('Tem certeza que deseja remover esta pasta?')) {
-      return
-    }
+  const handleDelete = async (pasta: Pasta) => {
+    if (!confirm(`Remover a pasta de ${nomeMateria(pasta.materia)} • ${pasta.tema}?`)) return
 
     try {
-      const response = await fetch(`/api/ilustrador/pastas-admin?key=${encodeURIComponent(key)}`, {
-        method: 'DELETE',
-      })
+      const response = await fetch(
+        `/api/ilustrador/pastas-admin?id=${encodeURIComponent(pasta.id)}`,
+        { method: 'DELETE' }
+      )
 
       if (response.ok) {
-        setPastas(pastas.filter((p) => p.key !== key))
-        setMessage({
-          type: 'success',
-          text: 'Pasta removida com sucesso!',
-        })
+        setPastas((atual) => atual.filter((p) => p.id !== pasta.id))
+        setMessage({ type: 'success', text: 'Pasta removida com sucesso!' })
       } else {
-        setMessage({
-          type: 'error',
-          text: 'Erro ao remover pasta',
-        })
+        setMessage({ type: 'error', text: 'Erro ao remover pasta' })
       }
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: 'Erro ao remover pasta',
-      })
+    } catch {
+      setMessage({ type: 'error', text: 'Erro ao remover pasta' })
     }
   }
+
+  const inputClass =
+    'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green'
+
+  const jaExiste = pastas.some(
+    (p) => p.materia === materia && p.tema.toLowerCase() === tema.trim().toLowerCase()
+  )
 
   return (
     <div>
@@ -182,14 +110,14 @@ export default function AdminView() {
           Gerenciar Pastas de Ilustração
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Configure as pastas do Google Drive para cada combinação de matéria e tema
+          Configure a pasta do Google Drive para cada combinação de matéria e tema
         </p>
       </div>
 
       {/* Formulário */}
       <div className="card dark:bg-gray-800 dark:border-gray-700 mb-8 p-6">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          ➕ Adicionar Nova Pasta
+          ➕ Adicionar ou Atualizar Pasta
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -201,10 +129,10 @@ export default function AdminView() {
               <select
                 value={materia}
                 onChange={(e) => setMateria(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
+                className={inputClass}
               >
                 <option value="">Selecione uma matéria</option>
-                {MATERIAS.map((m) => (
+                {MATERIAS_ILUSTRACAO.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.nome}
                   </option>
@@ -221,23 +149,36 @@ export default function AdminView() {
                 value={tema}
                 onChange={(e) => setTema(e.target.value)}
                 placeholder="Ex: Célula, Fotossíntese..."
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
+                className={inputClass}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                ID da Pasta (Google Drive) *
+                Link ou ID da pasta *
               </label>
               <input
                 type="text"
                 value={driveFolder}
                 onChange={(e) => setDriveFolder(e.target.value)}
-                placeholder="1ABC2DEF3GHI..."
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
+                placeholder="Cole o link do Drive ou só o ID"
+                className={inputClass}
               />
             </div>
           </div>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            No campo do link você pode colar o endereço inteiro do navegador — o ID é extraído
+            automaticamente.
+          </p>
+
+          {jaExiste && (
+            <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                ⚠️ Já existe uma pasta para essa matéria e tema. Salvar vai substituir o link atual.
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-4">
             <button
@@ -295,48 +236,38 @@ export default function AdminView() {
                     Tema
                   </th>
                   <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
-                    ID da Pasta
-                  </th>
-                  <th className="text-left py-2 px-2 font-bold text-gray-900 dark:text-white">
                     Ação
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {pastas.map((pasta) => {
-                  const materiaObj = MATERIAS.find((m) => m.id === pasta.materia)
-
-                  return (
-                    <tr
-                      key={pasta.key}
-                      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                    >
-                      <td className="py-3 px-2 text-gray-900 dark:text-white font-medium">
-                        {materiaObj?.nome}
-                      </td>
-                      <td className="py-3 px-2 text-gray-900 dark:text-white">{pasta.tema}</td>
-                      <td className="py-3 px-2 text-gray-600 dark:text-gray-400 text-xs font-mono">
-                        {pasta.driveFolder.substring(0, 15)}...
-                      </td>
-                      <td className="py-3 px-2 space-x-2">
-                        <a
-                          href={pasta.driveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block px-3 py-1 rounded bg-blue-500 text-white text-xs hover:bg-blue-600"
-                        >
-                          🔗 Abrir
-                        </a>
-                        <button
-                          onClick={() => handleDelete(pasta.key)}
-                          className="inline-block px-3 py-1 rounded bg-red-500 text-white text-xs hover:bg-red-600"
-                        >
-                          🗑️ Remover
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
+                {pastas.map((pasta) => (
+                  <tr
+                    key={pasta.id}
+                    className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <td className="py-3 px-2 text-gray-900 dark:text-white font-medium">
+                      {nomeMateria(pasta.materia)}
+                    </td>
+                    <td className="py-3 px-2 text-gray-900 dark:text-white">{pasta.tema}</td>
+                    <td className="py-3 px-2 space-x-2 whitespace-nowrap">
+                      <a
+                        href={pasta.driveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block px-3 py-1 rounded bg-blue-500 text-white text-xs hover:bg-blue-600"
+                      >
+                        🔗 Abrir
+                      </a>
+                      <button
+                        onClick={() => handleDelete(pasta)}
+                        className="inline-block px-3 py-1 rounded bg-red-500 text-white text-xs hover:bg-red-600"
+                      >
+                        🗑️ Remover
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

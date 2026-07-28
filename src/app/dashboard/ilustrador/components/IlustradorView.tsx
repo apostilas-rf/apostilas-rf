@@ -1,27 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-const MATERIAS = [
-  { id: 'biologia', nome: 'Biologia' },
-  { id: 'fisica', nome: 'Física' },
-  { id: 'quimica', nome: 'Química' },
-  { id: 'matematica', nome: 'Matemática' },
-  { id: 'filosofia', nome: 'Filosofia' },
-  { id: 'geografia', nome: 'Geografia' },
-  { id: 'historia', nome: 'História' },
-  { id: 'sociologia', nome: 'Sociologia' },
-  { id: 'portugues', nome: 'Língua Portuguesa' },
-  { id: 'literatura', nome: 'Literatura' },
-  { id: 'redacao', nome: 'Redação' },
-]
+import { MATERIAS_ILUSTRACAO, nomeMateria } from '@/lib/ilustracao'
 
 interface PastaInfo {
-  success: boolean
+  success?: boolean
   driveUrl?: string
   error?: string
   message?: string
-  temas?: string[]
 }
 
 export default function IlustradorView() {
@@ -32,7 +18,7 @@ export default function IlustradorView() {
   const [loading, setLoading] = useState(false)
   const [loadingTemas, setLoadingTemas] = useState(false)
 
-  // Buscar temas quando materia mudar
+  // Buscar temas quando a matéria mudar
   useEffect(() => {
     if (!materia) {
       setTemas([])
@@ -43,14 +29,17 @@ export default function IlustradorView() {
 
     const fetchTemas = async () => {
       setLoadingTemas(true)
+      setTema('')
+      setPastaInfo(null)
       try {
-        const response = await fetch(`/api/ilustrador/pastas?materia=${encodeURIComponent(materia)}`)
+        const response = await fetch(
+          `/api/ilustrador/pastas?materia=${encodeURIComponent(materia)}`
+        )
         const data = await response.json()
-        if (data.success) {
-          setTemas(data.temas || [])
-        }
+        setTemas(data.success ? data.temas || [] : [])
       } catch (error) {
         console.error('Erro ao buscar temas:', error)
+        setTemas([])
       } finally {
         setLoadingTemas(false)
       }
@@ -59,7 +48,7 @@ export default function IlustradorView() {
     fetchTemas()
   }, [materia])
 
-  // Buscar pasta quando tema mudar
+  // Buscar a pasta quando o tema mudar
   useEffect(() => {
     if (!materia || !tema) {
       setPastaInfo(null)
@@ -72,13 +61,9 @@ export default function IlustradorView() {
         const response = await fetch(
           `/api/ilustrador/pastas?materia=${encodeURIComponent(materia)}&tema=${encodeURIComponent(tema)}`
         )
-        const data = await response.json()
-        setPastaInfo(data)
-      } catch (error) {
-        setPastaInfo({
-          success: false,
-          error: 'Erro ao buscar pasta',
-        })
+        setPastaInfo(await response.json())
+      } catch {
+        setPastaInfo({ success: false, error: 'Erro ao buscar pasta' })
       } finally {
         setLoading(false)
       }
@@ -87,22 +72,16 @@ export default function IlustradorView() {
     fetchPasta()
   }, [materia, tema])
 
-  const handleAccessDrive = () => {
-    if (pastaInfo?.driveUrl) {
-      window.open(pastaInfo.driveUrl, '_blank')
-    }
-  }
+  const isComplete = Boolean(materia && tema)
+  const hasPasta = Boolean(pastaInfo?.success && pastaInfo.driveUrl)
 
-  const isComplete = materia && tema
-  const hasPasta = pastaInfo?.success
-  const driveUrl = pastaInfo?.driveUrl
+  const selectClass =
+    'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green disabled:opacity-50'
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-          🎨 Ilustração
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">🎨 Ilustração</h1>
         <p className="text-gray-600 dark:text-gray-400">
           Acesse a pasta do Drive para gerenciar imagens por matéria e tema
         </p>
@@ -111,7 +90,6 @@ export default function IlustradorView() {
       {/* Seletores */}
       <div className="card dark:bg-gray-800 dark:border-gray-700 mb-8 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Matéria */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Matéria
@@ -119,10 +97,10 @@ export default function IlustradorView() {
             <select
               value={materia}
               onChange={(e) => setMateria(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
+              className={selectClass}
             >
               <option value="">Selecione uma matéria</option>
-              {MATERIAS.map((m) => (
+              {MATERIAS_ILUSTRACAO.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.nome}
                 </option>
@@ -130,7 +108,6 @@ export default function IlustradorView() {
             </select>
           </div>
 
-          {/* Tema */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tema
@@ -138,11 +115,15 @@ export default function IlustradorView() {
             <select
               value={tema}
               onChange={(e) => setTema(e.target.value)}
-              disabled={!materia}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green disabled:opacity-50"
+              disabled={!materia || loadingTemas}
+              className={selectClass}
             >
               <option value="">
-                {loadingTemas ? '⏳ Carregando temas...' : 'Selecione um tema'}
+                {loadingTemas
+                  ? '⏳ Carregando temas...'
+                  : materia && temas.length === 0
+                    ? 'Nenhum tema cadastrado'
+                    : 'Selecione um tema'}
               </option>
               {temas.map((t) => (
                 <option key={t} value={t}>
@@ -153,7 +134,17 @@ export default function IlustradorView() {
           </div>
         </div>
 
-        {/* Info Box */}
+        {materia && !loadingTemas && temas.length === 0 && (
+          <div className="mt-6 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              ⚠️ <strong>Nenhum tema cadastrado para {nomeMateria(materia)}</strong>
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+              Peça ao gestor para cadastrar as pastas dessa matéria.
+            </p>
+          </div>
+        )}
+
         {isComplete && loading && (
           <div className="mt-6 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">⏳ Carregando...</p>
@@ -163,10 +154,7 @@ export default function IlustradorView() {
         {isComplete && !loading && hasPasta && (
           <div className="mt-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
             <p className="text-sm text-green-700 dark:text-green-300">
-              ✅ <strong>Pasta encontrada:</strong> {MATERIAS.find(m => m.id === materia)?.nome} • {tema}
-            </p>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-2 break-all">
-              {driveUrl}
+              ✅ <strong>Pasta encontrada:</strong> {nomeMateria(materia)} • {tema}
             </p>
           </div>
         )}
@@ -179,49 +167,41 @@ export default function IlustradorView() {
             <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
               {pastaInfo?.message || pastaInfo?.error}
             </p>
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-              Entre em contato com o gestor para configurar os temas.
-            </p>
           </div>
         )}
       </div>
 
       {/* Botão de Acesso */}
-      {isComplete && (
+      {isComplete && hasPasta && !loading && (
         <div className="mb-8">
-          <button
-            onClick={handleAccessDrive}
-            disabled={!hasPasta || loading}
-            className={`w-full px-6 py-4 rounded-full font-bold text-lg transition-colors shadow-lg ${
-              hasPasta && !loading
-                ? 'bg-rf-green text-white hover:bg-emerald-600 cursor-pointer'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
+          <a
+            href={pastaInfo!.driveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full text-center px-6 py-4 rounded-full font-bold text-lg bg-rf-green text-white hover:bg-emerald-600 transition-colors shadow-lg"
           >
-            {loading ? '⏳ Carregando...' : hasPasta ? '🚀 Acessar Drive' : '❌ Pasta não disponível'}
-          </button>
-          {hasPasta && !loading && (
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-3">
-              Você será redirecionado para a pasta no Google Drive
-            </p>
-          )}
+            🚀 Acessar Drive
+          </a>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-3">
+            A pasta abre numa nova aba do Google Drive
+          </p>
         </div>
       )}
 
       {/* Guia de Organização */}
       <div className="card dark:bg-gray-800 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          📋 Como Funciona
-        </h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📋 Como Funciona</h2>
         <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
           <p>
-            <strong>Matérias:</strong> Biologia, Física, Química, Matemática, Filosofia, Geografia, História, Sociologia, Português, Literatura, Redação
+            <strong>Matérias:</strong> Biologia, Física, Química, Matemática, Filosofia, Geografia,
+            História, Sociologia, Português, Literatura, Redação
           </p>
           <p>
-            <strong>Temas:</strong> Customizáveis por matéria (ex: Célula, Fotossíntese, Mitose para Biologia)
+            <strong>Temas:</strong> Customizáveis por matéria (ex: Célula, Fotossíntese, Mitose para
+            Biologia)
           </p>
           <p className="pt-2 border-t border-gray-200 dark:border-gray-700">
-            ℹ️ Os temas são adicionados dinamicamente pelo gestor conforme criam as pastas no Drive.
+            ℹ️ Os temas são adicionados pelo gestor conforme as pastas são criadas no Drive.
           </p>
         </div>
       </div>
