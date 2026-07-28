@@ -26,6 +26,7 @@ export default function ApostilaDetailPage() {
   const [changeStatusLoading, setChangeStatusLoading] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('')
   const [conteudoEditando, setConteudoEditando] = useState<any>(null)
+  const [, setDeletingId] = useState<string | null>(null)
   const editorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
