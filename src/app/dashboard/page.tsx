@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useUser } from '@/contexts/UserContext'
-import { SerieProgressCard } from '@/components/dashboard/SerieProgressCard'
 import { StatusChart } from '@/components/dashboard/StatusChart'
 import { ActivityLog } from '@/components/dashboard/ActivityLog'
-import { SERIES } from '@/lib/constants'
 
 interface DashboardData {
   totalApostilas: number
