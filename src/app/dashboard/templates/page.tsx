@@ -251,7 +251,7 @@ export default function TemplatesPage() {
               <TemplateCard
                 template={template}
                 serieLabel={serieLabels[template.serie]}
-                onEdit={setEditingTemplate}
+                onEdit={(t) => setEditingTemplate(t as unknown as Template)}
                 onDelete={handleDelete}
                 isGestor={usuario?.role === 'GESTOR'}
               />

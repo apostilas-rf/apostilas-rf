@@ -2,9 +2,9 @@ import { google } from 'googleapis'
 import { Readable } from 'stream'
 
 const auth = new google.auth.GoogleAuth({
+  projectId: process.env.GOOGLE_DRIVE_PROJECT_ID,
   credentials: {
     type: 'service_account',
-    project_id: process.env.GOOGLE_DRIVE_PROJECT_ID,
     private_key_id: process.env.GOOGLE_DRIVE_PRIVATE_KEY_ID,
     private_key: process.env.GOOGLE_DRIVE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     client_email: process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT_EMAIL,
@@ -13,7 +13,7 @@ const auth = new google.auth.GoogleAuth({
     token_uri: 'https://oauth2.googleapis.com/token',
     auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
     client_x509_cert_url: process.env.GOOGLE_DRIVE_CLIENT_X509_CERT_URL,
-  },
+  } as any,
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 })
 
