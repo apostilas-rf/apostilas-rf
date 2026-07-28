@@ -202,7 +202,15 @@ export default function DiagramadoresPage() {
               {apostilasFiltrads.map((apostila) => (
                 <ApostilaCard
                   key={apostila.id}
-                  {...apostila}
+                  id={apostila.id}
+                  titulo={apostila.titulo}
+                  materia={apostila.materia}
+                  serie={apostila.serie}
+                  status={apostila.status}
+                  professor={apostila.professor}
+                  arquivos={apostila.arquivos}
+                  diagramacaoProgresos={apostila.diagramacaoProgresos}
+                  problemasRelatados={apostila.problemasRelatados}
                   progresso={apostila.diagramacaoProgresos[0]}
                   problemas={apostila.problemasRelatados || []}
                   onRefresh={fetchApostilas}
