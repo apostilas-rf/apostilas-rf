@@ -5,10 +5,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
+import { useSidebar } from '@/contexts/SidebarContext'
 
 function NavbarComponent() {
   const router = useRouter()
   const { usuario, foto } = useUser()
+  const { alternar } = useSidebar()
   const [abrirMenu, setAbrirMenu] = useState(false)
 
   async function handleLogout() {
@@ -31,10 +33,20 @@ function NavbarComponent() {
         backgroundPosition: '0 center',
       }}
     >
-      <div className="px-6 sm:px-8 lg:px-10">
-        <div className="flex justify-between items-center h-24">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-16 h-16 relative">
+      <div className="px-4 sm:px-8 lg:px-10">
+        <div className="flex justify-between items-center h-16 sm:h-24">
+          <button
+            onClick={alternar}
+            aria-label="Abrir menu"
+            className="md:hidden p-2 -ml-2 mr-1 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100/60 dark:hover:bg-gray-800"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <Link href="/dashboard" className="flex items-center gap-3 mr-auto">
+            <div className="w-10 h-10 sm:w-16 sm:h-16 relative">
               <Image
                 src="/logo.png"
                 alt="Logo RF Educação"
@@ -51,7 +63,7 @@ function NavbarComponent() {
             <span className="font-ubuntu font-bold text-xl text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
           </Link>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 sm:gap-6">
             <div className="relative">
               <button
                 onClick={() => setAbrirMenu(!abrirMenu)}

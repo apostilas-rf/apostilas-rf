@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { UserProvider } from '@/contexts/UserContext'
+import { SidebarProvider } from '@/contexts/SidebarContext'
 import { Navbar } from '@/components/common/Navbar'
 import { Sidebar } from '@/components/common/Sidebar'
 import { LayoutContent } from './layout-content'
@@ -34,19 +35,22 @@ export default async function DashboardLayout({
 
   return (
     <UserProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Navbar />
-        <div className="flex pt-24">
-          <Sidebar userRole={userRole} />
-          <Suspense fallback={<DashboardSkeleton />}>
-            <main className="flex-1 dark:bg-gray-900">
-              <LayoutContent>
-                {children}
-              </LayoutContent>
-            </main>
-          </Suspense>
+      <SidebarProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <Navbar />
+          <div className="flex pt-16 sm:pt-24">
+            <Sidebar userRole={userRole} />
+            <Suspense fallback={<DashboardSkeleton />}>
+              {/* min-w-0 impede que tabelas largas estourem a largura da tela */}
+              <main className="flex-1 min-w-0 dark:bg-gray-900">
+                <LayoutContent>
+                  {children}
+                </LayoutContent>
+              </main>
+            </Suspense>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </UserProvider>
   )
 }
