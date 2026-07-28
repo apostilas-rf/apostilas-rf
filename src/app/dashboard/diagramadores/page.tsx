@@ -208,6 +208,7 @@ export default function DiagramadoresPage() {
                   serie={apostila.serie}
                   status={apostila.status}
                   professor={apostila.professor}
+                  arquivos={apostila.arquivos as any}
                   progresso={apostila.diagramacaoProgresos[0]}
                   problemas={apostila.problemasRelatados || []}
                   onRefresh={fetchApostilas}
