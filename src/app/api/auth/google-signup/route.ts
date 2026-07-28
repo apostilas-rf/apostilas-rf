@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 10 * 60, // 10 minutos
+      path: '/',
     })
 
     response.cookies.set('signup_primary_role', primaryRole, {
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 10 * 60,
+      path: '/',
     })
 
     if (secondaryRole) {
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 10 * 60,
+        path: '/',
       })
     }
 

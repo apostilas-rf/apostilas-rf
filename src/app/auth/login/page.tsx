@@ -1,9 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+
+// Os callbacks do Google redirecionam para cá com ?error=<codigo> quando algo
+// falha. Sem esta tradução a tela voltava em branco, sem dizer o que houve.
+const ERROS_OAUTH: Record<string, string> = {
+  invalid_request: 'O Google não devolveu os dados esperados. Tente novamente.',
+  invalid_state:
+    'A sessão de login expirou ou foi aberta em outro endereço. Comece o login de novo nesta mesma página.',
+  token_error: 'Não foi possível validar sua conta no Google. Tente novamente.',
+  userinfo_error: 'Não foi possível obter seus dados do Google. Tente novamente.',
+  user_not_found:
+    'Este email ainda não está cadastrado na plataforma. Faça o cadastro e aguarde a aprovação do gestor.',
+  inactive_user: 'Seu cadastro ainda não foi aprovado pelo gestor.',
+  account_mismatch: 'Este email já está vinculado a outra conta do Google.',
+  server_error: 'Erro inesperado no servidor. Tente novamente em instantes.',
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -12,6 +27,14 @@ export default function LoginPage() {
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const [carregandoGoogle, setCarregandoGoogle] = useState(false)
+
+  // Lido de window para não precisar de <Suspense>, já que esta página é estática.
+  useEffect(() => {
+    const codigo = new URLSearchParams(window.location.search).get('error')
+    if (codigo) {
+      setErro(ERROS_OAUTH[codigo] || `Não foi possível entrar (${codigo}).`)
+    }
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
