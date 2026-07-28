@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 
-const publicRoutes = ['/auth/login', '/auth/forgot-password', '/auth/reset-password', '/']
-const publicApiRoutes = ['/api/auth/login', '/api/auth/logout']
+const publicRoutes = [
+  '/auth/login',
+  '/auth/signup',
+  '/auth/signup-pending',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/',
+]
+
+// Rotas de autenticação usadas por quem ainda não tem sessão. Os callbacks
+// são chamados pelo próprio Google, que não envia o cookie de sessão.
+const publicApiRoutes = [
+  '/api/auth/login',
+  '/api/auth/logout',
+  '/api/auth/google-login',
+  '/api/auth/google-signup',
+  '/api/auth/google-callback',
+  '/api/auth/google-callback-login',
+]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
