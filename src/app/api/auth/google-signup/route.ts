@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { GOOGLE_SIGNUP_REDIRECT_URI as GOOGLE_REDIRECT_URI } from '@/lib/oauth-config'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/auth/google-callback'
 
 export async function POST(request: NextRequest) {
   try {

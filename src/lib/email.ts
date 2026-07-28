@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { APP_URL } from '@/lib/oauth-config'
 
 // Configurar transportador de email
 const transporter = nodemailer.createTransport({
@@ -74,7 +75,7 @@ export function templateApostilaAtribuida(
 
           <p>Acesse a plataforma para visualizar mais detalhes e começar o trabalho.</p>
 
-          <a href="${process.env.APP_URL}/dashboard/apostilas" class="button">Acessar Plataforma</a>
+          <a href="${APP_URL}/dashboard/apostilas" class="button">Acessar Plataforma</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -125,7 +126,7 @@ export function templateStatusMudou(
             ${descricao ? `<p><strong>Observação:</strong> ${descricao}</p>` : ''}
           </div>
 
-          <a href="${process.env.APP_URL}/dashboard/apostilas" class="button">Ver Detalhes</a>
+          <a href="${APP_URL}/dashboard/apostilas" class="button">Ver Detalhes</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -177,7 +178,7 @@ export function templateRevisaoFinalizada(
             ${comentario ? `<p><strong>Comentário:</strong> ${comentario}</p>` : ''}
           </div>
 
-          <a href="${process.env.APP_URL}/dashboard/apostilas" class="button">Ver Detalhes</a>
+          <a href="${APP_URL}/dashboard/apostilas" class="button">Ver Detalhes</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -215,7 +216,7 @@ export function templateRevisaoFinalizada(
             ${comentario ? `<p><strong>Comentário:</strong> ${comentario}</p>` : ''}
           </div>
 
-          <a href="${process.env.APP_URL}/dashboard/apostilas" class="button">Acessar Plataforma</a>
+          <a href="${APP_URL}/dashboard/apostilas" class="button">Acessar Plataforma</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -268,7 +269,7 @@ export function templateProblemaRelatado(
 
           <p>Acesse a plataforma para visualizar o problema e fornecer uma resposta ao diagramador.</p>
 
-          <a href="${process.env.APP_URL}/dashboard/apostilas" class="button">Ver Problemas</a>
+          <a href="${APP_URL}/dashboard/apostilas" class="button">Ver Problemas</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -326,7 +327,7 @@ export function templateRespostaProblemaDiagramacao(
 
           <p>Acesse a plataforma para ver mais detalhes.</p>
 
-          <a href="${process.env.APP_URL}/dashboard/diagramadores" class="button">Acessar Plataforma</a>
+          <a href="${APP_URL}/dashboard/diagramadores" class="button">Acessar Plataforma</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -384,7 +385,7 @@ export function templateAlertaPrazoProximo(
 
           <p>Verifique o status e atualize a produção na plataforma.</p>
 
-          <a href="${process.env.APP_URL}/dashboard" class="button">Acessar Dashboard</a>
+          <a href="${APP_URL}/dashboard" class="button">Acessar Dashboard</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -436,7 +437,7 @@ export function templateAlertaPrazoVencido(
             <p>Este item requer atenção imediata do gestor.</p>
           </div>
 
-          <a href="${process.env.APP_URL}/dashboard" class="button">Ver Dashboard Urgente</a>
+          <a href="${APP_URL}/dashboard" class="button">Ver Dashboard Urgente</a>
         </div>
         <div class="footer">
           <p>© 2024 RF Apostilas. Todos os direitos reservados.</p>
@@ -481,7 +482,7 @@ export function templateAprovacaoCadastro(nomeUsuario: string) {
           <p>Clique no botão abaixo para acessar sua conta:</p>
 
           <center>
-            <a href="http://localhost:3000/auth/login" class="button">Acessar Plataforma</a>
+            <a href="${APP_URL}/auth/login" class="button">Acessar Plataforma</a>
           </center>
 
           <div class="footer">

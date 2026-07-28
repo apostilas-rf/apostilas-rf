@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { generateCSRFState } from '@/lib/csrf'
+import { GOOGLE_LOGIN_REDIRECT_URI as GOOGLE_REDIRECT_URI } from '@/lib/oauth-config'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
-const GOOGLE_REDIRECT_URI = 'http://localhost:3000/api/auth/google-callback-login'
 
 export async function POST(_: any) {
   try {
