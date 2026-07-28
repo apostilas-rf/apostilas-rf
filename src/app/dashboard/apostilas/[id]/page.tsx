@@ -191,7 +191,7 @@ export default function ApostilaDetailPage() {
 
         <div className="card">
           <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</h3>
-          <p className="text-lg text-gray-900 dark:text-white">{APOSTILA_STATUS[apostila.status].label}</p>
+          <p className="text-lg text-gray-900 dark:text-white">{APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label}</p>
         </div>
       </div>
 
@@ -207,7 +207,7 @@ export default function ApostilaDetailPage() {
               className="input-base"
             >
               <option value={apostila.status}>
-                {APOSTILA_STATUS[apostila.status].label} (Atual)
+                {APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label} (Atual)
               </option>
 
               {/* Transições permitidas (forward) */}
