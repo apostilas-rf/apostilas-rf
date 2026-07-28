@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { createToken, setSessionCookie } from '@/lib/auth'
+import { createToken } from '@/lib/auth'
 import { GOOGLE_LOGIN_REDIRECT_URI as GOOGLE_REDIRECT_URI } from '@/lib/oauth-config'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
@@ -81,9 +81,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/login?error=inactive_user', request.url))
     }
 
-    // Verificar se é usuário Google OAuth
+    // Usuários criados pelo gestor (ou pelo bootstrap) ainda não têm googleId:
+    // o primeiro login aprovado vincula a conta Google a esse cadastro.
     if (!usuario.googleId) {
-      return NextResponse.redirect(new URL('/auth/login?error=not_oauth_user', request.url))
+      await db.user.update({
+        where: { id: usuario.id },
+        data: { googleId: userInfo.sub },
+      })
+    } else if (usuario.googleId !== userInfo.sub) {
+      // O email bate, mas é outra conta Google — não autenticar.
+      return NextResponse.redirect(new URL('/auth/login?error=account_mismatch', request.url))
     }
 
     // Criar token JWT
@@ -92,8 +99,15 @@ export async function GET(request: NextRequest) {
     // Criar response
     const response = NextResponse.redirect(new URL('/dashboard', request.url))
 
-    // Adicionar token ao cookie
-    await setSessionCookie(token)
+    // O cookie é gravado na própria resposta: um redirect construído aqui não
+    // recebe o que for definido via cookies() de next/headers.
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 dias
+      path: '/',
+    })
 
     // Limpar cookies
     response.cookies.delete('login_state')
