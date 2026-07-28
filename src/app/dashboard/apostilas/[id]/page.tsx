@@ -181,7 +181,7 @@ export default function ApostilaDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="card">
           <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Série</h3>
-          <p className="text-lg text-gray-900 dark:text-white">{SERIES[apostila.serie].label}</p>
+          <p className="text-lg text-gray-900 dark:text-white">{SERIES[apostila.serie as keyof typeof SERIES].label}</p>
         </div>
 
         <div className="card">
