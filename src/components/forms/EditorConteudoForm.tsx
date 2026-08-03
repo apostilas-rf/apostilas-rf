@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { LatexFormulaToolbar } from './LatexFormulaToolbar'
 
 interface EditorConteudoFormProps {
   apostilaId: string
@@ -395,25 +396,13 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           </span>
         </div>
 
-        {/* Toolbar de Formatação */}
-        <div className="mb-3 flex gap-2 flex-wrap">
-          <button
-            type="button"
-            onClick={() => insertFormula(false)}
-            title="Inserir fórmula inline: $x^2$"
-            className="flex items-center gap-1 px-3 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 text-xs font-medium"
-          >
-            ∑ Fórmula (inline)
-          </button>
-          <button
-            type="button"
-            onClick={() => insertFormula(true)}
-            title="Inserir fórmula em bloco: $$x^2$$"
-            className="flex items-center gap-1 px-3 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 text-xs font-medium"
-          >
-            ∑ Fórmula (bloco)
-          </button>
-        </div>
+        {/* Toolbar de Fórmulas */}
+        <LatexFormulaToolbar
+          onInsertFormula={(latex) => {
+            const markdown = ` $${latex}$ `
+            insertMarkdown(markdown)
+          }}
+        />
 
         {/* Área de Upload */}
         <div
