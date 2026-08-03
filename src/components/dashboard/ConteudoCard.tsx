@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { MarkdownWithLatex } from '@/components/content/MarkdownWithLatex'
 import { APOSTILA_STATUS } from '@/lib/constants'
 
 interface ConteudoCardProps {
@@ -104,10 +105,10 @@ export function ConteudoCard({ conteudo, onDelete, onEdit }: ConteudoCardProps) 
           {/* Conteúdo Completo */}
           <div>
             <p className="text-xs font-semibold text-gray-600 uppercase mb-2">Conteúdo</p>
-            <div className="bg-gray-50 p-4 rounded border border-gray-200 max-h-96 overflow-y-auto">
-              <p className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
-                {conteudo.conteudo}
-              </p>
+            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                <MarkdownWithLatex content={conteudo.conteudo} />
+              </div>
             </div>
           </div>
 

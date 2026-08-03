@@ -69,8 +69,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
     }))
   }
 
-  const insertImageMarkdown = (imageUrl: string, fileName: string) => {
-    const markdown = `![${fileName}](${imageUrl})\n`
+  const insertMarkdown = (markdown: string) => {
     const textarea = textareaRef.current
     if (textarea) {
       const start = textarea.selectionStart
@@ -83,6 +82,17 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
         textarea.selectionEnd = start + markdown.length
       }, 0)
     }
+  }
+
+  const insertImageMarkdown = (imageUrl: string, fileName: string) => {
+    const markdown = `![${fileName}](${imageUrl})\n`
+    insertMarkdown(markdown)
+  }
+
+  const insertFormula = (isBlock: boolean = false) => {
+    const placeholder = 'escreva a fórmula aqui'
+    const markdown = isBlock ? `\n$$${placeholder}$$\n` : ` $${placeholder}$ `
+    insertMarkdown(markdown)
   }
 
   const handleImageUpload = async (files: FileList) => {
@@ -383,6 +393,26 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           <span className="text-sm text-gray-500 dark:text-gray-400">
             ~{estimadoPaginas} página(s) | Máximo: 10 páginas
           </span>
+        </div>
+
+        {/* Toolbar de Formatação */}
+        <div className="mb-3 flex gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => insertFormula(false)}
+            title="Inserir fórmula inline: $x^2$"
+            className="flex items-center gap-1 px-3 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 text-xs font-medium"
+          >
+            ∑ Fórmula (inline)
+          </button>
+          <button
+            type="button"
+            onClick={() => insertFormula(true)}
+            title="Inserir fórmula em bloco: $$x^2$$"
+            className="flex items-center gap-1 px-3 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 text-xs font-medium"
+          >
+            ∑ Fórmula (bloco)
+          </button>
         </div>
 
         {/* Área de Upload */}
