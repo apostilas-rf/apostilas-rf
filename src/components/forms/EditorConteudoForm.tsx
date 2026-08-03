@@ -454,7 +454,8 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           onPaste={handlePaste}
           placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
           rows={14}
-          className="input-base font-mono text-sm"
+          className="input-base font-sans text-sm"
+          style={{ fontFamily: 'Open Sans, system-ui, sans-serif' }}
           maxLength={30000}
           required
         />
