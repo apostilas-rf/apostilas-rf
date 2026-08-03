@@ -106,6 +106,13 @@ function NavbarComponent() {
                       {usuario?.role || 'usuário'}
                     </p>
                   </div>
+                  <Link
+                    href="/dashboard/perfil"
+                    className="block px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 border-b border-gray-100 dark:border-gray-700"
+                    onClick={() => setAbrirMenu(false)}
+                  >
+                    Meu Perfil
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-5 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-300 flex items-center gap-2"
