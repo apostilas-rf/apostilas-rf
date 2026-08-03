@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { useState, memo, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -12,6 +12,11 @@ function NavbarComponent() {
   const { usuario, foto } = useUser()
   const { alternar } = useSidebar()
   const [abrirMenu, setAbrirMenu] = useState(false)
+  const [montado, setMontado] = useState(false)
+
+  useEffect(() => {
+    setMontado(true)
+  }, [])
 
   async function handleLogout() {
     try {
@@ -93,7 +98,7 @@ function NavbarComponent() {
                 </div>
               </button>
 
-              {abrirMenu && (
+              {montado && abrirMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-floating z-50 border border-gray-200/60 dark:border-gray-700 animate-slide-in">
                   <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
