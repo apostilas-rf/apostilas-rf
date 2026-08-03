@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { InlineMath } from 'react-katex'
+import 'katex/dist/katex.min.css'
 
 interface Formula {
   label: string
@@ -89,10 +91,12 @@ export function LatexFormulaToolbar({ onInsertFormula }: LatexFormulaToolbarProp
               key={formula.latex}
               onClick={() => onInsertFormula(formula.latex)}
               title={formula.label}
-              className="p-2 rounded bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors text-center truncate"
+              className="p-3 rounded bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors text-center flex flex-col items-center justify-center"
             >
-              <code className="text-xs">${formula.latex}$</code>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{formula.label}</div>
+              <div className="text-lg mb-1 flex items-center justify-center h-8">
+                <InlineMath>{formula.latex}</InlineMath>
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 truncate w-full">{formula.label}</div>
             </button>
           ))}
         </div>

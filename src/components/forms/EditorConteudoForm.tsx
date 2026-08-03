@@ -29,8 +29,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
         tipo: conteudoEditando.tipo,
         topicos: conteudoEditando.topicos,
         novoTopico: '',
-        enemTopico: conteudoEditando.enemTopico || '',
-        enemEstrelas: conteudoEditando.enemEstrelas?.toString() || '3',
+        enemTopicos: conteudoEditando.enemTopicos || [],
+        novoEnemTopico: '',
+        novoEnemEstrelas: '3',
         conteudo: conteudoEditando.conteudo,
       })
     }
@@ -43,8 +44,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
     tipo: 'CONTEUDO' as 'CONTEUDO' | 'REVISAO',
     topicos: [] as string[],
     novoTopico: '',
-    enemTopico: '',
-    enemEstrelas: '3',
+    enemTopicos: [] as Array<{ topico: string; estrelas: number }>,
+    novoEnemTopico: '',
+    novoEnemEstrelas: '3',
     conteudo: '',
   })
 
@@ -67,6 +69,30 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
     setFormData((prev) => ({
       ...prev,
       topicos: prev.topicos.filter((_, i) => i !== index),
+    }))
+  }
+
+  const handleAddEnemTopico = () => {
+    if (formData.novoEnemTopico.trim() && formData.enemTopicos.length < 10) {
+      setFormData((prev) => ({
+        ...prev,
+        enemTopicos: [
+          ...prev.enemTopicos,
+          {
+            topico: prev.novoEnemTopico.trim(),
+            estrelas: Number(prev.novoEnemEstrelas),
+          },
+        ],
+        novoEnemTopico: '',
+        novoEnemEstrelas: '3',
+      }))
+    }
+  }
+
+  const handleRemoveEnemTopico = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      enemTopicos: prev.enemTopicos.filter((_, i) => i !== index),
     }))
   }
 
@@ -206,8 +232,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           grupoConteudo: formData.grupoConteudo,
           tipo: formData.tipo,
           topicos: formData.topicos,
-          enemTopico: formData.enemTopico || null,
-          enemEstrelas: formData.enemTopico ? Number(formData.enemEstrelas) : null,
+          enemTopicos: formData.enemTopicos,
           conteudo: formData.conteudo,
         }),
       })
@@ -227,8 +252,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
         tipo: 'CONTEUDO',
         topicos: [],
         novoTopico: '',
-        enemTopico: '',
-        enemEstrelas: '3',
+        enemTopicos: [],
+        novoEnemTopico: '',
+        novoEnemEstrelas: '3',
         conteudo: '',
       })
 
@@ -355,34 +381,63 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
       </div>
 
       {/* ENEM */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="label-base">Cai no ENEM? (tópico)</label>
+      <div>
+        <label className="label-base">Cai no ENEM? {formData.enemTopicos.length}/10</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
           <input
             type="text"
-            name="enemTopico"
-            value={formData.enemTopico}
-            onChange={handleInputChange}
+            value={formData.novoEnemTopico}
+            onChange={(e) => setFormData((prev) => ({ ...prev, novoEnemTopico: e.target.value }))}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleAddEnemTopico()
+              }
+            }}
             placeholder="Ex: Climatologia"
             className="input-base"
+            disabled={formData.enemTopicos.length >= 10}
           />
+          <select
+            value={formData.novoEnemEstrelas}
+            onChange={(e) => setFormData((prev) => ({ ...prev, novoEnemEstrelas: e.target.value }))}
+            className="input-base"
+          >
+            <option value="1">⭐ Pouco</option>
+            <option value="2">⭐⭐ Raramente</option>
+            <option value="3">⭐⭐⭐ Às vezes</option>
+            <option value="4">⭐⭐⭐⭐ Frequente</option>
+            <option value="5">⭐⭐⭐⭐⭐ Muito Frequente</option>
+          </select>
+          <button
+            type="button"
+            onClick={handleAddEnemTopico}
+            disabled={formData.enemTopicos.length >= 10 || !formData.novoEnemTopico.trim()}
+            className="btn-primary"
+          >
+            Adicionar
+          </button>
         </div>
 
-        {formData.enemTopico && (
-          <div>
-            <label className="label-base">Frequência no ENEM ⭐</label>
-            <select
-              name="enemEstrelas"
-              value={formData.enemEstrelas}
-              onChange={handleInputChange}
-              className="input-base"
-            >
-              <option value="1">⭐ Pouco</option>
-              <option value="2">⭐⭐ Raramente</option>
-              <option value="3">⭐⭐⭐ Às vezes</option>
-              <option value="4">⭐⭐⭐⭐ Frequente</option>
-              <option value="5">⭐⭐⭐⭐⭐ Muito Frequente</option>
-            </select>
+        {formData.enemTopicos.length > 0 && (
+          <div className="space-y-2">
+            {formData.enemTopicos.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-amber-200 dark:border-amber-800"
+              >
+                <span className="text-gray-700 dark:text-gray-300">
+                  • {item.topico} {Array.from({ length: item.estrelas }).map(() => '⭐').join('')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEnemTopico(index)}
+                  className="text-red-600 hover:text-red-800 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -491,8 +546,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
                 tipo: 'CONTEUDO',
                 topicos: [],
                 novoTopico: '',
-                enemTopico: '',
-                enemEstrelas: '3',
+                enemTopicos: [],
+                novoEnemTopico: '',
+                novoEnemEstrelas: '3',
                 conteudo: '',
               })
             }}
@@ -510,8 +566,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
               tipo: 'CONTEUDO',
               topicos: [],
               novoTopico: '',
-              enemTopico: '',
-              enemEstrelas: '3',
+              enemTopicos: [],
+              novoEnemTopico: '',
+              novoEnemEstrelas: '3',
               conteudo: '',
             })}
             className="btn-secondary"
