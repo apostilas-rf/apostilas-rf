@@ -71,6 +71,7 @@ export function LatexFormulaToolbar({ onInsertFormula }: LatexFormulaToolbarProp
         {categories.map((cat) => (
           <button
             key={cat}
+            type="button"
             onClick={() => setOpenCategory(openCategory === cat ? null : cat)}
             className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors ${
               openCategory === cat
@@ -89,6 +90,7 @@ export function LatexFormulaToolbar({ onInsertFormula }: LatexFormulaToolbarProp
           {FORMULAS_BY_CATEGORY[openCategory].map((formula) => (
             <button
               key={formula.latex}
+              type="button"
               onClick={() => onInsertFormula(formula.latex)}
               title={formula.label}
               className="p-3 rounded bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors text-center flex flex-col items-center justify-center"
