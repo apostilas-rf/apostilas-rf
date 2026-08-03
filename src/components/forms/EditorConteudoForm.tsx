@@ -96,24 +96,55 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
     }))
   }
 
-  const insertMarkdown = (markdown: string) => {
+  const insertMarkdown = (markdown: string, before?: string, after?: string) => {
     const textarea = textareaRef.current
     if (textarea) {
       const start = textarea.selectionStart
       const end = textarea.selectionEnd
-      const newContent = formData.conteudo.substring(0, start) + markdown + formData.conteudo.substring(end)
-      setFormData((prev) => ({ ...prev, conteudo: newContent }))
-      setTimeout(() => {
-        textarea.focus()
-        textarea.selectionStart = start + markdown.length
-        textarea.selectionEnd = start + markdown.length
-      }, 0)
+      const selectedText = formData.conteudo.substring(start, end)
+
+      // Se há texto selecionado e antes/after foram fornecidos, aplica formatação ao redor
+      if (selectedText && before && after) {
+        const newContent = formData.conteudo.substring(0, start) + before + selectedText + after + formData.conteudo.substring(end)
+        setFormData((prev) => ({ ...prev, conteudo: newContent }))
+        setTimeout(() => {
+          textarea.focus()
+          textarea.selectionStart = start
+          textarea.selectionEnd = start + before.length + selectedText.length + after.length
+        }, 0)
+      } else {
+        // Se não há seleção, insere como antes
+        const newContent = formData.conteudo.substring(0, start) + markdown + formData.conteudo.substring(end)
+        setFormData((prev) => ({ ...prev, conteudo: newContent }))
+        setTimeout(() => {
+          textarea.focus()
+          textarea.selectionStart = start + markdown.length
+          textarea.selectionEnd = start + markdown.length
+        }, 0)
+      }
     }
   }
 
   const insertImageMarkdown = (imageUrl: string, fileName: string) => {
     const markdown = `![${fileName}](${imageUrl})\n`
     insertMarkdown(markdown)
+  }
+
+  const applyTextFormatting = (before: string, after: string, placeholder: string) => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const selectedText = formData.conteudo.substring(start, end)
+
+      if (selectedText) {
+        // Se há texto selecionado, aplica formatação ao redor
+        insertMarkdown('', before, after)
+      } else {
+        // Se não há seleção, insere placeholder com formatação
+        insertMarkdown(`${before}${placeholder}${after}`)
+      }
+    }
   }
 
   const insertFormula = (isBlock: boolean = false) => {
@@ -451,61 +482,70 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           </span>
         </div>
 
-        {/* Toolbar de Fórmulas */}
-        <LatexFormulaToolbar
-          onInsertFormula={(latex) => {
-            const markdown = ` $${latex}$ `
-            insertMarkdown(markdown)
-          }}
-        />
+        {/* Container com Toolbar Sticky e Textarea */}
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          {/* Toolbar Sticky */}
+          <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10 p-3">
+            <LatexFormulaToolbar
+              onInsertFormula={(latex) => {
+                const markdown = ` $${latex}$ `
+                insertMarkdown(markdown)
+              }}
+              onApplyFormatting={applyTextFormatting}
+            />
+          </div>
 
-        {/* Área de Upload */}
-        <div
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          className="mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition"
-        >
-          <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Arraste imagens aqui, cole (Ctrl+V) ou
-            </p>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="text-rf-green hover:underline font-medium text-sm"
-            >
-              clique para selecionar
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => handleImageUpload(e.target.files!)}
-              className="hidden"
+          {/* Área de Upload */}
+          <div
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className="border-b border-gray-200 dark:border-gray-700 border-dashed p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition"
+          >
+            <div className="text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Arraste imagens aqui, cole (Ctrl+V) ou
+              </p>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-rf-green hover:underline font-medium text-sm"
+              >
+                clique para selecionar
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => handleImageUpload(e.target.files!)}
+                className="hidden"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                {uploadingImage ? 'Enviando imagem...' : 'PNG, JPG, GIF até 5MB'}
+              </p>
+            </div>
+          </div>
+
+          {/* Textarea */}
+          <div className="p-3">
+            <textarea
+              ref={textareaRef}
+              name="conteudo"
+              value={formData.conteudo}
+              onChange={handleInputChange}
+              onPaste={handlePaste}
+              placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
+              rows={14}
+              className="w-full border-0 resize-none focus:outline-none focus:ring-0 font-sans text-sm dark:bg-gray-800 dark:text-white"
+              style={{ fontFamily: 'Open Sans, system-ui, sans-serif' }}
+              maxLength={30000}
+              required
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              {uploadingImage ? 'Enviando imagem...' : 'PNG, JPG, GIF até 5MB'}
+              {formData.conteudo.length} / 30000 caracteres
             </p>
           </div>
         </div>
-
-        <textarea
-          ref={textareaRef}
-          name="conteudo"
-          value={formData.conteudo}
-          onChange={handleInputChange}
-          onPaste={handlePaste}
-          placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
-          rows={14}
-          className="input-base font-sans text-sm"
-          style={{ fontFamily: 'Open Sans, system-ui, sans-serif' }}
-          maxLength={30000}
-          required
-        />
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {formData.conteudo.length} / 30000 caracteres
-        </p>
 
         {estimadoPaginas > 10 && (
           <p className="text-red-600 text-sm mt-2">

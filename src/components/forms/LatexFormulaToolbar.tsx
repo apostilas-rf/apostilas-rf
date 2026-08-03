@@ -93,18 +93,30 @@ const TEXT_FORMATTING: TextFormattingButton[] = [
     after: '~~',
     placeholder: 'tachado',
   },
+  {
+    label: 'Sublinhado',
+    icon: 'U',
+    before: '<u>',
+    after: '</u>',
+    placeholder: 'sublinhado',
+  },
 ]
 
 interface LatexFormulaToolbarProps {
   onInsertFormula: (latex: string) => void
+  onApplyFormatting?: (before: string, after: string, placeholder: string) => void
 }
 
-export function LatexFormulaToolbar({ onInsertFormula }: LatexFormulaToolbarProps) {
+export function LatexFormulaToolbar({ onInsertFormula, onApplyFormatting }: LatexFormulaToolbarProps) {
   const [openCategory, setOpenCategory] = useState<string | null>('Álgebra')
   const categories = Object.keys(FORMULAS_BY_CATEGORY)
 
   const insertTextFormat = (before: string, after: string, placeholder: string) => {
-    onInsertFormula(`${before}${placeholder}${after}`)
+    if (onApplyFormatting) {
+      onApplyFormatting(before, after, placeholder)
+    } else {
+      onInsertFormula(`${before}${placeholder}${after}`)
+    }
   }
 
   return (
