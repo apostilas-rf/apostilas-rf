@@ -56,6 +56,45 @@ const FORMULAS_BY_CATEGORY: Record<string, Formula[]> = {
   ],
 }
 
+interface TextFormattingButton {
+  label: string
+  icon: string
+  before: string
+  after: string
+  placeholder?: string
+}
+
+const TEXT_FORMATTING: TextFormattingButton[] = [
+  {
+    label: 'Negrito',
+    icon: 'B',
+    before: '**',
+    after: '**',
+    placeholder: 'negrito',
+  },
+  {
+    label: 'Itálico',
+    icon: 'I',
+    before: '*',
+    after: '*',
+    placeholder: 'itálico',
+  },
+  {
+    label: 'Código',
+    icon: '<>',
+    before: '`',
+    after: '`',
+    placeholder: 'código',
+  },
+  {
+    label: 'Tachado',
+    icon: 'S',
+    before: '~~',
+    after: '~~',
+    placeholder: 'tachado',
+  },
+]
+
 interface LatexFormulaToolbarProps {
   onInsertFormula: (latex: string) => void
 }
@@ -64,45 +103,67 @@ export function LatexFormulaToolbar({ onInsertFormula }: LatexFormulaToolbarProp
   const [openCategory, setOpenCategory] = useState<string | null>('Álgebra')
   const categories = Object.keys(FORMULAS_BY_CATEGORY)
 
+  const insertTextFormat = (before: string, after: string, placeholder: string) => {
+    onInsertFormula(`${before}${placeholder}${after}`)
+  }
+
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3">
-      {/* Tabs das categorias */}
-      <div className="flex gap-1 flex-wrap mb-3 overflow-x-auto pb-2">
-        {categories.map((cat) => (
+    <div className="space-y-3 mb-3">
+      {/* Barra de Formatação de Texto */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 flex gap-1 flex-wrap">
+        {TEXT_FORMATTING.map((format) => (
           <button
-            key={cat}
+            key={format.label}
             type="button"
-            onClick={() => setOpenCategory(openCategory === cat ? null : cat)}
-            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors ${
-              openCategory === cat
-                ? 'bg-rf-green text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
+            onClick={() => insertTextFormat(format.before, format.after, format.placeholder || 'texto')}
+            title={format.label}
+            className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors"
           >
-            {cat}
+            {format.icon}
           </button>
         ))}
       </div>
 
-      {/* Fórmulas da categoria aberta */}
-      {openCategory && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {FORMULAS_BY_CATEGORY[openCategory].map((formula) => (
+      {/* Barra de Fórmulas */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+        {/* Tabs das categorias */}
+        <div className="flex gap-1 flex-wrap mb-3 overflow-x-auto pb-2">
+          {categories.map((cat) => (
             <button
-              key={formula.latex}
+              key={cat}
               type="button"
-              onClick={() => onInsertFormula(formula.latex)}
-              title={formula.label}
-              className="p-3 rounded bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors text-center flex flex-col items-center justify-center"
+              onClick={() => setOpenCategory(openCategory === cat ? null : cat)}
+              className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors ${
+                openCategory === cat
+                  ? 'bg-rf-green text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
             >
-              <div className="text-lg mb-1 flex items-center justify-center h-8">
-                <InlineMath>{formula.latex}</InlineMath>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate w-full">{formula.label}</div>
+              {cat}
             </button>
           ))}
         </div>
-      )}
+
+        {/* Fórmulas da categoria aberta */}
+        {openCategory && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {FORMULAS_BY_CATEGORY[openCategory].map((formula) => (
+              <button
+                key={formula.latex}
+                type="button"
+                onClick={() => onInsertFormula(` $${formula.latex}$ `)}
+                title={formula.label}
+                className="p-3 rounded bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors text-center flex flex-col items-center justify-center"
+              >
+                <div className="text-lg mb-1 flex items-center justify-center h-8">
+                  <InlineMath>{formula.latex}</InlineMath>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate w-full">{formula.label}</div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
