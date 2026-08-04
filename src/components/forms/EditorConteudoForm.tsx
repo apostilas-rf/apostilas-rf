@@ -732,10 +732,10 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           onDrop={handleDrop}
           className="panel overflow-hidden"
         >
-          <div
-            className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2"
-            style={{ borderBottom: '1px solid var(--line)' }}
-          >
+          {/* Bloco simples, não flex: a barra cuida do próprio arranjo, e como
+              filha de um flex ela encolheria para o tamanho do conteúdo,
+              espremendo os painéis de fórmula que abrem embaixo. */}
+          <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--line)' }}>
             <LatexFormulaToolbar
               onInsertFormula={(latex) => insertMarkdown(` $${latex}$ `)}
               onApplyFormatting={applyTextFormatting}
