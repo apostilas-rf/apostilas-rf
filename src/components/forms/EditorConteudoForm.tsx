@@ -536,6 +536,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           {/* Editor Rico com Renderização em Tempo Real */}
           <div className="p-3">
             <RichTextEditor
+              ref={textareaRef}
               value={formData.conteudo}
               onChange={(value) => setFormData((prev) => ({ ...prev, conteudo: value }))}
               onPaste={(e: React.ClipboardEvent<HTMLTextAreaElement>) => {

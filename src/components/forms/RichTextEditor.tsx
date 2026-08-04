@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, forwardRef } from 'react'
 
 interface RichTextEditorProps {
   value: string
@@ -10,14 +10,19 @@ interface RichTextEditorProps {
   maxLength?: number
 }
 
-export function RichTextEditor({
-  value,
-  onChange,
-  onPaste,
-  placeholder = 'Escreva aqui...',
-  maxLength = 30000,
-}: RichTextEditorProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+export const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
+  function RichTextEditor(
+    {
+      value,
+      onChange,
+      onPaste,
+      placeholder = 'Escreva aqui...',
+      maxLength = 30000,
+    },
+    ref
+  ) {
+    const defaultRef = useRef<HTMLTextAreaElement>(null)
+    const textareaRef = ref || defaultRef
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length <= maxLength) {
@@ -45,3 +50,4 @@ export function RichTextEditor({
     </div>
   )
 }
+)
