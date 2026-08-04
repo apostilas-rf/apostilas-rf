@@ -7,6 +7,7 @@ const createApostilaSchema = z.object({
   titulo: z.string().min(3, 'Título deve ter no mínimo 3 caracteres'),
   materia: z.string().min(2, 'Matéria obrigatória'),
   serie: z.enum(['PRIMEIRO_ANO', 'SEGUNDO_ANO', 'TERCEIRO_ANO', 'CURSINHO']),
+  bimestre: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
   templateId: z.string().optional(),
   prazoEstimado: z.string().datetime().optional(),
   observacoes: z.string().optional(),
@@ -120,19 +121,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { titulo, materia, serie, templateId, prazoEstimado, observacoes } = validation.data
+    const { titulo, materia, serie, bimestre, templateId, prazoEstimado, observacoes } = validation.data
 
     // Se for PROFESSOR, o professor é o criador
     // Se for GESTOR, pode especificar o professor ou usar a si mesmo
     const professorId = userRole === 'PROFESSOR' ? userId : (body.professorId || userId)
 
     // Criar apostila
-    console.log('Criando apostila:', { titulo, materia, serie, professorId })
+    console.log('Criando apostila:', { titulo, materia, serie, bimestre, professorId })
     const apostila = await db.apostila.create({
       data: {
         titulo,
         materia,
         serie,
+        anoEscolar: bimestre || 'P1',
         professorId,
         templateId: templateId || undefined,
         status: 'RECEBIDO',
