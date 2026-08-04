@@ -163,7 +163,7 @@ export default function LoginPage() {
             <Image src="/logo.png" alt="RF Educação" fill className="object-contain object-left dark:hidden" />
             <Image src="/logo-white.png" alt="RF Educação" fill className="hidden object-contain object-left dark:block" />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Entrar</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Login Test</h2>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Use sua conta da escola para continuar.
           </p>
