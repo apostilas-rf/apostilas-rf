@@ -6,6 +6,9 @@ const config: Config = {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    // As classes de cor dos status vivem em src/lib/constants.ts; sem esta
+    // linha o Tailwind não as gera e o badge fica sempre com a cor padrão.
+    './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {

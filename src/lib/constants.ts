@@ -38,38 +38,38 @@ export const ROLES: Record<UserRole, { label: string; description: string }> = {
 export const APOSTILA_STATUS: Record<ApostilaStatus, { label: string; color: string; bgColor: string }> = {
   RECEBIDO: {
     label: 'Recebido',
-    color: 'text-blue-100 dark:text-blue-100',
-    bgColor: 'bg-blue-100 dark:bg-blue-700',
+    color: 'text-blue-800 dark:text-blue-50',
+    bgColor: 'bg-blue-100 dark:bg-blue-800',
   },
   EM_REVISAO_INICIAL: {
     label: 'Em revisão inicial',
-    color: 'text-yellow-100 dark:text-yellow-100',
+    color: 'text-yellow-800 dark:text-yellow-50',
     bgColor: 'bg-yellow-100 dark:bg-yellow-700',
   },
   EM_DIAGRAMACAO: {
     label: 'Em diagramação',
-    color: 'text-purple-100 dark:text-purple-100',
-    bgColor: 'bg-purple-100 dark:bg-purple-700',
+    color: 'text-purple-800 dark:text-purple-50',
+    bgColor: 'bg-purple-100 dark:bg-purple-800',
   },
   EM_REVISAO_FINAL: {
     label: 'Em revisão final',
-    color: 'text-orange-100 dark:text-orange-100',
+    color: 'text-orange-800 dark:text-orange-50',
     bgColor: 'bg-orange-100 dark:bg-orange-700',
   },
   EM_AJUSTE: {
     label: 'Em ajuste',
-    color: 'text-red-100 dark:text-red-100',
-    bgColor: 'bg-red-100 dark:bg-red-700',
+    color: 'text-red-800 dark:text-red-50',
+    bgColor: 'bg-red-100 dark:bg-red-800',
   },
   FINALIZADO: {
     label: 'Finalizado',
-    color: 'text-green-100 dark:text-green-100',
-    bgColor: 'bg-rf-green/20 dark:bg-green-700',
+    color: 'text-green-800 dark:text-green-50',
+    bgColor: 'bg-green-100 dark:bg-green-800',
   },
   ENVIADO: {
     label: 'Enviado',
-    color: 'text-teal-100 dark:text-teal-100',
-    bgColor: 'bg-rf-gray dark:bg-teal-700',
+    color: 'text-teal-800 dark:text-teal-50',
+    bgColor: 'bg-teal-100 dark:bg-teal-800',
   },
 }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { APOSTILA_STATUS, STATUS_TRANSITIONS } from '@/lib/constants'
 import type { ApostilaStatus } from '@/types'
 
@@ -10,95 +10,90 @@ interface StatusBadgeClickableProps {
   onStatusChange?: (newStatus: ApostilaStatus) => void
 }
 
+const TODOS_STATUS = Object.keys(APOSTILA_STATUS) as ApostilaStatus[]
+
+// Select nativo em vez de dropdown próprio: a tabela usa overflow-x-auto, que
+// recortava o menu absoluto. O popup do select é desenhado pelo sistema, então
+// nunca é cortado nem exige rolar a linha.
 export function StatusBadgeClickable({ status, apostilaId, onStatusChange }: StatusBadgeClickableProps) {
-  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [dropdownAbove, setDropdownAbove] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
   const config = APOSTILA_STATUS[status]
-  const possibleStatuses = STATUS_TRANSITIONS[status]
 
-  useEffect(() => {
-    if (open && containerRef.current && dropdownRef.current) {
-      const rect = containerRef.current.getBoundingClientRect()
-      const dropdownHeight = dropdownRef.current.offsetHeight
-      setDropdownAbove(rect.bottom + dropdownHeight > window.innerHeight - 50)
-    }
-  }, [open])
+  // Os próximos status do fluxo vêm primeiro; os demais ficam agrupados abaixo
+  // para permitir corrigir um status marcado por engano.
+  const proximos = STATUS_TRANSITIONS[status]
+  const outros = TODOS_STATUS.filter((s) => s !== status && !proximos.includes(s))
 
-  async function handleStatusChange(newStatus: ApostilaStatus) {
+  async function handleChange(novoStatus: ApostilaStatus) {
+    if (novoStatus === status) return
+
     setLoading(true)
     try {
       const response = await fetch(`/api/apostilas/${apostilaId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ novoStatus: newStatus }),
+        body: JSON.stringify({ novoStatus }),
       })
 
       if (response.ok) {
-        onStatusChange?.(newStatus)
-        setOpen(false)
+        onStatusChange?.(novoStatus)
+      } else {
+        const data = await response.json()
+        alert(data.error || 'Erro ao atualizar status')
       }
     } catch (err) {
       console.error('Erro ao atualizar status:', err)
+      alert('Erro de conexão ao atualizar status')
     } finally {
       setLoading(false)
     }
   }
 
-  const allStatuses = Object.keys(APOSTILA_STATUS) as ApostilaStatus[]
-
   return (
-    <div className="relative inline-block" ref={containerRef}>
-      <button
-        onClick={() => setOpen(!open)}
-        className={`${config.bgColor} ${config.color} text-xs font-medium px-3 py-1.5 rounded-full cursor-pointer hover:opacity-80 transition`}
+    <div className="relative inline-flex items-center">
+      <select
+        value={status}
+        disabled={loading}
+        onChange={(e) => handleChange(e.target.value as ApostilaStatus)}
+        aria-label="Mudar status da apostila"
+        className={`${config.bgColor} ${config.color} appearance-none text-xs font-medium pl-3 pr-7 py-1.5 rounded-full border-0 cursor-pointer hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-rf-green/50 transition disabled:opacity-50`}
       >
-        {config.label}
-      </button>
+        <option value={status} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+          {config.label}
+        </option>
 
-      {open && (
-        <div
-          ref={dropdownRef}
-          className={`absolute left-0 bg-gray-900 dark:bg-gray-800 border border-gray-700 dark:border-gray-600 rounded-lg shadow-xl z-50 min-w-48 ${
-            dropdownAbove ? 'bottom-full mb-2' : 'top-full mt-2'
-          }`}
-        >
-          <div className="py-1 max-h-64 overflow-y-auto">
-            {possibleStatuses.map((st) => (
-              <button
-                key={st}
-                onClick={() => handleStatusChange(st)}
-                disabled={loading}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-100 hover:bg-gray-700 dark:hover:bg-gray-700 transition disabled:opacity-50"
-              >
-                {APOSTILA_STATUS[st].label}
-              </button>
+        {proximos.length > 0 && (
+          <optgroup label="Avançar para">
+            {proximos.map((s) => (
+              <option key={s} value={s} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                {APOSTILA_STATUS[s].label}
+              </option>
             ))}
+          </optgroup>
+        )}
 
-            {possibleStatuses.length > 0 && (
-              <div className="border-t border-gray-700 dark:border-gray-600 my-1" />
-            )}
+        {outros.length > 0 && (
+          <optgroup label="Outros status">
+            {outros.map((s) => (
+              <option key={s} value={s} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                {APOSTILA_STATUS[s].label}
+              </option>
+            ))}
+          </optgroup>
+        )}
+      </select>
 
-            <div className="px-4 py-1 text-xs text-gray-400 font-semibold">Outros status</div>
-            {allStatuses
-              .filter((st) => st !== status && !possibleStatuses.includes(st))
-              .map((st) => (
-                <button
-                  key={st}
-                  onClick={() => handleStatusChange(st)}
-                  disabled={loading}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-700 transition disabled:opacity-50 opacity-60"
-                >
-                  {APOSTILA_STATUS[st].label}
-                </button>
-              ))}
-          </div>
-        </div>
-      )}
+      <svg
+        aria-hidden="true"
+        className={`${config.color} pointer-events-none absolute right-2 w-3 h-3`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={3}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
     </div>
   )
 }
