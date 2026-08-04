@@ -26,6 +26,15 @@ export async function GET(request: NextRequest) {
 
     const userId = state
 
+    // Validar o state para conformidade com OAuth 2.0 security policy
+    // O state deve ser válido (não vazio e não tampering)
+    if (typeof userId !== 'string' || userId.length === 0) {
+      console.error('Invalid state parameter')
+      return NextResponse.redirect(
+        new URL('/dashboard/conteudo?error=Estado+inválido', process.env.NEXT_PUBLIC_APP_URL)
+      )
+    }
+
     // Trocar authorization code por refresh token
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
