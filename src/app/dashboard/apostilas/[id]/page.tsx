@@ -10,8 +10,8 @@ import { ArquivosList } from '@/components/cards/ArquivosList'
 import { ConteudoCard } from '@/components/dashboard/ConteudoCard'
 import { ProblemasDiagramacaoCard } from '@/components/professor/ProblemasDiagramacaoCard'
 import { FormattedDate } from '@/components/common/FormattedDate'
-import { APOSTILA_STATUS, SERIES, STATUS_TRANSITIONS } from '@/lib/constants'
-import type { ApostilaStatus, ApostilaArquivo } from '@/types'
+import { APOSTILA_STATUS, SERIES } from '@/lib/constants'
+import type { ApostilaArquivo } from '@/types'
 
 export default function ApostilaDetailPage() {
   const router = useRouter()
@@ -24,8 +24,6 @@ export default function ApostilaDetailPage() {
   const [conteudos, setConteudos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [changeStatusLoading, setChangeStatusLoading] = useState(false)
-  const [selectedStatus, setSelectedStatus] = useState('')
   const [conteudoEditando, setConteudoEditando] = useState<any>(null)
   const [, setDeletingId] = useState<string | null>(null)
   const editorRef = useRef<HTMLDivElement>(null)
@@ -51,7 +49,6 @@ export default function ApostilaDetailPage() {
         const data = await response.json()
         setApostila(data.data)
         setArquivos(data.data.arquivos || [])
-        setSelectedStatus(data.data.status)
         fetchConteudos()
       } else {
         setError('Apostila não encontrada')
@@ -105,35 +102,6 @@ export default function ApostilaDetailPage() {
     setConteudoEditando(conteudo)
   }
 
-
-  async function handleStatusChange() {
-    if (!selectedStatus || selectedStatus === apostila?.status) return
-
-    setChangeStatusLoading(true)
-    try {
-      const response = await fetch(`/api/apostilas/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ novoStatus: selectedStatus }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setApostila(data.data)
-        alert('Status atualizado com sucesso!')
-      } else {
-        const data = await response.json()
-        alert(`Erro: ${data.error}`)
-      }
-    } catch (err) {
-      alert('Erro ao atualizar status')
-      console.error(err)
-    } finally {
-      setChangeStatusLoading(false)
-    }
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -155,8 +123,6 @@ export default function ApostilaDetailPage() {
       </div>
     )
   }
-
-  const possibleStatuses = STATUS_TRANSITIONS[apostila.status as ApostilaStatus]
 
   return (
     <div>
@@ -191,54 +157,17 @@ export default function ApostilaDetailPage() {
         </div>
 
         <div className="card">
-          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</h3>
-          <p className="text-sm text-gray-900 dark:text-white">{APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label}</p>
+          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Criado em</h3>
+          <p className="text-sm text-gray-900 dark:text-white">
+            <FormattedDate date={apostila.criadoEm} />
+          </p>
         </div>
 
         <div className="card">
-          <label className="label-base text-xs">Novo Status</label>
-          <div className="flex gap-2 mt-2">
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="input-base text-sm flex-1"
-            >
-              <option value={apostila.status}>
-                {APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label} (Atual)
-              </option>
-
-              {possibleStatuses.length > 0 && (
-                <optgroup label="Próximos status">
-                  {possibleStatuses.map((status) => (
-                    <option key={status} value={status}>
-                      {APOSTILA_STATUS[status as ApostilaStatus].label}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-
-              <optgroup label="Reverter para...">
-                {Object.entries(APOSTILA_STATUS).map(([statusKey, statusConfig]) => {
-                  const status = statusKey as ApostilaStatus
-                  if (status !== apostila.status) {
-                    return (
-                      <option key={status} value={status}>
-                        {statusConfig.label}
-                      </option>
-                    )
-                  }
-                  return null
-                })}
-              </optgroup>
-            </select>
-            <button
-              onClick={handleStatusChange}
-              disabled={changeStatusLoading || selectedStatus === apostila.status}
-              className="btn-primary text-sm px-3"
-            >
-              {changeStatusLoading ? '...' : 'Atualizar'}
-            </button>
-          </div>
+          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Último update</h3>
+          <p className="text-sm text-gray-900 dark:text-white">
+            <FormattedDate date={apostila.atualizadoEm} />
+          </p>
         </div>
       </div>
 
@@ -248,31 +177,6 @@ export default function ApostilaDetailPage() {
           <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{apostila.observacoes}</p>
         </div>
       )}
-
-      <div className="card">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <p className="font-medium text-gray-700 dark:text-gray-400">Criado em</p>
-            <p className="text-gray-900 dark:text-white">
-              <FormattedDate date={apostila.criadoEm} />
-            </p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-700 dark:text-gray-400">Último update</p>
-            <p className="text-gray-900 dark:text-white">
-              <FormattedDate date={apostila.atualizadoEm} />
-            </p>
-          </div>
-          {apostila.dataFinal && (
-            <div>
-              <p className="font-medium text-gray-700 dark:text-gray-400">Enviado em</p>
-              <p className="text-gray-900 dark:text-white">
-                <FormattedDate date={apostila.dataFinal} />
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Upload de Arquivos */}
       <div className="card mt-8">

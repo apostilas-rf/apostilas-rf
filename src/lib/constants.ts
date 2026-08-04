@@ -39,37 +39,37 @@ export const APOSTILA_STATUS: Record<ApostilaStatus, { label: string; color: str
   RECEBIDO: {
     label: 'Recebido',
     color: 'text-blue-600 dark:text-blue-300',
-    bgColor: 'bg-blue-100 dark:bg-blue-900/40',
+    bgColor: 'bg-blue-100 dark:bg-blue-900/60',
   },
   EM_REVISAO_INICIAL: {
     label: 'Em revisão inicial',
     color: 'text-yellow-600 dark:text-yellow-300',
-    bgColor: 'bg-yellow-100 dark:bg-yellow-900/40',
+    bgColor: 'bg-yellow-100 dark:bg-yellow-900/60',
   },
   EM_DIAGRAMACAO: {
     label: 'Em diagramação',
     color: 'text-purple-600 dark:text-purple-300',
-    bgColor: 'bg-purple-100 dark:bg-purple-900/40',
+    bgColor: 'bg-purple-100 dark:bg-purple-900/60',
   },
   EM_REVISAO_FINAL: {
     label: 'Em revisão final',
     color: 'text-orange-600 dark:text-orange-300',
-    bgColor: 'bg-orange-100 dark:bg-orange-900/40',
+    bgColor: 'bg-orange-100 dark:bg-orange-900/60',
   },
   EM_AJUSTE: {
     label: 'Em ajuste',
     color: 'text-red-600 dark:text-red-300',
-    bgColor: 'bg-red-100 dark:bg-red-900/40',
+    bgColor: 'bg-red-100 dark:bg-red-900/60',
   },
   FINALIZADO: {
     label: 'Finalizado',
     color: 'text-green-800 dark:text-green-200',
-    bgColor: 'bg-rf-green/20 dark:bg-green-900/40',
+    bgColor: 'bg-rf-green/20 dark:bg-green-900/60',
   },
   ENVIADO: {
     label: 'Enviado',
     color: 'text-rf-teal dark:text-teal-200',
-    bgColor: 'bg-rf-gray dark:bg-teal-900/40',
+    bgColor: 'bg-rf-gray dark:bg-teal-900/60',
   },
 }
 
