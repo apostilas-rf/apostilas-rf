@@ -29,7 +29,12 @@ function NavbarComponent() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle bg-white dark:bg-gray-900">
+    /* Translúcida com blur: o brilho do canvas atravessa por baixo, o que dá a
+       leitura de camada de vidro em vez de barra opaca colada no topo. */
+    <nav
+      style={{ borderColor: 'var(--line)' }}
+      className="fixed top-0 left-0 right-0 z-40 border-b bg-[var(--canvas)]/70 backdrop-blur-xl"
+    >
       {/* O padrão fica numa camada própria só para poder ter opacidade sem
           desbotar junto o logo, o nome e o menu. Ajuste a intensidade aqui. */}
       <div

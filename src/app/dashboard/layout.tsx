@@ -10,12 +10,10 @@ import type { UserRole } from '@/types'
 
 function DashboardSkeleton() {
   return (
-    <div className="flex-1 dark:bg-gray-900">
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-1/4"></div>
-          <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/3"></div>
-        </div>
+    <div className="flex-1 p-8">
+      <div className="animate-pulse space-y-4">
+        <div className="h-9 w-1/4 rounded-2xl bg-gray-500/15"></div>
+        <div className="h-4 w-1/3 rounded-xl bg-gray-500/10"></div>
       </div>
     </div>
   )
@@ -36,13 +34,15 @@ export default async function DashboardLayout({
   return (
     <UserProvider>
       <SidebarProvider>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Sem cor de fundo aqui: o canvas e o brilho da marca vêm do body.
+            Um bg opaco neste wrapper cobria os dois. */}
+        <div className="relative min-h-screen">
           <Navbar />
           <div className="flex pt-16 sm:pt-24">
             <Sidebar userRole={userRole} />
             <Suspense fallback={<DashboardSkeleton />}>
               {/* min-w-0 impede que tabelas largas estourem a largura da tela */}
-              <main className="flex-1 min-w-0 dark:bg-gray-900">
+              <main className="flex-1 min-w-0">
                 <LayoutContent>
                   {children}
                 </LayoutContent>

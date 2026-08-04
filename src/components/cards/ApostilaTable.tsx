@@ -39,28 +39,34 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <th className="px-6 py-3 text-left font-semibold text-gray-700 dark:text-rf-green">Título</th>
-            <th className="px-6 py-3 text-left font-semibold text-gray-700 dark:text-rf-green">Matéria</th>
-            <th className="px-6 py-3 text-left font-semibold text-gray-700 dark:text-rf-green">Série</th>
-            <th className="px-6 py-3 text-left font-semibold text-gray-700 dark:text-rf-green">Status</th>
-            <th className="px-6 py-3 text-left font-semibold text-gray-700 dark:text-rf-green">Criado em</th>
-            <th className="px-6 py-3 text-center font-semibold text-gray-700 dark:text-rf-green">Ações</th>
+          {/* Cabeçalho sem fundo próprio nem borda dura: o rótulo miúdo em
+              maiúsculas já separa da primeira linha. */}
+          <tr style={{ borderColor: 'var(--line)' }} className="border-b">
+            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Título</th>
+            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Matéria</th>
+            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Série</th>
+            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Status</th>
+            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Criado em</th>
+            <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Ações</th>
           </tr>
         </thead>
         <tbody>
           {apostasList.map((apostila) => (
-            <tr key={apostila.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <tr
+              key={apostila.id}
+              style={{ borderColor: 'var(--line)' }}
+              className="table-row-hover border-b last:border-0"
+            >
               <td className="px-6 py-4">
                 <Link
                   href={`/dashboard/apostilas/${apostila.id}`}
-                  className="text-rf-green font-medium hover:underline"
+                  className="font-medium text-gray-900 hover:text-rf-green dark:text-white"
                 >
                   {apostila.titulo}
                 </Link>
               </td>
-              <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{apostila.materia}</td>
-              <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
+              <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{apostila.materia}</td>
+              <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                 {SERIES[apostila.serie].label}
               </td>
               <td className="px-6 py-4">
@@ -75,14 +81,14 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
                   }}
                 />
               </td>
-              <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">
+              <td className="px-6 py-4 text-xs text-gray-500 dark:text-gray-400">
                 {new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}
               </td>
-              <td className="px-6 py-4 text-center">
-                <div className="flex gap-3 justify-center">
+              <td className="px-6 py-4">
+                <div className="flex justify-center gap-2">
                   <Link
                     href={`/dashboard/apostilas/${apostila.id}`}
-                    className="text-rf-green hover:underline text-xs font-medium"
+                    className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-500/10 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                   >
                     Ver
                   </Link>
@@ -93,7 +99,7 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
                           onDelete(apostila.id)
                         }
                       }}
-                      className="text-red-600 hover:underline text-xs font-medium"
+                      className="rounded-xl px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500/10 dark:text-red-400"
                     >
                       Excluir
                     </button>
