@@ -2,6 +2,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
+import { chaveMateria, resolverPasta, nomeArquivo } from '@/lib/drive-pastas'
 
 // Mapear série para número
 const SERIE_MAP: Record<string, number> = {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
-    const { conteudo, capitulo, apostilaId, driveFileId, materia, serie, frente } = await request.json()
+    const { conteudo, capitulo, apostilaId, driveFileId, materia, serie, frente, anoEscolar } = await request.json()
 
     if (!conteudo || !capitulo) {
       return NextResponse.json({ error: 'Conteúdo e capítulo são obrigatórios' }, { status: 400 })
@@ -73,29 +74,29 @@ export async function POST(request: NextRequest) {
     const buffer = await Packer.toBuffer(doc)
     const fileBlob = new Blob([Buffer.from(buffer)])
 
-    // Formatar nome do arquivo: P1 - 1 ANO - MATEMATICA - FRENTE A
-    let filename = `${capitulo}.docx`
-    if (materia && serie && frente) {
-      const anoNum = SERIE_MAP[serie] || 1
-      const materiaNormalized = materia.toUpperCase().replace(/\s+/g, '_')
-      const frenteLetter = frente.toUpperCase()
-      filename = `P${anoNum} - ${anoNum} ANO - ${materiaNormalized} - FRENTE ${frenteLetter}.docx`
+    // Resolver a pasta ANTES de subir. Sem pasta mapeada, falha explicitamente:
+    // cair em 'root' fazia o arquivo sumir na raiz do Drive sem nenhum aviso.
+    if (!materia) {
+      return NextResponse.json({ error: 'Matéria é obrigatória para escolher a pasta' }, { status: 400 })
     }
 
-    // Obter pasta do Drive baseado em matéria + frente
-    let DRIVE_FOLDER_ID = 'root'
-    if (materia && frente) {
-      const driveConfig = process.env.GOOGLE_DRIVE_FOLDERS
-      if (driveConfig) {
-        try {
-          const folders = JSON.parse(driveConfig)
-          const key = `${materia.toUpperCase().replace(/\s+/g, '_')}_${frente.toUpperCase()}`
-          DRIVE_FOLDER_ID = folders[key] || 'root'
-        } catch (e) {
-          console.error('Erro ao parsear GOOGLE_DRIVE_FOLDERS:', e)
-        }
-      }
+    const pasta = resolverPasta(materia, frente)
+    if (!pasta) {
+      return NextResponse.json(
+        {
+          error: `Nenhuma pasta do Drive configurada para "${materia}"${frente ? ` frente ${frente}` : ''}. ` +
+            `Esperado GOOGLE_DRIVE_FOLDERS com a chave "${chaveMateria(materia)}"` +
+            `${frente ? ` ou "${chaveMateria(materia)}_${frente.toUpperCase()}"` : ''}.`,
+        },
+        { status: 400 }
+      )
     }
+    const DRIVE_FOLDER_ID = pasta.folderId
+
+    // Nome do arquivo: P1 - 1 ANO - MATEMATICA - FRENTE A
+    // O "P" é o bimestre; o "ANO" vem da série da apostila.
+    const anoNum = SERIE_MAP[serie] ?? 1
+    const filename = nomeArquivo(materia, anoNum, anoEscolar, pasta, frente)
 
     const accessToken = await refreshGoogleToken(user.driveRefreshToken)
 
