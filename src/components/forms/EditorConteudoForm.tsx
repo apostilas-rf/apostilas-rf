@@ -76,30 +76,6 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
     }))
   }
 
-  const handleAddEnemTopico = () => {
-    if (formData.novoEnemTopico.trim() && formData.enemTopicos.length < 10) {
-      setFormData((prev) => ({
-        ...prev,
-        enemTopicos: [
-          ...prev.enemTopicos,
-          {
-            topico: prev.novoEnemTopico.trim(),
-            estrelas: Number(prev.novoEnemEstrelas),
-          },
-        ],
-        novoEnemTopico: '',
-        novoEnemEstrelas: '3',
-      }))
-    }
-  }
-
-  const handleRemoveEnemTopico = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      enemTopicos: prev.enemTopicos.filter((_, i) => i !== index),
-    }))
-  }
-
   const insertMarkdown = (markdown: string, before?: string, after?: string) => {
     const textarea = textareaRef.current
     if (textarea) {
