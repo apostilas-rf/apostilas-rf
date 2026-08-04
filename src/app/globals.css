@@ -5,13 +5,18 @@
 @layer base {
   /* Escada de superfícies: o que dá profundidade é a superfície ficar mais
      clara a cada nível, não a borda. As bordas viram fio de cabelo. */
+  /* Claro: canvas com um sopro do rf-green em vez de cinza-azulado. O cinza
+     frio deixava o branco do card parecer sujo; contra o verde ele lê limpo.
+     Fios e sombras seguem a mesma família — sombra cinza sobre canvas verde
+     briga e denuncia o cartão como colado por cima. */
   :root {
-    --canvas: #f2f4f7;
+    --canvas: #eef3f0;
     --surface: #ffffff;
     --surface-raised: #ffffff;
-    --surface-inset: #f6f7f9;
-    --line: rgb(15 23 42 / 0.07);
-    --line-strong: rgb(15 23 42 / 0.12);
+    --surface-inset: #f4f8f6;
+    --line: rgb(0 60 40 / 0.09);
+    --line-strong: rgb(0 60 40 / 0.16);
+    --sombra: 0 55 36;
     color-scheme: light;
   }
 
@@ -22,12 +27,17 @@
     --surface-inset: #0f1725;
     --line: rgb(255 255 255 / 0.07);
     --line-strong: rgb(255 255 255 / 0.14);
+    /* No escuro as sombras são pretas puras; a profundidade vem da superfície. */
+    --sombra: 0 0 0;
     color-scheme: dark;
   }
 
   body {
     background-color: var(--canvas);
-    @apply text-gray-900 antialiased;
+    /* Quase-preto com um resto de verde. O gray-900 do Tailwind puxa para o
+       azul e destoava do canvas agora esverdeado. */
+    color: #101a15;
+    @apply antialiased;
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 
@@ -67,15 +77,15 @@
   /* Sombras em duas camadas: um contato curto e um halo difuso. Uma sombra só
      fica dura; duas leem como luz de verdade. */
   .shadow-subtle {
-    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
+    box-shadow: 0 1px 2px rgb(var(--sombra) / 0.05), 0 1px 3px rgb(var(--sombra) / 0.07);
   }
 
   .shadow-elevated {
-    box-shadow: 0 2px 4px rgb(15 23 42 / 0.04), 0 8px 20px rgb(15 23 42 / 0.08);
+    box-shadow: 0 2px 4px rgb(var(--sombra) / 0.05), 0 8px 20px rgb(var(--sombra) / 0.09);
   }
 
   .shadow-floating {
-    box-shadow: 0 4px 8px rgb(15 23 42 / 0.06), 0 20px 48px rgb(15 23 42 / 0.14);
+    box-shadow: 0 4px 8px rgb(var(--sombra) / 0.07), 0 20px 48px rgb(var(--sombra) / 0.15);
   }
 
   /* No escuro a sombra some contra o fundo; a profundidade vem da superfície

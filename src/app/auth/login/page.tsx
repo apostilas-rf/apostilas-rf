@@ -116,9 +116,44 @@ export default function LoginPage() {
           }}
         />
 
+        {/* Livro aberto em traço, ocupando a folga entre a chamada e a lista.
+            Ecoa o próprio símbolo da RF. Transborda a largura de propósito:
+            recortado pela borda lê como marca d'água, não como clipart. */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 200 140"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="pointer-events-none absolute left-1/2 top-[54%] w-[118%] -translate-x-1/2 -translate-y-1/2 text-white"
+        >
+          <g opacity="0.2">
+            <path d="M100 34 C 76 22, 44 16, 12 24 L 12 100 C 44 92, 76 98, 100 118 Z" />
+            <path d="M100 34 C 124 22, 156 16, 188 24 L 188 100 C 156 92, 124 98, 100 118 Z" />
+            <path d="M100 34 L 100 118" />
+          </g>
+          <g opacity="0.12">
+            <path d="M12 107 C 44 99, 76 105, 100 125" />
+            <path d="M188 107 C 156 99, 124 105, 100 125" />
+          </g>
+          <g opacity="0.11">
+            <path d="M30 44 C 50 40, 70 42, 88 48" />
+            <path d="M30 58 C 50 54, 70 56, 88 62" />
+            <path d="M30 72 C 50 68, 70 70, 88 76" />
+            <path d="M170 44 C 150 40, 130 42, 112 48" />
+            <path d="M170 58 C 150 54, 130 56, 112 62" />
+            <path d="M170 72 C 150 68, 130 70, 112 76" />
+          </g>
+        </svg>
+
         <div className="relative">
-          <div className="relative mb-8 h-14 w-14">
-            <Image src="/logo-white.png" alt="" fill className="object-contain" />
+          {/* A marca é um lockup horizontal (símbolo + "rf educação"), então
+              precisa de caixa larga: num quadrado o object-contain encolhia
+              tudo pela altura e ela sumia. */}
+          <div className="relative mb-10 h-20 w-56">
+            <Image src="/logo-white.png" alt="RF Educação" fill className="object-contain object-left" priority />
           </div>
           <h1 className="font-ubuntu text-4xl font-bold leading-tight tracking-tight">
             Apostilas RF
@@ -156,9 +191,9 @@ export default function LoginPage() {
       {/* Painel do formulário */}
       <div className="p-8 sm:p-10 lg:p-12">
         <div className="mb-8">
-          <div className="relative mb-6 h-12 w-12 lg:hidden">
-            <Image src="/logo.png" alt="" fill className="object-contain dark:hidden" />
-            <Image src="/logo-white.png" alt="" fill className="hidden object-contain dark:block" />
+          <div className="relative mb-6 h-14 w-44 lg:hidden">
+            <Image src="/logo.png" alt="RF Educação" fill className="object-contain object-left dark:hidden" />
+            <Image src="/logo-white.png" alt="RF Educação" fill className="hidden object-contain object-left dark:block" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Entrar</h2>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
