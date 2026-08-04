@@ -283,6 +283,32 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
 
       setSuccess(conteudoEditando ? 'Capítulo atualizado com sucesso!' : 'Capítulo salvo com sucesso!')
 
+      // Upload do conteúdo para o Google Drive como arquivo Word
+      try {
+        const driveResponse = await fetch('/api/upload-conteudo-drive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            conteudo: formData.conteudo,
+            capitulo: formData.capitulo,
+            apostilaId,
+          }),
+        })
+
+        if (driveResponse.ok) {
+          const driveData = await driveResponse.json()
+          setSuccess(
+            (prev) =>
+              prev + ` | Arquivo salvo no Drive: ${driveData.fileName}`
+          )
+        } else {
+          console.warn('Aviso: Não foi possível salvar no Drive')
+        }
+      } catch (driveError) {
+        console.error('Erro ao fazer upload no Drive:', driveError)
+      }
+
       setFormData({
         capitulo: '',
         frente: 'A',
