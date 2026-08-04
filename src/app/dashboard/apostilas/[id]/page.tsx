@@ -9,6 +9,7 @@ import { EditorConteudoForm } from '@/components/forms/EditorConteudoForm'
 import { ArquivosList } from '@/components/cards/ArquivosList'
 import { ConteudoCard } from '@/components/dashboard/ConteudoCard'
 import { ProblemasDiagramacaoCard } from '@/components/professor/ProblemasDiagramacaoCard'
+import { FormattedDate } from '@/components/common/FormattedDate'
 import { APOSTILA_STATUS, SERIES, STATUS_TRANSITIONS } from '@/lib/constants'
 import type { ApostilaStatus, ApostilaArquivo } from '@/types'
 
@@ -252,16 +253,22 @@ export default function ApostilaDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
             <p className="font-medium text-gray-700 dark:text-gray-400">Criado em</p>
-            <p className="text-gray-900 dark:text-white">{new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}</p>
+            <p className="text-gray-900 dark:text-white">
+              <FormattedDate date={apostila.criadoEm} />
+            </p>
           </div>
           <div>
             <p className="font-medium text-gray-700 dark:text-gray-400">Último update</p>
-            <p className="text-gray-900 dark:text-white">{new Date(apostila.atualizadoEm).toLocaleDateString('pt-BR')}</p>
+            <p className="text-gray-900 dark:text-white">
+              <FormattedDate date={apostila.atualizadoEm} />
+            </p>
           </div>
           {apostila.dataFinal && (
             <div>
               <p className="font-medium text-gray-700 dark:text-gray-400">Enviado em</p>
-              <p className="text-gray-900 dark:text-white">{new Date(apostila.dataFinal).toLocaleDateString('pt-BR')}</p>
+              <p className="text-gray-900 dark:text-white">
+                <FormattedDate date={apostila.dataFinal} />
+              </p>
             </div>
           )}
         </div>
