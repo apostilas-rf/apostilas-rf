@@ -4,14 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
 import { StatusBadge } from '@/components/cards/StatusBadge'
-import { FileUploadForm } from '@/components/forms/FileUploadForm'
 import { EditorConteudoForm } from '@/components/forms/EditorConteudoForm'
-import { ArquivosList } from '@/components/cards/ArquivosList'
-import { ConteudoCard } from '@/components/dashboard/ConteudoCard'
 import { ProblemasDiagramacaoCard } from '@/components/professor/ProblemasDiagramacaoCard'
 import { FormattedDate } from '@/components/common/FormattedDate'
 import { APOSTILA_STATUS, SERIES } from '@/lib/constants'
-import type { ApostilaArquivo } from '@/types'
 
 export default function ApostilaDetailPage() {
   const router = useRouter()
@@ -20,7 +16,6 @@ export default function ApostilaDetailPage() {
   const id = params.id as string
 
   const [apostila, setApostila] = useState<any>(null)
-  const [arquivos, setArquivos] = useState<ApostilaArquivo[]>([])
   const [conteudos, setConteudos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -48,7 +43,6 @@ export default function ApostilaDetailPage() {
       if (response.ok) {
         const data = await response.json()
         setApostila(data.data)
-        setArquivos(data.data.arquivos || [])
         fetchConteudos()
       } else {
         setError('Apostila não encontrada')
@@ -177,22 +171,6 @@ export default function ApostilaDetailPage() {
           <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{apostila.observacoes}</p>
         </div>
       )}
-
-      {/* Upload de Arquivos */}
-      <div className="card mt-8">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Enviar Conteúdo</h2>
-        <FileUploadForm
-          apostilaId={id}
-          tipo="PROFESSOR"
-          onSuccess={fetchApostila}
-        />
-      </div>
-
-      {/* Lista de Arquivos */}
-      <div className="card mt-8">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Arquivos Enviados</h2>
-        <ArquivosList arquivos={arquivos} />
-      </div>
 
       {/* Editor Estruturado de Conteúdo */}
       <div className="card mt-8" ref={editorRef}>
