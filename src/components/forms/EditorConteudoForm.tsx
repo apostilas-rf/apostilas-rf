@@ -302,13 +302,10 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           apostilaId,
           capitulo: formData.capitulo,
           frente: formData.frente,
-          anoEscolar: formData.anoEscolar,
           grupoConteudo: formData.grupoConteudo,
           tipo: formData.tipo,
           topicos: formData.topicos,
-          enemTopicos: formData.enemTopicos,
           conteudo: formData.conteudo,
-          driveFileId: newDriveFileId,
         }),
       })
 
