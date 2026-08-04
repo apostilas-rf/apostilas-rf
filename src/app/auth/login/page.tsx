@@ -116,44 +116,7 @@ export default function LoginPage() {
           }}
         />
 
-        {/* Rabiscos artísticos ao fundo. Leve, orgânico, sem competir com o
-            texto. Parece que alguém esboçou um livro aberto com lápis — sugerido,
-            não literal. Opacidade mínima; se aparecer demais, é um número só. */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 280 160"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={0.8}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="pointer-events-none absolute left-1/2 top-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 text-white"
-        >
-          <g opacity="0.08">
-            {/* Lombada esquerda — arco suave sugerindo página aberta */}
-            <path d="M 120 40 Q 100 50, 95 80 Q 98 110, 120 130" />
-            {/* Lombada direita */}
-            <path d="M 160 40 Q 180 50, 185 80 Q 182 110, 160 130" />
-            {/* Linha central (fechadura do livro) */}
-            <path d="M 140 35 L 140 135" />
-            {/* Rabiscos de página à esquerda — linhas onduladas sugerindo texto */}
-            <path d="M 50 65 Q 65 63, 110 67" />
-            <path d="M 50 80 Q 68 78, 110 82" />
-            <path d="M 50 95 Q 70 93, 110 97" />
-            {/* Rabiscos de página à direita */}
-            <path d="M 170 67 Q 200 63, 230 65" />
-            <path d="M 170 82 Q 205 78, 230 80" />
-            <path d="M 170 97 Q 202 93, 230 95" />
-          </g>
-          <g opacity="0.05">
-            {/* Detalhes ainda mais leves — sugerem dobras e sombra */}
-            <path d="M 140 45 Q 145 70, 140 100" />
-            <path d="M 115 50 Q 125 75, 120 100" />
-            <path d="M 165 50 Q 155 75, 160 100" />
-          </g>
-        </svg>
-
-        <div className="relative">
+<div className="relative">
           {/* A marca é um lockup horizontal (símbolo + "rf educação"), então
               precisa de caixa larga: num quadrado o object-contain encolhia
               tudo pela altura e ela sumia. */}
