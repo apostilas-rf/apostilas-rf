@@ -27,8 +27,11 @@ interface SidebarLink {
 // mesmo viewBox 24 e herdam a cor do item, então acompanham o estado ativo.
 const TRACOS: Record<IconeNome, string> = {
   painel: 'M4 5h6v6H4zM14 5h6v4h-6zM14 13h6v6h-6zM4 15h6v4H4z',
-  apostilas: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM19 3v18',
-  professores: 'M17 20v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9.5 8a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0zM22 20v-2a4 4 0 00-3-3.87M16 4.13a4 4 0 010 7.75',
+  // A lombada terminava 2 unidades abaixo da capa, deixando um rabinho solto.
+  apostilas: 'M4 19.5v-15A2.5 2.5 0 016.5 2H20v20H6.5a2.5 2.5 0 010-5H20',
+  // Cabeça e ombros partilham o centro em x=9; antes o corpo estava em 9,5 e a
+  // cabeça em 6, o que deixava o boneco olhando de lado.
+  professores: 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M13 7a4 4 0 11-8 0 4 4 0 018 0zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
   capitulos: 'M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8zM14 3v5h5M9 13h6M9 17h4',
   diagramacao: 'M4 4h16v16H4zM4 10h16M10 10v10',
   imagens: 'M3 5h18v14H3zM3 16l4.5-4.5a2 2 0 013 0L15 16M14 12l1.5-1.5a2 2 0 013 0L21 13M8.5 8.5h.01',
