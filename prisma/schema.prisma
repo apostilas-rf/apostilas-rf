@@ -345,6 +345,7 @@ model ConteudoCapitulo {
 
   capitulo      String // Nome do capítulo
   frente        String // A, B ou C
+  anoEscolar    String? // Ano selecionado (ex: "1", "2", "3", "cursinho")
   grupoConteudo String? // "NATUREZAS_MATEMATICA" ou "HUMANAS_LINGUAGENS"
   tipo          String // "CONTEUDO" ou "REVISAO"
 

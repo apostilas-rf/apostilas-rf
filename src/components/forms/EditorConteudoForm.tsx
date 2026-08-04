@@ -46,6 +46,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
   const [formData, setFormData] = useState({
     capitulo: '',
     frente: 'A' as 'A' | 'B' | 'C',
+    anoEscolar: serie || 'PRIMEIRO_ANO',
     grupoConteudo: 'NATUREZAS_MATEMATICA' as 'NATUREZAS_MATEMATICA' | 'HUMANAS_LINGUAGENS',
     tipo: 'CONTEUDO' as 'CONTEUDO' | 'REVISAO',
     topicos: [] as string[],
@@ -301,6 +302,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           apostilaId,
           capitulo: formData.capitulo,
           frente: formData.frente,
+          anoEscolar: formData.anoEscolar,
           grupoConteudo: formData.grupoConteudo,
           tipo: formData.tipo,
           topicos: formData.topicos,
@@ -326,6 +328,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
       setFormData({
         capitulo: '',
         frente: 'A',
+        anoEscolar: serie || 'PRIMEIRO_ANO',
         grupoConteudo: 'NATUREZAS_MATEMATICA',
         tipo: 'CONTEUDO',
         topicos: [],
@@ -351,8 +354,8 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Linha 1: Capítulo, Frente */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Linha 1: Capítulo */}
+      <div className="grid grid-cols-1 gap-4">
         <div>
           <label className="label-base">Capítulo *</label>
           <input
@@ -365,7 +368,10 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
             required
           />
         </div>
+      </div>
 
+      {/* Linha 2: Frente e Ano */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="label-base">Frente</label>
           <select
@@ -377,6 +383,21 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label-base">Ano Escolar</label>
+          <select
+            name="anoEscolar"
+            value={formData.anoEscolar}
+            onChange={handleInputChange}
+            className="input-base"
+          >
+            <option value="PRIMEIRO_ANO">1º Ano</option>
+            <option value="SEGUNDO_ANO">2º Ano</option>
+            <option value="TERCEIRO_ANO">3º Ano</option>
+            <option value="CURSINHO">Cursinho</option>
           </select>
         </div>
       </div>
