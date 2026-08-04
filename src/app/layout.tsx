@@ -35,11 +35,11 @@ export default function RootLayout({
             e mantendo a classe consistente em todas as paginas */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('dark-mode')==='true'){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}`,
+            __html: `try{const isDark=localStorage.getItem('dark-mode')==='true';if(isDark){document.documentElement.classList.add('dark');document.body.style.backgroundColor='#0a0f1a'}else{document.documentElement.classList.remove('dark');document.body.style.backgroundColor='#eef3f0'}}catch(e){}}`,
           }}
         />
       </head>
-      <body className="text-gray-900 dark:text-gray-100 font-sans">
+      <body className="text-gray-900 dark:text-gray-100 font-sans" style={{ backgroundColor: '#eef3f0' }}>
         {children}
       </body>
     </html>
