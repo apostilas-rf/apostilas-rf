@@ -127,6 +127,27 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
     }
   }
 
+  const handleAutorizarDrive = async () => {
+    try {
+      const response = await fetch('/api/auth/google-drive-auth', {
+        method: 'GET',
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        setError('Erro ao iniciar autorização do Google Drive')
+        return
+      }
+
+      const data = await response.json()
+      // Redireciona para o Google
+      window.location.href = data.authUrl
+    } catch (err) {
+      setError('Erro ao conectar ao Google. Tente novamente.')
+      console.error('Drive auth error:', err)
+    }
+  }
+
   const handleRemoveEnemTopico = (index: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -306,7 +327,8 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
             driveFileId: driveFileId, // Se existir, vai atualizar
             materia: materia,
             serie: serie,
-            frente: formData.frente,
+            frente: frenteEfetiva,
+            anoEscolar: formData.anoEscolar,
           }),
         })
 
@@ -666,6 +688,20 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           ✓ {success}
         </div>
       )}
+
+      {/* Botão para autorizar Google Drive (quando arquivo precisa ser enviado) */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded">
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+          <strong>📁 Google Drive:</strong> Autorize o acesso ao seu Google Drive para salvar os capítulos automaticamente como arquivos Word (.docx).
+        </p>
+        <button
+          type="button"
+          onClick={handleAutorizarDrive}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm"
+        >
+          Autorizar Google Drive
+        </button>
+      </div>
 
       <div className="flex gap-4">
         <button
