@@ -2,8 +2,8 @@ import Link from 'next/link'
 
 export default function SignupPendingPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-rf-green to-rf-teal flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+    <main className="w-full max-w-md">
+      <div className="panel w-full p-8 text-center shadow-floating">
         <div className="text-6xl mb-4">⏳</div>
 
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

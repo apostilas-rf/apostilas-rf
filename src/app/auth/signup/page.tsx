@@ -76,8 +76,9 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-rf-green to-rf-teal flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full p-8">
+    /* O layout de auth já centraliza e dá o canvas; aqui basta o cartão. */
+    <main className="w-full max-w-2xl">
+      <div className="panel w-full p-8 shadow-floating">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="mb-4 flex justify-center">

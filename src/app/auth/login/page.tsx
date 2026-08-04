@@ -101,88 +101,159 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-xl p-8">
-      <div className="text-center mb-8">
-        <div className="inline-block w-32 h-32 relative mb-4">
-          <Image
-            src="/logo.png"
-            alt="Logo RF Educação"
-            fill
-            className="object-contain"
-          />
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">Apostilas RF</h1>
-        <p className="text-gray-500 text-sm mt-1">Plataforma de Produção de Apostilas</p>
-      </div>
+    // Cartão único partido em dois: marca à esquerda, formulário à direita.
+    // overflow-hidden é o que faz o painel verde ser recortado pelo raio.
+    <div className="panel grid w-full max-w-5xl overflow-hidden shadow-floating lg:grid-cols-2">
+      {/* Painel da marca. Escondido no celular: numa tela estreita ele empurraria
+          o formulário para baixo da dobra. */}
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-rf-green p-10 text-white lg:flex">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(circle at 15% 20%, rgb(255 255 255 / 0.14), transparent 45%), radial-gradient(circle at 85% 75%, rgb(255 255 255 / 0.10), transparent 40%)',
+          }}
+        />
 
-      {/* Botão Google */}
-      <button
-        onClick={handleGoogleLogin}
-        disabled={carregandoGoogle}
-        className="w-full mb-6 py-3 px-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-3 bg-white border-2 border-gray-300 text-gray-900 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
-      >
-        {carregandoGoogle ? '⏳ Conectando...' : '🔓 Continuar com Google'}
-      </button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Ou faça login com email</span>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="label-base">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="seu@email.com"
-            className="input-base"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="label-base">Senha</label>
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            placeholder="Sua senha"
-            className="input-base"
-            required
-          />
-        </div>
-
-        {erro && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-            {erro}
+        <div className="relative">
+          <div className="relative mb-8 h-14 w-14">
+            <Image src="/logo-white.png" alt="" fill className="object-contain" />
           </div>
-        )}
+          <h1 className="font-ubuntu text-4xl font-bold leading-tight tracking-tight">
+            Apostilas RF
+          </h1>
+          <p className="mt-3 max-w-xs text-white/70">
+            A produção das apostilas, do primeiro rascunho ao arquivo final.
+          </p>
+        </div>
+
+        <ul className="relative space-y-4">
+          {[
+            'Escreva capítulos com LaTeX e formatação',
+            'Envio automático para o Drive da escola',
+            'Acompanhe o status de cada apostila',
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-3 text-sm text-white/90">
+              <svg
+                aria-hidden="true"
+                className="mt-0.5 h-5 w-5 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Painel do formulário */}
+      <div className="p-8 sm:p-10 lg:p-12">
+        <div className="mb-8">
+          <div className="relative mb-6 h-12 w-12 lg:hidden">
+            <Image src="/logo.png" alt="" fill className="object-contain dark:hidden" />
+            <Image src="/logo-white.png" alt="" fill className="hidden object-contain dark:block" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Entrar</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Use sua conta da escola para continuar.
+          </p>
+        </div>
 
         <button
-          type="submit"
-          disabled={carregando}
-          className="btn-primary w-full"
+          onClick={handleGoogleLogin}
+          disabled={carregandoGoogle}
+          className="btn-secondary w-full disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {carregando ? 'Entrando...' : 'Entrar'}
+          {carregandoGoogle ? (
+            'Conectando…'
+          ) : (
+            <>
+              <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.11a6.6 6.6 0 010-4.22V7.05H2.18a11 11 0 000 9.9l3.66-2.84z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 2.09 14.97 1 12 1a11 11 0 00-9.82 6.05l3.66 2.84C6.71 7.29 9.14 5.38 12 5.38z"
+                />
+              </svg>
+              Continuar com Google
+            </>
+          )}
         </button>
-      </form>
 
-      <div className="mt-6 space-y-3 text-center text-sm text-gray-500">
-        <p>
-          Não tem acesso?{' '}
-          <Link href="/" className="text-rf-green font-medium hover:underline">
-            Volte à página inicial
-          </Link>
-        </p>
-        <p>
+        <div className="my-6 flex items-center gap-4">
+          <span className="h-px flex-1" style={{ backgroundColor: 'var(--line-strong)' }} />
+          <span className="text-xs text-gray-400 dark:text-gray-500">ou com email</span>
+          <span className="h-px flex-1" style={{ backgroundColor: 'var(--line-strong)' }} />
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="label-base" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              className="input-base"
+              autoComplete="email"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="label-base" htmlFor="senha">
+              Senha
+            </label>
+            <input
+              id="senha"
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="Sua senha"
+              className="input-base"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          {erro && (
+            <p
+              role="alert"
+              className="rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400"
+            >
+              {erro}
+            </p>
+          )}
+
+          <button type="submit" disabled={carregando} className="btn-primary w-full">
+            {carregando ? 'Entrando…' : 'Entrar'}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
           Novo por aqui?{' '}
-          <Link href="/auth/signup" className="text-rf-green font-medium hover:underline">
+          <Link href="/auth/signup" className="font-medium text-rf-green hover:underline">
             Faça seu cadastro
           </Link>
         </p>
