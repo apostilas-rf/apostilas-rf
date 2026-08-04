@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { StatusBadgeClickable } from './StatusBadgeClickable'
 import { SERIES } from '@/lib/constants'
 import type { Apostila, ApostilaStatus } from '@/types'
@@ -15,6 +15,10 @@ interface ApostilaTableProps {
 
 export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatusChange }: ApostilaTableProps) {
   const [apostasList, setApostasList] = useState(apostilas)
+
+  useEffect(() => {
+    setApostasList(apostilas)
+  }, [apostilas])
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
