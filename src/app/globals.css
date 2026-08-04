@@ -33,7 +33,7 @@
   }
 
   body {
-    background-color: var(--canvas);
+    background-color: var(--canvas) !important;
     /* Quase-preto com um resto de verde. O gray-900 do Tailwind puxa para o
        azul e destoava do canvas agora esverdeado. */
     color: #101a15;
