@@ -48,6 +48,9 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
   // null = ainda consultando; evita o aviso piscar na tela a cada carregamento.
   const [driveConectado, setDriveConectado] = useState<boolean | null>(null)
 
+  // Falha só do Drive: o capítulo foi salvo, então não é `error`.
+  const [avisoDrive, setAvisoDrive] = useState('')
+
   // Resultado da volta do Google, sinalizado por query string pelo callback.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -369,15 +372,21 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           }),
         })
 
+        const driveData = await driveResponse.json().catch(() => null)
+
         if (driveResponse.ok) {
-          const driveData = await driveResponse.json()
-          newDriveFileId = driveData.fileId
-          console.log('Drive upload/update:', driveData.message)
+          newDriveFileId = driveData?.fileId
+          setAvisoDrive('')
         } else {
-          console.warn('Aviso: Não foi possível salvar no Drive')
+          // O capítulo é salvo de qualquer jeito; o Drive é um extra. Mas a
+          // mensagem precisa aparecer, senão o motivo real fica invisível.
+          const motivo = driveData?.error || `Drive respondeu ${driveResponse.status}`
+          console.warn('Drive:', motivo, driveData?.details || '')
+          setAvisoDrive(motivo)
         }
       } catch (driveError) {
         console.error('Erro ao fazer upload no Drive:', driveError)
+        setAvisoDrive('Não foi possível falar com o Drive. O capítulo foi salvo mesmo assim.')
       }
 
       const url = conteudoEditando
@@ -723,6 +732,13 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
           ✓ {success}
+        </div>
+      )}
+
+      {avisoDrive && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-400 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded">
+          <strong>O capítulo foi salvo</strong>, mas não foi para o Google Drive:
+          <div className="mt-1 text-sm">{avisoDrive}</div>
         </div>
       )}
 
