@@ -17,6 +17,7 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
     titulo: '',
     materia: '',
     serie: 'PRIMEIRO_ANO' as const,
+    bimestre: 'P1' as const,
     observacoes: '',
   })
 
@@ -52,6 +53,7 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
         titulo: '',
         materia: '',
         serie: 'PRIMEIRO_ANO',
+        bimestre: 'P1',
         observacoes: '',
       })
 
@@ -85,11 +87,9 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="label-base">Matéria</label>
-          {/* Lista fixa: como texto livre, "Português" era gravado sem casar
-              com a pasta LINGUA_PORTUGUESA do Drive. */}
           <select
             name="materia"
             value={formData.materia}
@@ -119,6 +119,21 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
                 {label}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="label-base">Bimestre</label>
+          <select
+            name="bimestre"
+            value={formData.bimestre}
+            onChange={handleChange}
+            className="input-base"
+          >
+            <option value="P1">P1</option>
+            <option value="P2">P2</option>
+            <option value="P3">P3</option>
+            <option value="P4">P4</option>
           </select>
         </div>
       </div>
