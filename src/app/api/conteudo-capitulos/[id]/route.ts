@@ -5,11 +5,12 @@ import { z } from 'zod'
 
 const updateConteudoSchema = z.object({
   capitulo: z.string().min(3),
-  frente: z.enum(['A', 'B', 'C']),
+  frente: z.enum(['A', 'B', 'C']).nullable().optional(),
   anoEscolar: z.string().optional(),
   grupoConteudo: z.enum(['NATUREZAS_MATEMATICA', 'HUMANAS_LINGUAGENS']),
   tipo: z.enum(['CONTEUDO', 'REVISAO']),
   topicos: z.array(z.string()).max(10),
+  enemTopicos: z.array(z.object({ topico: z.string(), estrelas: z.number().int().min(1).max(5) })).max(10).optional(),
   enemTopico: z.string().optional().nullable(),
   enemEstrelas: z.number().min(1).max(5).optional().nullable(),
   conteudo: z.string().min(10),
@@ -38,7 +39,7 @@ export async function PUT(
       )
     }
 
-    const { capitulo, frente, anoEscolar, grupoConteudo, tipo, topicos, enemTopico, enemEstrelas, conteudo } = validation.data
+    const { capitulo, frente, anoEscolar, grupoConteudo, tipo, topicos, enemTopicos, enemTopico, enemEstrelas, conteudo } = validation.data
 
     // Buscar conteúdo
     const conteudoExistente = await db.conteudoCapitulo.findUnique({
@@ -73,6 +74,7 @@ export async function PUT(
         grupoConteudo,
         tipo,
         topicos,
+        enemTopicos: enemTopicos ?? undefined,
         enemTopico: enemTopico || null,
         enemEstrelas: enemEstrelas || null,
         conteudo,

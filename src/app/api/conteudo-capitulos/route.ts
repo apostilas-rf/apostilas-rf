@@ -6,11 +6,12 @@ import { z } from 'zod'
 const createConteudoSchema = z.object({
   apostilaId: z.string().min(1),
   capitulo: z.string().min(3, 'Capítulo deve ter no mínimo 3 caracteres'),
-  frente: z.enum(['A', 'B', 'C']),
+  frente: z.enum(['A', 'B', 'C']).nullable().optional(),
   anoEscolar: z.string().optional(),
   grupoConteudo: z.enum(['NATUREZAS_MATEMATICA', 'HUMANAS_LINGUAGENS']),
   tipo: z.enum(['CONTEUDO', 'REVISAO']),
   topicos: z.array(z.string()).max(10, 'Máximo 10 tópicos'),
+  enemTopicos: z.array(z.object({ topico: z.string(), estrelas: z.number().int().min(1).max(5) })).max(10).optional(),
   enemTopico: z.string().optional().nullable(),
   enemEstrelas: z.number().min(1).max(5).optional().nullable(),
   conteudo: z.string().min(10, 'Conteúdo deve ter no mínimo 10 caracteres'),
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { apostilaId, capitulo, frente, anoEscolar, grupoConteudo, tipo, topicos, enemTopico, enemEstrelas, conteudo } = validation.data
+    const { apostilaId, capitulo, frente, anoEscolar, grupoConteudo, tipo, topicos, enemTopicos, enemTopico, enemEstrelas, conteudo } = validation.data
 
     // Buscar apostila
     const apostila = await db.apostila.findUnique({ where: { id: apostilaId } })
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         grupoConteudo,
         tipo,
         topicos,
+        enemTopicos: enemTopicos ?? undefined,
         enemTopico: enemTopico || null,
         enemEstrelas: enemEstrelas || null,
         conteudo,

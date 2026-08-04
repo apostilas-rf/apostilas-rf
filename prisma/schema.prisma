@@ -344,7 +344,7 @@ model ConteudoCapitulo {
   apostila   Apostila @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
 
   capitulo      String // Nome do capítulo
-  frente        String // A, B ou C
+  frente        String? // A, B ou C; nulo nas matérias sem frente (Filosofia, Redação...)
   anoEscolar    String? // Ano selecionado (ex: "1", "2", "3", "cursinho")
   grupoConteudo String? // "NATUREZAS_MATEMATICA" ou "HUMANAS_LINGUAGENS"
   tipo          String // "CONTEUDO" ou "REVISAO"
@@ -353,8 +353,11 @@ model ConteudoCapitulo {
   topicos String[] @default([])
 
   // Cai no ENEM
+  // enemTopico/enemEstrelas: formato antigo, de um tópico só. Mantidos para
+  // não perder o que já foi gravado; o editor usa enemTopicos.
   enemTopico   String?
   enemEstrelas Int? // 1-5 estrelas
+  enemTopicos  Json? // [{ topico: string, estrelas: 1-5 }], máx 10
 
   // Conteúdo completo
   conteudo String // Rich text ou markdown
