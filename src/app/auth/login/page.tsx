@@ -116,35 +116,40 @@ export default function LoginPage() {
           }}
         />
 
-        {/* Livro aberto em traço, ocupando a folga entre a chamada e a lista.
-            Ecoa o próprio símbolo da RF. Transborda a largura de propósito:
-            recortado pela borda lê como marca d'água, não como clipart. */}
+        {/* Rabiscos artísticos ao fundo. Leve, orgânico, sem competir com o
+            texto. Parece que alguém esboçou um livro aberto com lápis — sugerido,
+            não literal. Opacidade mínima; se aparecer demais, é um número só. */}
         <svg
           aria-hidden="true"
-          viewBox="0 0 200 140"
+          viewBox="0 0 280 160"
           fill="none"
           stroke="currentColor"
-          strokeWidth={1.1}
+          strokeWidth={0.8}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="pointer-events-none absolute left-1/2 top-[54%] w-[118%] -translate-x-1/2 -translate-y-1/2 text-white"
+          className="pointer-events-none absolute left-1/2 top-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 text-white"
         >
-          <g opacity="0.2">
-            <path d="M100 34 C 76 22, 44 16, 12 24 L 12 100 C 44 92, 76 98, 100 118 Z" />
-            <path d="M100 34 C 124 22, 156 16, 188 24 L 188 100 C 156 92, 124 98, 100 118 Z" />
-            <path d="M100 34 L 100 118" />
+          <g opacity="0.08">
+            {/* Lombada esquerda — arco suave sugerindo página aberta */}
+            <path d="M 120 40 Q 100 50, 95 80 Q 98 110, 120 130" />
+            {/* Lombada direita */}
+            <path d="M 160 40 Q 180 50, 185 80 Q 182 110, 160 130" />
+            {/* Linha central (fechadura do livro) */}
+            <path d="M 140 35 L 140 135" />
+            {/* Rabiscos de página à esquerda — linhas onduladas sugerindo texto */}
+            <path d="M 50 65 Q 65 63, 110 67" />
+            <path d="M 50 80 Q 68 78, 110 82" />
+            <path d="M 50 95 Q 70 93, 110 97" />
+            {/* Rabiscos de página à direita */}
+            <path d="M 170 67 Q 200 63, 230 65" />
+            <path d="M 170 82 Q 205 78, 230 80" />
+            <path d="M 170 97 Q 202 93, 230 95" />
           </g>
-          <g opacity="0.12">
-            <path d="M12 107 C 44 99, 76 105, 100 125" />
-            <path d="M188 107 C 156 99, 124 105, 100 125" />
-          </g>
-          <g opacity="0.11">
-            <path d="M30 44 C 50 40, 70 42, 88 48" />
-            <path d="M30 58 C 50 54, 70 56, 88 62" />
-            <path d="M30 72 C 50 68, 70 70, 88 76" />
-            <path d="M170 44 C 150 40, 130 42, 112 48" />
-            <path d="M170 58 C 150 54, 130 56, 112 62" />
-            <path d="M170 72 C 150 68, 130 70, 112 76" />
+          <g opacity="0.05">
+            {/* Detalhes ainda mais leves — sugerem dobras e sombra */}
+            <path d="M 140 45 Q 145 70, 140 100" />
+            <path d="M 115 50 Q 125 75, 120 100" />
+            <path d="M 165 50 Q 155 75, 160 100" />
           </g>
         </svg>
 
