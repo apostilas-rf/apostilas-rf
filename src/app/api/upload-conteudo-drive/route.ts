@@ -86,6 +86,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Matéria é obrigatória para escolher a pasta' }, { status: 400 })
     }
 
+    // Distingue "variável ausente no deploy" de "matéria sem pasta mapeada":
+    // antes as duas davam a mesma mensagem e escondiam qual era o caso.
+    if (!process.env.GOOGLE_DRIVE_FOLDERS) {
+      return NextResponse.json(
+        {
+          error:
+            'A variável GOOGLE_DRIVE_FOLDERS não está definida no servidor. ' +
+            'Copie o valor do .env.local para as variáveis de ambiente da Vercel e refaça o deploy.',
+        },
+        { status: 400 }
+      )
+    }
+
     const pasta = resolverPasta(materia, frente)
     if (!pasta) {
       return NextResponse.json(

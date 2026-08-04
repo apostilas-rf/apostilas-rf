@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SERIES } from '@/lib/constants'
+import { MATERIAS } from '@/lib/materias'
 
 interface CreateApostilaFormProps {
   onSuccess?: () => void
@@ -87,15 +88,22 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="label-base">Matéria</label>
-          <input
-            type="text"
+          {/* Lista fixa: como texto livre, "Português" era gravado sem casar
+              com a pasta LINGUA_PORTUGUESA do Drive. */}
+          <select
             name="materia"
             value={formData.materia}
             onChange={handleChange}
-            placeholder="Ex: Português"
             className="input-base"
             required
-          />
+          >
+            <option value="">Selecione a matéria</option>
+            {MATERIAS.map((m) => (
+              <option key={m.nome} value={m.nome}>
+                {m.nome}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

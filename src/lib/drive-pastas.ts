@@ -1,9 +1,17 @@
+import { acharMateria } from './materias'
+
 // Resolução da pasta do Google Drive por matéria (+ frente, quando houver).
 //
 // As chaves de GOOGLE_DRIVE_FOLDERS são sem acento (LINGUA_PORTUGUESA), mas a
 // matéria é gravada acentuada ("Língua Portuguesa"), então é preciso normalizar.
 
 export function chaveMateria(materia: string): string {
+  // O nome gravado nem sempre \u00e9 o can\u00f4nico ("Portugu\u00eas" x "L\u00edngua
+  // Portuguesa"), ent\u00e3o o cat\u00e1logo decide; a normaliza\u00e7\u00e3o \u00e9 s\u00f3 o fallback
+  // para mat\u00e9rias que ele ainda n\u00e3o conhece.
+  const conhecida = acharMateria(materia)
+  if (conhecida) return conhecida.chaveDrive
+
   return materia
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

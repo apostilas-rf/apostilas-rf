@@ -1,42 +1,65 @@
-// Quais frentes cada matéria tem.
+// Fonte única de verdade das matérias.
 //
-// Precisa espelhar as chaves de GOOGLE_DRIVE_FOLDERS: matérias com frente têm
-// uma pasta por frente (BIOLOGIA_A, BIOLOGIA_B...), as demais têm uma só
-// (FILOSOFIA). Lista vazia = matéria sem frentes.
+// Amarra três coisas que antes viviam separadas e divergiam: o nome gravado em
+// Apostila.materia, a chave em GOOGLE_DRIVE_FOLDERS e quais frentes existem.
 
-export const FRENTES_POR_MATERIA: Record<string, string[]> = {
-  Biologia: ['A', 'B', 'C'],
-  Física: ['A', 'B'],
-  Química: ['A', 'B'],
-  Matemática: ['A', 'B', 'C'],
-  Geografia: ['A', 'B'],
-  História: ['A', 'B'],
-  Filosofia: [],
-  Sociologia: [],
-  'Língua Portuguesa': [],
-  Literatura: [],
-  Redação: [],
+export interface Materia {
+  /** Nome canônico, como fica gravado em Apostila.materia. */
+  nome: string
+  /** Chave correspondente em GOOGLE_DRIVE_FOLDERS (sem acento, sem sufixo). */
+  chaveDrive: string
+  /** Frentes existentes; vazio = matéria sem frente. */
+  frentes: string[]
+  /** Como já foi digitado antes, de quando o campo era texto livre. */
+  apelidos: string[]
 }
 
-function normalizar(materia: string): string {
-  return materia
+export const MATERIAS: Materia[] = [
+  { nome: 'Biologia', chaveDrive: 'BIOLOGIA', frentes: ['A', 'B', 'C'], apelidos: ['bio'] },
+  { nome: 'Física', chaveDrive: 'FISICA', frentes: ['A', 'B'], apelidos: ['fis'] },
+  { nome: 'Química', chaveDrive: 'QUIMICA', frentes: ['A', 'B'], apelidos: ['quim'] },
+  { nome: 'Matemática', chaveDrive: 'MATEMATICA', frentes: ['A', 'B', 'C'], apelidos: ['mat'] },
+  { nome: 'Geografia', chaveDrive: 'GEOGRAFIA', frentes: ['A', 'B'], apelidos: ['geo'] },
+  { nome: 'História', chaveDrive: 'HISTORIA', frentes: ['A', 'B'], apelidos: ['hist'] },
+  { nome: 'Filosofia', chaveDrive: 'FILOSOFIA', frentes: [], apelidos: ['filo'] },
+  { nome: 'Sociologia', chaveDrive: 'SOCIOLOGIA', frentes: [], apelidos: ['socio'] },
+  {
+    nome: 'Língua Portuguesa',
+    chaveDrive: 'LINGUA_PORTUGUESA',
+    frentes: [],
+    // "Português" é o que estava no placeholder do formulário antigo.
+    apelidos: ['Português', 'Portugues', 'Port', 'Lingua Portuguesa'],
+  },
+  { nome: 'Literatura', chaveDrive: 'LITERATURA', frentes: [], apelidos: ['lit'] },
+  { nome: 'Redação', chaveDrive: 'REDACAO', frentes: [], apelidos: ['Redacao'] },
+]
+
+function normalizar(texto: string): string {
+  return texto
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim()
+    .replace(/\s+/g, ' ')
 }
 
-// Tolerante a acento/caixa, porque a matéria vem de texto livre da apostila.
-export function frentesDaMateria(materia?: string): string[] {
-  if (!materia) return ['A', 'B', 'C']
+/** Encontra a matéria ignorando acento, caixa e apelidos antigos. */
+export function acharMateria(texto?: string): Materia | null {
+  if (!texto) return null
+  const alvo = normalizar(texto)
 
-  const alvo = normalizar(materia)
-  const achou = Object.entries(FRENTES_POR_MATERIA).find(
-    ([nome]) => normalizar(nome) === alvo
+  return (
+    MATERIAS.find(
+      (m) =>
+        normalizar(m.nome) === alvo || m.apelidos.some((a) => normalizar(a) === alvo)
+    ) ?? null
   )
+}
 
+export function frentesDaMateria(materia?: string): string[] {
+  const achada = acharMateria(materia)
   // Matéria desconhecida: mantém as três opções em vez de travar o professor.
-  return achou ? achou[1] : ['A', 'B', 'C']
+  return achada ? achada.frentes : ['A', 'B', 'C']
 }
 
 export function materiaTemFrente(materia?: string): boolean {
