@@ -20,6 +20,31 @@ export function urlCallbackDrive(): string | null {
   return base ? `${base}/api/auth/google-drive-callback` : null
 }
 
+// O Google só devolve de volta o parâmetro `state`, então ele carrega tanto
+// quem está autorizando quanto para onde voltar depois.
+export function empacotarState(userId: string, voltarPara: string): string {
+  return Buffer.from(JSON.stringify({ userId, voltarPara })).toString('base64url')
+}
+
+export function desempacotarState(
+  state: string
+): { userId: string; voltarPara: string } | null {
+  try {
+    const dados = JSON.parse(Buffer.from(state, 'base64url').toString('utf8'))
+    if (typeof dados?.userId !== 'string' || !dados.userId) return null
+
+    // Só caminho interno: um `voltarPara` absoluto viraria redirect aberto.
+    const voltarPara =
+      typeof dados.voltarPara === 'string' && /^\/[^/\\]/.test(dados.voltarPara)
+        ? dados.voltarPara
+        : '/dashboard'
+
+    return { userId: dados.userId, voltarPara }
+  } catch {
+    return null
+  }
+}
+
 // Os capítulos vão todos para as MESMAS pastas da escola (GOOGLE_DRIVE_FOLDERS),
 // que vivem no Drive de uma conta só. Por isso o app usa um único token — o do
 // dono dessas pastas — em vez de exigir que cada professor autorize o Drive

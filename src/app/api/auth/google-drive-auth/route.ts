@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-import { urlCallbackDrive } from '@/lib/drive-token'
+import { urlCallbackDrive, empacotarState } from '@/lib/drive-token'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,6 +10,9 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
     }
+
+    // Página de onde o usuário clicou, para devolvê-lo exatamente ali.
+    const voltarPara = new URL(request.url).searchParams.get('voltarPara') || '/dashboard'
 
     const clientId = process.env.GOOGLE_CLIENT_ID
     const redirectUri = urlCallbackDrive()
@@ -47,8 +50,8 @@ export async function GET(request: NextRequest) {
       response_type: 'code',
       scope: scopes.join(' '),
       access_type: 'offline', // Necessário para obter refresh token
-      prompt: 'consent', // Força o usuário a ver a tela de consentimento
-      state: userId, // Passa o userId para verificar na volta
+      prompt: 'consent', // Sem isto o Google não reenvia o refresh_token
+      state: empacotarState(userId, voltarPara),
     })
 
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`

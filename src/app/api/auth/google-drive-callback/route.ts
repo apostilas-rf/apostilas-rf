@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { urlBaseApp, urlCallbackDrive } from '@/lib/drive-token'
+import { urlBaseApp, urlCallbackDrive, desempacotarState } from '@/lib/drive-token'
 
 export async function GET(request: NextRequest) {
   const base = urlBaseApp()
@@ -13,40 +13,32 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  const { searchParams } = new URL(request.url)
+  const state = searchParams.get('state')
+  const dados = state ? desempacotarState(state) : null
+
+  // Sem state válido não dá para saber de quem é o token nem para onde voltar.
+  const voltarPara = dados?.voltarPara || '/dashboard'
+  const voltar = (params: string) => NextResponse.redirect(new URL(`${voltarPara}?${params}`, base))
+
   try {
-    const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
-    const state = searchParams.get('state') // userId
-    const error = searchParams.get('error')
+    const erroGoogle = searchParams.get('error')
 
-    if (error) {
-      console.error('Google OAuth error:', error)
-      return NextResponse.redirect(
-        new URL(
-          `/dashboard/conteudo?error=Google+recusou+acesso:+${encodeURIComponent(error)}`,
-          base
-        )
-      )
+    if (erroGoogle) {
+      console.error('Google OAuth error:', erroGoogle)
+      return voltar(`driveErro=${encodeURIComponent(`Google recusou o acesso: ${erroGoogle}`)}`)
     }
 
-    if (!code || !state) {
-      return NextResponse.redirect(
-        new URL('/dashboard/conteudo?error=Parâmetros+inválidos', base)
-      )
+    if (!dados) {
+      console.error('State ausente ou inválido no callback do Drive')
+      return voltar('driveErro=Sess%C3%A3o+de+autoriza%C3%A7%C3%A3o+inv%C3%A1lida')
     }
 
-    const userId = state
-
-    // Validar o state para conformidade com OAuth 2.0 security policy
-    // O state deve ser válido (não vazio e não tampering)
-    if (typeof userId !== 'string' || userId.length === 0) {
-      console.error('Invalid state parameter')
-      return NextResponse.redirect(
-        new URL('/dashboard/conteudo?error=Estado+inválido', base)
-      )
+    if (!code) {
+      return voltar('driveErro=Google+n%C3%A3o+devolveu+o+c%C3%B3digo')
     }
 
-    // Trocar authorization code por refresh token
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -59,45 +51,37 @@ export async function GET(request: NextRequest) {
       }),
     })
 
+    const tokenData = await tokenResponse.json().catch(() => null)
+
     if (!tokenResponse.ok) {
-      const error = await tokenResponse.text()
-      console.error('Google token exchange failed:', error)
-      return NextResponse.redirect(
-        new URL(
-          '/dashboard/conteudo?error=Falha+ao+obter+token+do+Google',
-          base
-        )
+      // A mensagem do Google aqui é o que realmente diz o que está errado
+      // (redirect_uri_mismatch, invalid_client, invalid_grant...).
+      const detalhe = tokenData?.error_description || tokenData?.error || 'erro desconhecido'
+      console.error('Google token exchange failed:', tokenResponse.status, tokenData)
+      return voltar(`driveErro=${encodeURIComponent(`Google recusou a troca do código: ${detalhe}`)}`)
+    }
+
+    if (!tokenData?.refresh_token) {
+      console.error('Google não devolveu refresh_token:', tokenData)
+      return voltar(
+        'driveErro=' +
+          encodeURIComponent(
+            'O Google não devolveu o token permanente. Remova o acesso do app em ' +
+              'myaccount.google.com/permissions e tente conectar de novo.'
+          )
       )
     }
 
-    const tokenData = await tokenResponse.json()
-    const refreshToken = tokenData.refresh_token
-
-    if (!refreshToken) {
-      console.error('Google did not return refresh_token', tokenData)
-      return NextResponse.redirect(
-        new URL(
-          '/dashboard/conteudo?error=Google+não+retornou+refresh+token',
-          base
-        )
-      )
-    }
-
-    // Gravar refresh token no banco
     await db.user.update({
-      where: { id: userId },
-      data: { driveRefreshToken: refreshToken },
+      where: { id: dados.userId },
+      data: { driveRefreshToken: tokenData.refresh_token },
     })
 
-    console.log(`Drive authorization successful for user ${userId}`)
+    console.log('Drive conectado pelo usuário', dados.userId)
 
-    return NextResponse.redirect(
-      new URL('/dashboard/conteudo?success=Google+Drive+autorizado+com+sucesso', base)
-    )
+    return voltar('driveOk=1')
   } catch (error) {
     console.error('Google Drive callback error:', error)
-    return NextResponse.redirect(
-      new URL('/dashboard/conteudo?error=Erro+ao+autorizar+Google+Drive', base)
-    )
+    return voltar('driveErro=Erro+inesperado+ao+conectar+o+Drive')
   }
 }

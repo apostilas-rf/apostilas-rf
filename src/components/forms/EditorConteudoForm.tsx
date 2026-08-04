@@ -48,6 +48,23 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
   // null = ainda consultando; evita o aviso piscar na tela a cada carregamento.
   const [driveConectado, setDriveConectado] = useState<boolean | null>(null)
 
+  // Resultado da volta do Google, sinalizado por query string pelo callback.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const erro = params.get('driveErro')
+    const ok = params.get('driveOk')
+    if (!erro && !ok) return
+
+    if (erro) setError(erro)
+    if (ok) {
+      setSuccess('Google Drive conectado! Vale para todos os professores.')
+      setDriveConectado(true)
+    }
+
+    // Limpa a query para o aviso não voltar a cada refresh.
+    window.history.replaceState({}, '', window.location.pathname)
+  }, [])
+
   useEffect(() => {
     let cancelado = false
     fetch('/api/drive-status', { credentials: 'include' })
@@ -147,10 +164,11 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
 
   const handleAutorizarDrive = async () => {
     try {
-      const response = await fetch('/api/auth/google-drive-auth', {
-        method: 'GET',
-        credentials: 'include',
-      })
+      const voltarPara = window.location.pathname
+      const response = await fetch(
+        `/api/auth/google-drive-auth?voltarPara=${encodeURIComponent(voltarPara)}`,
+        { method: 'GET', credentials: 'include' }
+      )
 
       const data = await response.json().catch(() => null)
 
