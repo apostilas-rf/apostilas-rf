@@ -127,21 +127,6 @@ export function LatexFormulaToolbar({ onInsertFormula, onApplyFormatting }: Late
 
   return (
     <div className="space-y-3 mb-3">
-      {/* Barra de Formatação de Texto */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 flex gap-1 flex-wrap">
-        {TEXT_FORMATTING.map((format) => (
-          <button
-            key={format.label}
-            type="button"
-            onClick={() => insertTextFormat(format.before, format.after, format.placeholder || 'texto')}
-            title={format.label}
-            className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors"
-          >
-            {format.icon}
-          </button>
-        ))}
-      </div>
-
       {/* Barra de Fórmulas */}
       {montado && (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
@@ -184,6 +169,21 @@ export function LatexFormulaToolbar({ onInsertFormula, onApplyFormatting }: Late
           )}
         </div>
       )}
+
+      {/* Barra de Formatação de Texto */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 flex gap-1 flex-wrap">
+        {TEXT_FORMATTING.map((format) => (
+          <button
+            key={format.label}
+            type="button"
+            onClick={() => insertTextFormat(format.before, format.after, format.placeholder || 'texto')}
+            title={format.label}
+            className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-colors"
+          >
+            {format.icon}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

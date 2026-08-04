@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LatexFormulaToolbar } from './LatexFormulaToolbar'
+import { MarkdownWithLatex } from '@/components/content/MarkdownWithLatex'
 
 interface EditorConteudoFormProps {
   apostilaId: string
@@ -484,17 +485,6 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
 
         {/* Container com Toolbar Sticky e Textarea */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-          {/* Toolbar Sticky */}
-          <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10 p-3">
-            <LatexFormulaToolbar
-              onInsertFormula={(latex) => {
-                const markdown = ` $${latex}$ `
-                insertMarkdown(markdown)
-              }}
-              onApplyFormatting={applyTextFormatting}
-            />
-          </div>
-
           {/* Área de Upload */}
           <div
             onDragOver={handleDragOver}
@@ -526,6 +516,17 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
             </div>
           </div>
 
+          {/* Toolbar de Formatação */}
+          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3">
+            <LatexFormulaToolbar
+              onInsertFormula={(latex) => {
+                const markdown = ` $${latex}$ `
+                insertMarkdown(markdown)
+              }}
+              onApplyFormatting={applyTextFormatting}
+            />
+          </div>
+
           {/* Textarea */}
           <div className="p-3">
             <textarea
@@ -544,6 +545,16 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               {formData.conteudo.length} / 30000 caracteres
             </p>
+
+            {/* Prévia de Renderização */}
+            {formData.conteudo && (
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">Prévia:</p>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none">
+                  <MarkdownWithLatex content={formData.conteudo} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
