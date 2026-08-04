@@ -55,18 +55,20 @@ export function resolverPasta(
   return null
 }
 
-// P1 - 1 ANO - MATEMATICA - FRENTE A
-// O "P" é o bimestre; o "ANO" vem da série da apostila.
+// P1 - 1 ANO - LINGUA PORTUGUESA - CRASE
+// O "P" é o bimestre; o "ANO" vem da série da apostila; capítulo diferencia cada arquivo.
 export function nomeArquivo(
   materia: string,
   anoNum: number,
   anoEscolar: string | undefined,
   pasta: PastaDrive,
+  capitulo?: string,
   frente?: string
 ): string {
   const bimestre = /^P[1-4]$/.test(anoEscolar || '') ? anoEscolar : 'P1'
   const nome = chaveMateria(materia)
+  const nomeCapitulo = capitulo ? ` - ${capitulo.toUpperCase()}` : ''
   return pasta.comFrente
-    ? `${bimestre} - ${anoNum} ANO - ${nome} - FRENTE ${frente!.toUpperCase()}.docx`
-    : `${bimestre} - ${anoNum} ANO - ${nome}.docx`
+    ? `${bimestre} - ${anoNum} ANO - ${nome} - FRENTE ${frente!.toUpperCase()}${nomeCapitulo}.docx`
+    : `${bimestre} - ${anoNum} ANO - ${nome}${nomeCapitulo}.docx`
 }

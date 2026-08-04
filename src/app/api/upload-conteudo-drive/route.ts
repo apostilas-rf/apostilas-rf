@@ -112,10 +112,10 @@ export async function POST(request: NextRequest) {
     }
     const DRIVE_FOLDER_ID = pasta.folderId
 
-    // Nome do arquivo: P1 - 1 ANO - MATEMATICA - FRENTE A
-    // O "P" é o bimestre; o "ANO" vem da série da apostila.
+    // Nome do arquivo: P1 - 1 ANO - LINGUA PORTUGUESA - CRASE
+    // O "P" é o bimestre; o "ANO" vem da série da apostila; capítulo diferencia cada arquivo.
     const anoNum = SERIE_MAP[serie] ?? 1
-    const filename = nomeArquivo(materia, anoNum, anoEscolar, pasta, frente)
+    const filename = nomeArquivo(materia, anoNum, anoEscolar, pasta, capitulo, frente)
 
     const accessToken = await refreshGoogleToken(refreshToken)
 
