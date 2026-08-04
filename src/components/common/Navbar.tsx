@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
 import { useSidebar } from '@/contexts/SidebarContext'
+import { ThemeToggle } from './ThemeToggle'
 
 function NavbarComponent() {
   const router = useRouter()
@@ -68,7 +69,9 @@ function NavbarComponent() {
             <span className="font-ubuntu font-bold text-xl text-gray-900 dark:text-white hidden sm:inline tracking-tight">RF Apostilas</span>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <ThemeToggle />
+
             <div className="relative">
               <button
                 onClick={() => setAbrirMenu(!abrirMenu)}

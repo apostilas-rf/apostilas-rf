@@ -30,15 +30,9 @@ export default function PerfilPage() {
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [fotoFile, setFotoFile] = useState<File | null>(null)
   const [fotoPreview, setFotoPreview] = useState<string>('')
-  const [modoEscuro, setModoEscuro] = useState(false)
 
   useEffect(() => {
     carregarFoto()
-    const isDark = localStorage.getItem('dark-mode') === 'true'
-    setModoEscuro(isDark)
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-    }
   }, [])
 
   async function carregarFoto() {
@@ -162,15 +156,6 @@ export default function PerfilPage() {
     }
   }
 
-  function handleModoEscuro(checked: boolean) {
-    setModoEscuro(checked)
-    localStorage.setItem('dark-mode', String(checked))
-    if (checked) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }
 
   if (carregando) {
     return (
@@ -350,32 +335,6 @@ export default function PerfilPage() {
         </form>
       </div>
 
-      {/* Preferências */}
-      <div className="card-elevated dark:bg-gray-800/50 dark:border-gray-700">
-        <div className="flex items-center gap-3 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Preferências</h2>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="text-sm font-semibold text-gray-900 dark:text-white">Modo Escuro</label>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Ativar tema escuro</p>
-          </div>
-
-          <button
-            onClick={() => handleModoEscuro(!modoEscuro)}
-            className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors ${
-              modoEscuro ? 'bg-rf-green' : 'bg-gray-300'
-            }`}
-          >
-            <span
-              className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${
-                modoEscuro ? 'translate-x-7' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
