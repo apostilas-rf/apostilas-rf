@@ -532,7 +532,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
             <RichTextEditor
               value={formData.conteudo}
               onChange={(value) => setFormData((prev) => ({ ...prev, conteudo: value }))}
-              onPaste={(e: React.ClipboardEvent<HTMLDivElement>) => {
+              onPaste={(e: React.ClipboardEvent<HTMLTextAreaElement>) => {
                 const files = e.clipboardData?.files
                 if (files && files.length > 0) {
                   e.preventDefault()
