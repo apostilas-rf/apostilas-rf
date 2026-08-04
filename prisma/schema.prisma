@@ -141,6 +141,7 @@ model Apostila {
   titulo      String
   materia     String
   serie       Serie
+  anoEscolar  String? // Bimestre: P1, P2, P3, P4
   status      ApostilaStatus @default(RECEBIDO)
   professorId String
   professor   User           @relation("ProfessorApostila", fields: [professorId], references: [id])

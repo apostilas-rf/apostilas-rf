@@ -14,7 +14,6 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
-    titulo: '',
     materia: '',
     serie: 'PRIMEIRO_ANO' as const,
     bimestre: 'P1' as const,
@@ -50,7 +49,6 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
 
       // Limpar form
       setFormData({
-        titulo: '',
         materia: '',
         serie: 'PRIMEIRO_ANO',
         bimestre: 'P1',
@@ -74,19 +72,6 @@ export function CreateApostilaForm({ onSuccess }: CreateApostilaFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="label-base">Título da Apostila</label>
-        <input
-          type="text"
-          name="titulo"
-          value={formData.titulo}
-          onChange={handleChange}
-          placeholder="Ex: Apostila de Português - Unidade 1"
-          className="input-base"
-          required
-        />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="label-base">Matéria</label>

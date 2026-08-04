@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { headers } from 'next/headers'
 
 const createApostilaSchema = z.object({
-  titulo: z.string().min(3, 'Título deve ter no mínimo 3 caracteres'),
   materia: z.string().min(2, 'Matéria obrigatória'),
   serie: z.enum(['PRIMEIRO_ANO', 'SEGUNDO_ANO', 'TERCEIRO_ANO', 'CURSINHO']),
   bimestre: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
@@ -121,11 +120,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { titulo, materia, serie, bimestre, templateId, prazoEstimado, observacoes } = validation.data
+    const { materia, serie, bimestre, templateId, prazoEstimado, observacoes } = validation.data
 
     // Se for PROFESSOR, o professor é o criador
     // Se for GESTOR, pode especificar o professor ou usar a si mesmo
     const professorId = userRole === 'PROFESSOR' ? userId : (body.professorId || userId)
+
+    // Gerar título automático: "P1 - Matemática - 1º Ano"
+    const serieLabels: Record<string, string> = {
+      PRIMEIRO_ANO: '1º Ano',
+      SEGUNDO_ANO: '2º Ano',
+      TERCEIRO_ANO: '3º Ano',
+      CURSINHO: 'Cursinho',
+    }
+    const bim = bimestre || 'P1'
+    const serieLabel = serieLabels[serie]
+    const titulo = `${bim} - ${materia} - ${serieLabel}`
 
     // Criar apostila
     console.log('Criando apostila:', { titulo, materia, serie, bimestre, professorId })
@@ -134,7 +144,7 @@ export async function POST(request: NextRequest) {
         titulo,
         materia,
         serie,
-        anoEscolar: bimestre || 'P1',
+        anoEscolar: bim,
         professorId,
         templateId: templateId || undefined,
         status: 'RECEBIDO',
