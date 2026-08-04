@@ -544,9 +544,8 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
                 tipo: 'CONTEUDO',
                 topicos: [],
                 novoTopico: '',
-                enemTopicos: [],
-                novoEnemTopico: '',
-                novoEnemEstrelas: '3',
+                enemTopico: '',
+                enemEstrelas: 3,
                 conteudo: '',
               })
             }}
@@ -564,9 +563,8 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
               tipo: 'CONTEUDO',
               topicos: [],
               novoTopico: '',
-              enemTopicos: [],
-              novoEnemTopico: '',
-              novoEnemEstrelas: '3',
+              enemTopico: '',
+              enemEstrelas: 3,
               conteudo: '',
             })}
             className="btn-secondary"
