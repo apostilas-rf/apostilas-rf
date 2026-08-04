@@ -29,17 +29,21 @@ function NavbarComponent() {
   }
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle bg-white dark:bg-gray-900"
-      style={{
-        backgroundImage: "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')",
-        backgroundRepeat: 'repeat-x',
-        backgroundSize: '105px 100%',
-        backgroundAttachment: 'scroll',
-        backgroundPosition: '0 center',
-      }}
-    >
-      <div className="px-4 sm:px-8 lg:px-10">
+    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200/60 dark:border-gray-800 shadow-subtle bg-white dark:bg-gray-900">
+      {/* O padrão fica numa camada própria só para poder ter opacidade sem
+          desbotar junto o logo, o nome e o menu. Ajuste a intensidade aqui. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none opacity-20 dark:opacity-10"
+        style={{
+          backgroundImage: "url('/ICONS APOSTILA/PATTERN verde escuro.svg?v=10')",
+          backgroundRepeat: 'repeat-x',
+          backgroundSize: '105px 100%',
+          backgroundPosition: '0 center',
+        }}
+      />
+
+      <div className="relative px-4 sm:px-8 lg:px-10">
         <div className="flex justify-between items-center h-16 sm:h-24">
           <button
             onClick={alternar}
