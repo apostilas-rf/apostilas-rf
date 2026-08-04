@@ -302,6 +302,8 @@ export default function ApostilaDetailPage() {
         </p>
         <EditorConteudoForm
           apostilaId={id}
+          materia={apostila?.materia}
+          serie={apostila?.serie}
           onSuccess={() => {
             fetchConteudos()
             setConteudoEditando(null)

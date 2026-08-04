@@ -3,6 +3,14 @@ import { getServerSession } from 'next-auth/next'
 import { authConfig } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+// Mapear série para número
+const SERIE_MAP: Record<string, number> = {
+  PRIMEIRO_ANO: 1,
+  SEGUNDO_ANO: 2,
+  TERCEIRO_ANO: 3,
+  CURSINHO: 0,
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authConfig)
@@ -10,14 +18,14 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
-    const { conteudo, capitulo, apostilaId, driveFileId } = await request.json()
+    const { conteudo, capitulo, apostilaId, driveFileId, materia, serie, frente } = await request.json()
 
     if (!conteudo || !capitulo) {
       return Response.json({ error: 'Conteúdo e capítulo são obrigatórios' }, { status: 400 })
     }
 
     // Obter token de acesso do Google Drive
-    const user = await prisma.usuario.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { driveRefreshToken: true },
     })
@@ -62,11 +70,29 @@ export async function POST(request: Request) {
     // Converter documento para bytes
     const buffer = await Packer.toBuffer(doc)
 
-    // Upload para Google Drive
-    const filename = `${capitulo.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().getTime()}.docx`
+    // Formatar nome do arquivo: P1 - 1 ANO - MATEMATICA - FRENTE A
+    let filename = `${capitulo}.docx`
+    if (materia && serie && frente) {
+      const anoNum = SERIE_MAP[serie] || 1
+      const materiaNormalized = materia.toUpperCase().replace(/\s+/g, '_')
+      const frenteLetter = frente.toUpperCase()
+      filename = `P${anoNum} - ${anoNum} ANO - ${materiaNormalized} - FRENTE ${frenteLetter}.docx`
+    }
 
-    // Obter pasta do Drive (você precisa configurar o ID da pasta)
-    const DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || 'root'
+    // Obter pasta do Drive baseado em matéria + frente
+    let DRIVE_FOLDER_ID = 'root'
+    if (materia && frente) {
+      const driveConfig = process.env.GOOGLE_DRIVE_FOLDERS
+      if (driveConfig) {
+        try {
+          const folders = JSON.parse(driveConfig)
+          const key = `${materia.toUpperCase().replace(/\s+/g, '_')}_${frente.toUpperCase()}`
+          DRIVE_FOLDER_ID = folders[key] || 'root'
+        } catch (e) {
+          console.error('Erro ao parsear GOOGLE_DRIVE_FOLDERS:', e)
+        }
+      }
+    }
 
     const accessToken = await refreshGoogleToken(user.driveRefreshToken)
 

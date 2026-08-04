@@ -7,12 +7,14 @@ import { RichTextEditor } from './RichTextEditor'
 
 interface EditorConteudoFormProps {
   apostilaId: string
+  materia?: string
+  serie?: string
   onSuccess?: () => void
   conteudoEditando?: any
   onCancelEdit?: () => void
 }
 
-export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, onCancelEdit }: EditorConteudoFormProps) {
+export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, conteudoEditando, onCancelEdit }: EditorConteudoFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -270,6 +272,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
             capitulo: formData.capitulo,
             apostilaId,
             driveFileId: driveFileId, // Se existir, vai atualizar
+            materia: materia,
+            serie: serie,
+            frente: formData.frente,
           }),
         })
 

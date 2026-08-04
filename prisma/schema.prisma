@@ -78,6 +78,7 @@ model User {
   role         Role      @default(PROFESSOR) // Role principal
   ativo        Boolean   @default(false) // Precisa aprovação para ficar ativo
   googleId     String?   @unique // Para Google OAuth
+  driveRefreshToken String? // Token de refresh do Google Drive
   aprovadoEm   DateTime? // Quando o gestor aprovou
   criadoEm     DateTime  @default(now())
   atualizadoEm DateTime  @updatedAt
