@@ -104,7 +104,7 @@ export function ProblemasDiagramacaoCard({ apostilaId }: ProblemasDiagramacaoCar
   if (problemas.length === 0) {
     return (
       <div className="card">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">📋 Problemas de Diagramação</h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Problemas de Diagramação</h2>
         <p className="text-gray-600 text-center py-8">
           Nenhum problema reportado pelos diagramadores.
         </p>
@@ -118,7 +118,7 @@ export function ProblemasDiagramacaoCard({ apostilaId }: ProblemasDiagramacaoCar
   return (
     <div className="card">
       <h2 className="text-lg font-bold text-gray-900 mb-4">
-        📋 Problemas de Diagramação ({problemas.length})
+        Problemas de Diagramação ({problemas.length})
       </h2>
 
       {/* Problemas abertos */}

@@ -178,39 +178,34 @@ export default function ApostilaDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="card">
           <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Série</h3>
-          <p className="text-lg text-gray-900 dark:text-white">{SERIES[apostila.serie as keyof typeof SERIES].label}</p>
+          <p className="text-sm text-gray-900 dark:text-white">{SERIES[apostila.serie as keyof typeof SERIES].label}</p>
         </div>
 
         <div className="card">
           <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Matéria</h3>
-          <p className="text-lg text-gray-900 dark:text-white">{apostila.materia}</p>
+          <p className="text-sm text-gray-900 dark:text-white">{apostila.materia}</p>
         </div>
 
         <div className="card">
           <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</h3>
-          <p className="text-lg text-gray-900 dark:text-white">{APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label}</p>
+          <p className="text-sm text-gray-900 dark:text-white">{APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label}</p>
         </div>
-      </div>
 
-      <div className="card mb-8">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Mudar Status</h2>
-
-        <div className="space-y-4">
-          <div>
-            <label className="label-base">Novo Status</label>
+        <div className="card">
+          <label className="label-base text-xs">Novo Status</label>
+          <div className="flex gap-2 mt-2">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="input-base"
+              className="input-base text-sm flex-1"
             >
               <option value={apostila.status}>
                 {APOSTILA_STATUS[apostila.status as keyof typeof APOSTILA_STATUS].label} (Atual)
               </option>
 
-              {/* Transições permitidas (forward) */}
               {possibleStatuses.length > 0 && (
                 <optgroup label="Próximos status">
                   {possibleStatuses.map((status) => (
@@ -221,11 +216,9 @@ export default function ApostilaDetailPage() {
                 </optgroup>
               )}
 
-              {/* Reversões (voltar para status anterior) */}
               <optgroup label="Reverter para...">
                 {Object.entries(APOSTILA_STATUS).map(([statusKey, statusConfig]) => {
                   const status = statusKey as ApostilaStatus
-                  // Mostrar todos os status exceto o atual
                   if (status !== apostila.status) {
                     return (
                       <option key={status} value={status}>
@@ -237,47 +230,39 @@ export default function ApostilaDetailPage() {
                 })}
               </optgroup>
             </select>
+            <button
+              onClick={handleStatusChange}
+              disabled={changeStatusLoading || selectedStatus === apostila.status}
+              className="btn-primary text-sm px-3"
+            >
+              {changeStatusLoading ? '...' : 'Atualizar'}
+            </button>
           </div>
-
-          <button
-            onClick={handleStatusChange}
-            disabled={changeStatusLoading || selectedStatus === apostila.status}
-            className="btn-primary"
-          >
-            {changeStatusLoading ? 'Atualizando...' : 'Atualizar Status'}
-          </button>
-
-          {selectedStatus !== apostila.status && (
-            <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              ⚠️ Você está revertendo o status. Esta ação será registrada no histórico.
-            </p>
-          )}
         </div>
       </div>
 
       {apostila.observacoes && (
-        <div className="card">
+        <div className="card mb-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Observações</h2>
           <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{apostila.observacoes}</p>
         </div>
       )}
 
-      <div className="card mt-8">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Informações</h2>
-        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-          <p>
-            <span className="font-medium">Criado em:</span>{' '}
-            {new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}
-          </p>
-          <p>
-            <span className="font-medium">Último update:</span>{' '}
-            {new Date(apostila.atualizadoEm).toLocaleDateString('pt-BR')}
-          </p>
+      <div className="card">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <p className="font-medium text-gray-700 dark:text-gray-400">Criado em</p>
+            <p className="text-gray-900 dark:text-white">{new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-700 dark:text-gray-400">Último update</p>
+            <p className="text-gray-900 dark:text-white">{new Date(apostila.atualizadoEm).toLocaleDateString('pt-BR')}</p>
+          </div>
           {apostila.dataFinal && (
-            <p>
-              <span className="font-medium">Enviado em:</span>{' '}
-              {new Date(apostila.dataFinal).toLocaleDateString('pt-BR')}
-            </p>
+            <div>
+              <p className="font-medium text-gray-700 dark:text-gray-400">Enviado em</p>
+              <p className="text-gray-900 dark:text-white">{new Date(apostila.dataFinal).toLocaleDateString('pt-BR')}</p>
+            </div>
           )}
         </div>
       </div>
@@ -321,17 +306,45 @@ export default function ApostilaDetailPage() {
 
       {/* Lista de Conteúdos Criados */}
       {conteudos.length > 0 && (
-        <div className="card mt-8">
+        <div className="card mt-8 bg-gray-50 dark:bg-gray-800">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Capítulos Criados ({conteudos.length})</h2>
-          <div className="space-y-3">
-            {conteudos.map((conteudo) => (
-              <ConteudoCard
-                key={conteudo.id}
-                conteudo={conteudo}
-                onEdit={handleEditConteudo}
-                onDelete={handleDeleteConteudo}
-              />
-            ))}
+          <div className="space-y-2">
+            {conteudos.map((conteudo) => {
+              const grupoLabel = conteudo.grupoConteudo === 'NATUREZAS_MATEMATICA'
+                ? 'Naturezas e Matemática'
+                : 'Humanas e Linguagens'
+              return (
+                <div
+                  key={conteudo.id}
+                  className="flex justify-between items-start p-3 bg-white dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition"
+                >
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{conteudo.capitulo}</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      Frente {conteudo.frente} • {grupoLabel} • {conteudo.tipo === 'CONTEUDO' ? 'Conteúdo' : 'Revisão'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditConteudo(conteudo)}
+                      className="text-xs px-2 py-1 rounded text-rf-green hover:bg-rf-green/10 transition"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('Tem certeza?')) {
+                          handleDeleteConteudo(conteudo.id)
+                        }
+                      }}
+                      className="text-xs px-2 py-1 rounded text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition"
+                    >
+                      Deletar
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
