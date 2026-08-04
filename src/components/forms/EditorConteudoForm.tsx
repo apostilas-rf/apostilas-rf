@@ -527,8 +527,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
             />
           </div>
 
-          {/* Textarea */}
-          <div className="p-3">
+          {/* Editor com Renderização em Tempo Real */}
+          <div className="p-3 relative">
+            {/* Textarea para Input */}
             <textarea
               ref={textareaRef}
               name="conteudo"
@@ -537,24 +538,22 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
               onPaste={handlePaste}
               placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
               rows={14}
-              className="w-full border-0 resize-none focus:outline-none focus:ring-0 font-sans text-sm dark:bg-gray-800 dark:text-white"
+              className="w-full border-0 resize-none focus:outline-none focus:ring-0 font-sans text-sm dark:bg-gray-800 dark:text-white relative z-10 bg-transparent"
               style={{ fontFamily: 'Open Sans, system-ui, sans-serif' }}
               maxLength={30000}
               required
             />
+
+            {/* Renderização de Fundo */}
+            <div className="absolute inset-0 p-3 pointer-events-none overflow-hidden">
+              <div className="text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap break-words">
+                <MarkdownWithLatex content={formData.conteudo} />
+              </div>
+            </div>
+
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               {formData.conteudo.length} / 30000 caracteres
             </p>
-
-            {/* Prévia de Renderização */}
-            {formData.conteudo && (
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">Prévia:</p>
-                <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none">
-                  <MarkdownWithLatex content={formData.conteudo} />
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
