@@ -45,6 +45,10 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
 
   const [driveFileId, setDriveFileId] = useState<string | null>(null)
 
+  // Metadados recolhidos quando já estão preenchidos: na edição o professor
+  // veio mexer no texto, não na ficha do capítulo.
+  const [fichaAberta, setFichaAberta] = useState(!conteudoEditando)
+
   // null = ainda consultando; evita o aviso piscar na tela a cada carregamento.
   const [driveConectado, setDriveConectado] = useState<boolean | null>(null)
 
@@ -452,197 +456,265 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Linha 1: Capítulo */}
-      <div className="grid grid-cols-1 gap-4">
-        <div>
-          <label className="label-base">Capítulo *</label>
-          <input
-            type="text"
-            name="capitulo"
-            value={formData.capitulo}
-            onChange={handleInputChange}
-            placeholder="Ex: Formação Geológica do Brasil"
-            className="input-base"
-            required
-          />
-        </div>
-      </div>
-
-      {/* Linha 2: Frente (quando a matéria tem) e Bimestre */}
-      <div className={`grid grid-cols-1 gap-4 ${temFrente ? 'md:grid-cols-2' : ''}`}>
-        {temFrente && (
-          <div>
-            <label className="label-base">Frente</label>
-            <select
-              name="frente"
-              value={formData.frente}
+      {/* Ficha do capítulo: tudo que não é o texto em si, junto e recolhível.
+          Antes eram seis blocos de largura inteira empilhados, e a escrita
+          — que é o trabalho de verdade — só começava abaixo da dobra. */}
+      <section className="card-inset space-y-4">
+        <div className="flex items-end gap-3">
+          <div className="flex-1">
+            <label className="label-base" htmlFor="capitulo">
+              Capítulo *
+            </label>
+            <input
+              id="capitulo"
+              type="text"
+              name="capitulo"
+              value={formData.capitulo}
               onChange={handleInputChange}
+              placeholder="Ex: Formação Geológica do Brasil"
               className="input-base"
+              required
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setFichaAberta((v) => !v)}
+            aria-expanded={fichaAberta}
+            className="btn-soft mb-0.5 shrink-0 bg-gray-500/10 text-gray-700 hover:bg-gray-500/20 dark:bg-white/5 dark:text-gray-200"
+          >
+            {fichaAberta ? 'Ocultar detalhes' : 'Detalhes'}
+            <svg
+              aria-hidden="true"
+              className={`h-4 w-4 transition-transform duration-200 ${fichaAberta ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {frentesDisponiveis.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        <div>
-          <label className="label-base">Bimestre</label>
-          <select
-            name="anoEscolar"
-            value={formData.anoEscolar}
-            onChange={handleInputChange}
-            className="input-base"
-          >
-            <option value="P1">P1</option>
-            <option value="P2">P2</option>
-            <option value="P3">P3</option>
-            <option value="P4">P4</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Grupo de Conteúdo */}
-      <div>
-        <label className="label-base">Área de Conhecimento</label>
-        <select
-          name="grupoConteudo"
-          value={formData.grupoConteudo}
-          onChange={handleInputChange}
-          className="input-base"
-        >
-          <option value="NATUREZAS_MATEMATICA">Naturezas e Matemática</option>
-          <option value="HUMANAS_LINGUAGENS">Humanas e Linguagens</option>
-        </select>
-      </div>
-
-      {/* Tipo de Conteúdo */}
-      <div>
-        <label className="label-base">Tipo</label>
-        <select
-          name="tipo"
-          value={formData.tipo}
-          onChange={handleInputChange}
-          className="input-base"
-        >
-          <option value="CONTEUDO">Conteúdo</option>
-          <option value="REVISAO">Revisão</option>
-        </select>
-      </div>
-
-      {/* Tópicos */}
-      <div>
-        <label className="label-base">O que vamos estudar nesse capítulo {formData.topicos.length}/10</label>
-        <div className="flex gap-2 mb-3">
-          <input
-            type="text"
-            value={formData.novoTopico}
-            onChange={(e) => setFormData((prev) => ({ ...prev, novoTopico: e.target.value }))}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleAddTopico()
-              }
-            }}
-            placeholder="Digite um tópico e pressione Enter"
-            className="input-base flex-1"
-            disabled={formData.topicos.length >= 10}
-          />
-          <button
-            type="button"
-            onClick={handleAddTopico}
-            disabled={formData.topicos.length >= 10 || !formData.novoTopico.trim()}
-            className="btn-primary"
-          >
-            Adicionar
+              <path d="M6 9l6 6 6-6" />
+            </svg>
           </button>
         </div>
 
-        {formData.topicos.length > 0 && (
-          <div className="space-y-2">
-            {formData.topicos.map((topico, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between bg-gray-100 p-3 rounded"
-              >
-                <span className="text-gray-700 dark:text-gray-300">• {topico}</span>
+        {/* Resumo do que está escondido, para não precisar abrir só para conferir */}
+        {!fichaAberta && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {[
+              temFrente ? `Frente ${frenteEfetiva}` : null,
+              formData.anoEscolar,
+              formData.tipo === 'CONTEUDO' ? 'Conteúdo' : 'Revisão',
+              `${formData.topicos.length} tópico(s)`,
+              `${formData.enemTopicos.length} no ENEM`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        )}
+
+        {fichaAberta && (
+          <>
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {temFrente && (
+                <div>
+                  <label className="label-base" htmlFor="frente">
+                    Frente
+                  </label>
+                  <select
+                    id="frente"
+                    name="frente"
+                    value={formData.frente}
+                    onChange={handleInputChange}
+                    className="input-base"
+                  >
+                    {frentesDisponiveis.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="label-base" htmlFor="anoEscolar">
+                  Bimestre
+                </label>
+                <select
+                  id="anoEscolar"
+                  name="anoEscolar"
+                  value={formData.anoEscolar}
+                  onChange={handleInputChange}
+                  className="input-base"
+                >
+                  <option value="P1">P1</option>
+                  <option value="P2">P2</option>
+                  <option value="P3">P3</option>
+                  <option value="P4">P4</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="label-base" htmlFor="grupoConteudo">
+                  Área
+                </label>
+                <select
+                  id="grupoConteudo"
+                  name="grupoConteudo"
+                  value={formData.grupoConteudo}
+                  onChange={handleInputChange}
+                  className="input-base"
+                >
+                  <option value="NATUREZAS_MATEMATICA">Naturezas e Matemática</option>
+                  <option value="HUMANAS_LINGUAGENS">Humanas e Linguagens</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="label-base" htmlFor="tipo">
+                  Tipo
+                </label>
+                <select
+                  id="tipo"
+                  name="tipo"
+                  value={formData.tipo}
+                  onChange={handleInputChange}
+                  className="input-base"
+                >
+                  <option value="CONTEUDO">Conteúdo</option>
+                  <option value="REVISAO">Revisão</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Tópicos */}
+            <div>
+              <label className="label-base" htmlFor="novoTopico">
+                O que vamos estudar nesse capítulo{' '}
+                <span className="font-normal text-gray-400">{formData.topicos.length}/10</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="novoTopico"
+                  type="text"
+                  value={formData.novoTopico}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, novoTopico: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddTopico()
+                    }
+                  }}
+                  placeholder="Digite um tópico e pressione Enter"
+                  className="input-base flex-1"
+                  disabled={formData.topicos.length >= 10}
+                />
                 <button
                   type="button"
-                  onClick={() => handleRemoveTopico(index)}
-                  className="text-red-600 hover:text-red-800 font-bold"
+                  onClick={handleAddTopico}
+                  disabled={formData.topicos.length >= 10 || !formData.novoTopico.trim()}
+                  className="btn-soft btn-soft-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  ✕
+                  Adicionar
                 </button>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* ENEM */}
-      <div>
-        <label className="label-base">Cai no ENEM? {formData.enemTopicos.length}/10</label>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-          <input
-            type="text"
-            value={formData.novoEnemTopico}
-            onChange={(e) => setFormData((prev) => ({ ...prev, novoEnemTopico: e.target.value }))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleAddEnemTopico()
-              }
-            }}
-            placeholder="Ex: Climatologia"
-            className="input-base"
-            disabled={formData.enemTopicos.length >= 10}
-          />
-          <select
-            value={formData.novoEnemEstrelas}
-            onChange={(e) => setFormData((prev) => ({ ...prev, novoEnemEstrelas: e.target.value }))}
-            className="input-base"
-          >
-            <option value="1">⭐ Pouco</option>
-            <option value="2">⭐⭐ Raramente</option>
-            <option value="3">⭐⭐⭐ Às vezes</option>
-            <option value="4">⭐⭐⭐⭐ Frequente</option>
-            <option value="5">⭐⭐⭐⭐⭐ Muito Frequente</option>
-          </select>
-          <button
-            type="button"
-            onClick={handleAddEnemTopico}
-            disabled={formData.enemTopicos.length >= 10 || !formData.novoEnemTopico.trim()}
-            className="btn-primary"
-          >
-            Adicionar
-          </button>
-        </div>
+              {formData.topicos.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {formData.topicos.map((topico, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-gray-500/10 py-1 pl-3 pr-1.5 text-sm text-gray-700 dark:bg-white/5 dark:text-gray-200"
+                    >
+                      {topico}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTopico(index)}
+                        aria-label={`Remover ${topico}`}
+                        className="grid h-5 w-5 place-items-center rounded-full text-gray-500 transition-colors hover:bg-red-500/15 hover:text-red-600"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
-        {formData.enemTopicos.length > 0 && (
-          <div className="space-y-2">
-            {formData.enemTopicos.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-amber-200 dark:border-amber-800"
-              >
-                <span className="text-gray-700 dark:text-gray-300">
-                  • {item.topico} {'⭐'.repeat(item.estrelas)}
-                </span>
+            {/* ENEM */}
+            <div>
+              <label className="label-base" htmlFor="novoEnemTopico">
+                Cai no ENEM?{' '}
+                <span className="font-normal text-gray-400">{formData.enemTopicos.length}/10</span>
+              </label>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  id="novoEnemTopico"
+                  type="text"
+                  value={formData.novoEnemTopico}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, novoEnemTopico: e.target.value }))
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddEnemTopico()
+                    }
+                  }}
+                  placeholder="Ex: Climatologia"
+                  className="input-base flex-1"
+                  disabled={formData.enemTopicos.length >= 10}
+                />
+                <select
+                  value={formData.novoEnemEstrelas}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, novoEnemEstrelas: e.target.value }))
+                  }
+                  aria-label="Frequência no ENEM"
+                  className="input-base sm:w-52"
+                >
+                  <option value="1">⭐ Pouco</option>
+                  <option value="2">⭐⭐ Raramente</option>
+                  <option value="3">⭐⭐⭐ Às vezes</option>
+                  <option value="4">⭐⭐⭐⭐ Frequente</option>
+                  <option value="5">⭐⭐⭐⭐⭐ Muito frequente</option>
+                </select>
                 <button
                   type="button"
-                  onClick={() => handleRemoveEnemTopico(index)}
-                  className="text-red-600 hover:text-red-800 font-bold"
-                  aria-label={`Remover ${item.topico}`}
+                  onClick={handleAddEnemTopico}
+                  disabled={formData.enemTopicos.length >= 10 || !formData.novoEnemTopico.trim()}
+                  className="btn-soft btn-soft-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  ✕
+                  Adicionar
                 </button>
               </div>
-            ))}
-          </div>
+
+              {formData.enemTopicos.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {formData.enemTopicos.map((item, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 py-1 pl-3 pr-1.5 text-sm text-amber-800 dark:text-amber-200"
+                    >
+                      {item.topico}
+                      <span aria-label={`${item.estrelas} de 5`}>{'⭐'.repeat(item.estrelas)}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveEnemTopico(index)}
+                        aria-label={`Remover ${item.topico}`}
+                        className="grid h-5 w-5 place-items-center rounded-full text-amber-700 transition-colors hover:bg-red-500/15 hover:text-red-600 dark:text-amber-300"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
-      </div>
+      </section>
 
       {/* Conteúdo com Upload de Imagens */}
       <div>
@@ -653,52 +725,24 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           </span>
         </div>
 
-        {/* Container com Toolbar Sticky e Textarea */}
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-          {/* Área de Upload */}
+        {/* O drop de imagem passou a valer no bloco inteiro: a área tracejada
+            dedicada gastava cinco linhas para oferecer o que o Ctrl+V já fazia. */}
+        <div
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className="panel overflow-hidden"
+        >
           <div
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            className="border-b border-gray-200 dark:border-gray-700 border-dashed p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition"
+            className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2"
+            style={{ borderBottom: '1px solid var(--line)' }}
           >
-            <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Arraste imagens aqui, cole (Ctrl+V) ou
-              </p>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="text-rf-green hover:underline font-medium text-sm"
-              >
-                clique para selecionar
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e.target.files!)}
-                className="hidden"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {uploadingImage ? 'Enviando imagem...' : 'PNG, JPG, GIF até 5MB'}
-              </p>
-            </div>
-          </div>
-
-          {/* Toolbar de Formatação */}
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3">
             <LatexFormulaToolbar
-              onInsertFormula={(latex) => {
-                const markdown = ` $${latex}$ `
-                insertMarkdown(markdown)
-              }}
+              onInsertFormula={(latex) => insertMarkdown(` $${latex}$ `)}
               onApplyFormatting={applyTextFormatting}
             />
           </div>
 
-          {/* Editor Rico com Renderização em Tempo Real */}
-          <div className="p-3">
+          <div className="px-3 pt-3">
             <RichTextEditor
               ref={textareaRef}
               value={formData.conteudo}
@@ -710,9 +754,40 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
                   handleImageUpload(files)
                 }
               }}
-              placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
+              placeholder="Escreva o conteúdo aqui… Arraste ou cole imagens (Ctrl+V) para inseri-las."
               maxLength={30000}
             />
+          </div>
+
+          <div className="flex items-center gap-2 px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 font-medium text-rf-green transition-colors hover:bg-rf-green/10"
+            >
+              <svg
+                aria-hidden="true"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 5h18v14H3zM3 16l4.5-4.5a2 2 0 013 0L15 16M14 12l1.5-1.5a2 2 0 013 0L21 13M8.5 8.5h.01" />
+              </svg>
+              Inserir imagem
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e.target.files!)}
+              className="hidden"
+            />
+            <span>{uploadingImage ? 'Enviando imagem…' : 'PNG, JPG ou GIF até 5MB'}</span>
           </div>
         </div>
 
@@ -724,38 +799,34 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <p role="alert" className="rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
           {error}
-        </div>
+        </p>
       )}
 
       {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        <p role="status" className="rounded-2xl bg-rf-green/10 px-4 py-3 text-sm text-rf-green">
           ✓ {success}
-        </div>
+        </p>
       )}
 
       {avisoDrive && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-400 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded">
+        <div role="alert" className="rounded-2xl bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
           <strong>O capítulo foi salvo</strong>, mas não foi para o Google Drive:
-          <div className="mt-1 text-sm">{avisoDrive}</div>
+          <div className="mt-1">{avisoDrive}</div>
         </div>
       )}
 
       {/* Só aparece enquanto ninguém conectou o Drive. Uma conexão vale para
           todos os professores, então isto some depois do primeiro gestor. */}
       {driveConectado === false && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-            <strong>📁 Google Drive não conectado.</strong> Os capítulos ainda são salvos
+        <div className="card-inset">
+          <p className="mb-3 text-sm text-gray-700 dark:text-gray-300">
+            <strong>Google Drive não conectado.</strong> Os capítulos ainda são salvos
             normalmente, mas não vão virar arquivo Word nas pastas das matérias. Quem
             administra as pastas precisa conectar uma única vez — vale para todos.
           </p>
-          <button
-            type="button"
-            onClick={handleAutorizarDrive}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm"
-          >
+          <button type="button" onClick={handleAutorizarDrive} className="btn-soft btn-soft-primary">
             Conectar Google Drive
           </button>
         </div>
