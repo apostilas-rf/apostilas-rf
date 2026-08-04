@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 import { chaveMateria, resolverPasta, nomeArquivo } from '@/lib/drive-pastas'
+import { tokenDriveDaEscola } from '@/lib/drive-token'
 
 // Mapear série para número
 const SERIE_MAP: Record<string, number> = {
@@ -27,14 +28,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Conteúdo e capítulo são obrigatórios' }, { status: 400 })
     }
 
-    // Obter token de acesso do Google Drive
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: { driveRefreshToken: true },
-    })
+    // Token único da escola: os arquivos vão para as pastas institucionais,
+    // não para o Drive pessoal de quem está escrevendo o capítulo.
+    const refreshToken = await tokenDriveDaEscola()
 
-    if (!user?.driveRefreshToken) {
-      return NextResponse.json({ error: 'Drive não configurado. Autorize o acesso ao Drive.' }, { status: 400 })
+    if (!refreshToken) {
+      return NextResponse.json(
+        {
+          error:
+            'O Google Drive ainda não foi conectado. Peça ao gestor para clicar em ' +
+            '"Conectar Google Drive" uma vez — depois disso vale para todos os professores.',
+        },
+        { status: 400 }
+      )
     }
 
     // Gerar documento Word
@@ -98,7 +104,7 @@ export async function POST(request: NextRequest) {
     const anoNum = SERIE_MAP[serie] ?? 1
     const filename = nomeArquivo(materia, anoNum, anoEscolar, pasta, frente)
 
-    const accessToken = await refreshGoogleToken(user.driveRefreshToken)
+    const accessToken = await refreshGoogleToken(refreshToken)
 
     let driveFile
     let uploadUrl: string

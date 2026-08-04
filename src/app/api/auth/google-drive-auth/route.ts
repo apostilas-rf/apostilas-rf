@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
+import { urlCallbackDrive } from '@/lib/drive-token'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,12 +12,26 @@ export async function GET(request: NextRequest) {
     }
 
     const clientId = process.env.GOOGLE_CLIENT_ID
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google-drive-callback`
+    const redirectUri = urlCallbackDrive()
 
-    if (!clientId || !redirectUri) {
-      console.error('GOOGLE_CLIENT_ID ou NEXT_PUBLIC_APP_URL não configurados')
+    if (!clientId) {
+      console.error('GOOGLE_CLIENT_ID não configurado')
       return NextResponse.json(
-        { error: 'Configuração do Google incompleta' },
+        { error: 'GOOGLE_CLIENT_ID não configurado no servidor' },
+        { status: 500 }
+      )
+    }
+
+    // Sem isso o redirect_uri sai como "undefined/api/..." e o Google
+    // responde 400 invalid_request, sem dizer o motivo.
+    if (!redirectUri) {
+      console.error('NEXT_PUBLIC_APP_URL ausente ou inválida:', process.env.NEXT_PUBLIC_APP_URL)
+      return NextResponse.json(
+        {
+          error:
+            'NEXT_PUBLIC_APP_URL não está definida no servidor. ' +
+            'Defina como https://apostilas-rf.vercel.app nas variáveis de ambiente da Vercel.',
+        },
         { status: 500 }
       )
     }

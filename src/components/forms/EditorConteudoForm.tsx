@@ -45,6 +45,24 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
 
   const [driveFileId, setDriveFileId] = useState<string | null>(null)
 
+  // null = ainda consultando; evita o aviso piscar na tela a cada carregamento.
+  const [driveConectado, setDriveConectado] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let cancelado = false
+    fetch('/api/drive-status', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelado && d) setDriveConectado(Boolean(d.conectado))
+      })
+      .catch(() => {
+        // Falha ao consultar não deve atrapalhar quem só quer escrever.
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [])
+
   const [formData, setFormData] = useState({
     capitulo: '',
     frente: 'A' as 'A' | 'B' | 'C',
@@ -134,12 +152,13 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
         credentials: 'include',
       })
 
+      const data = await response.json().catch(() => null)
+
       if (!response.ok) {
-        setError('Erro ao iniciar autorização do Google Drive')
+        // A mensagem do servidor diz exatamente o que falta configurar.
+        setError(data?.error || 'Erro ao iniciar autorização do Google Drive')
         return
       }
-
-      const data = await response.json()
       // Redireciona para o Google
       window.location.href = data.authUrl
     } catch (err) {
@@ -689,19 +708,24 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
         </div>
       )}
 
-      {/* Botão para autorizar Google Drive (quando arquivo precisa ser enviado) */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-          <strong>📁 Google Drive:</strong> Autorize o acesso ao seu Google Drive para salvar os capítulos automaticamente como arquivos Word (.docx).
-        </p>
-        <button
-          type="button"
-          onClick={handleAutorizarDrive}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm"
-        >
-          Autorizar Google Drive
-        </button>
-      </div>
+      {/* Só aparece enquanto ninguém conectou o Drive. Uma conexão vale para
+          todos os professores, então isto some depois do primeiro gestor. */}
+      {driveConectado === false && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+            <strong>📁 Google Drive não conectado.</strong> Os capítulos ainda são salvos
+            normalmente, mas não vão virar arquivo Word nas pastas das matérias. Quem
+            administra as pastas precisa conectar uma única vez — vale para todos.
+          </p>
+          <button
+            type="button"
+            onClick={handleAutorizarDrive}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm"
+          >
+            Conectar Google Drive
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-4">
         <button

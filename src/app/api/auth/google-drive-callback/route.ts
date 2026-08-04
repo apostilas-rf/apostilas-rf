@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { urlBaseApp, urlCallbackDrive } from '@/lib/drive-token'
 
 export async function GET(request: NextRequest) {
+  const base = urlBaseApp()
+
+  if (!base) {
+    console.error('NEXT_PUBLIC_APP_URL ausente: não dá para montar o redirect de volta')
+    return NextResponse.json(
+      { error: 'NEXT_PUBLIC_APP_URL não configurada no servidor' },
+      { status: 500 }
+    )
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
@@ -13,14 +24,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         new URL(
           `/dashboard/conteudo?error=Google+recusou+acesso:+${encodeURIComponent(error)}`,
-          process.env.NEXT_PUBLIC_APP_URL
+          base
         )
       )
     }
 
     if (!code || !state) {
       return NextResponse.redirect(
-        new URL('/dashboard/conteudo?error=Parâmetros+inválidos', process.env.NEXT_PUBLIC_APP_URL)
+        new URL('/dashboard/conteudo?error=Parâmetros+inválidos', base)
       )
     }
 
@@ -31,7 +42,7 @@ export async function GET(request: NextRequest) {
     if (typeof userId !== 'string' || userId.length === 0) {
       console.error('Invalid state parameter')
       return NextResponse.redirect(
-        new URL('/dashboard/conteudo?error=Estado+inválido', process.env.NEXT_PUBLIC_APP_URL)
+        new URL('/dashboard/conteudo?error=Estado+inválido', base)
       )
     }
 
@@ -44,7 +55,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
         code,
         grant_type: 'authorization_code',
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google-drive-callback`,
+        redirect_uri: urlCallbackDrive() || '',
       }),
     })
 
@@ -54,7 +65,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         new URL(
           '/dashboard/conteudo?error=Falha+ao+obter+token+do+Google',
-          process.env.NEXT_PUBLIC_APP_URL
+          base
         )
       )
     }
@@ -67,7 +78,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         new URL(
           '/dashboard/conteudo?error=Google+não+retornou+refresh+token',
-          process.env.NEXT_PUBLIC_APP_URL
+          base
         )
       )
     }
@@ -81,12 +92,12 @@ export async function GET(request: NextRequest) {
     console.log(`Drive authorization successful for user ${userId}`)
 
     return NextResponse.redirect(
-      new URL('/dashboard/conteudo?success=Google+Drive+autorizado+com+sucesso', process.env.NEXT_PUBLIC_APP_URL)
+      new URL('/dashboard/conteudo?success=Google+Drive+autorizado+com+sucesso', base)
     )
   } catch (error) {
     console.error('Google Drive callback error:', error)
     return NextResponse.redirect(
-      new URL('/dashboard/conteudo?error=Erro+ao+autorizar+Google+Drive', process.env.NEXT_PUBLIC_APP_URL)
+      new URL('/dashboard/conteudo?error=Erro+ao+autorizar+Google+Drive', base)
     )
   }
 }
