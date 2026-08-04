@@ -140,7 +140,13 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
 
       if (selectedText) {
         // Se há texto selecionado, aplica formatação ao redor
-        insertMarkdown('', before, after)
+        const newContent = formData.conteudo.substring(0, start) + before + selectedText + after + formData.conteudo.substring(end)
+        setFormData((prev) => ({ ...prev, conteudo: newContent }))
+        setTimeout(() => {
+          textarea.focus()
+          textarea.selectionStart = start + before.length
+          textarea.selectionEnd = start + before.length + selectedText.length
+        }, 0)
       } else {
         // Se não há seleção, insere placeholder com formatação
         insertMarkdown(`${before}${placeholder}${after}`)
