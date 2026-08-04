@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Converter documento para bytes
     const buffer = await Packer.toBuffer(doc)
+    const fileBlob = new Blob([Buffer.from(buffer)])
 
     // Formatar nome do arquivo: P1 - 1 ANO - MATEMATICA - FRENTE A
     let filename = `${capitulo}.docx`
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         },
-        body: buffer,
+        body: fileBlob,
       })
 
       if (!response.ok) {
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
           { type: 'application/json' }
         )
       )
-      formData.append('file', new Blob([buffer]), filename)
+      formData.append('file', fileBlob, filename)
 
       uploadUrl = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'
       const response = await fetch(uploadUrl, {
