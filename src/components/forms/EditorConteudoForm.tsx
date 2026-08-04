@@ -30,6 +30,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
       setFormData({
         capitulo: conteudoEditando.capitulo,
         frente: conteudoEditando.frente,
+        anoEscolar: conteudoEditando.anoEscolar || 'P1',
         grupoConteudo: conteudoEditando.grupoConteudo,
         tipo: conteudoEditando.tipo,
         topicos: conteudoEditando.topicos,
@@ -45,6 +46,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
   const [formData, setFormData] = useState({
     capitulo: '',
     frente: 'A' as 'A' | 'B' | 'C',
+    anoEscolar: 'P1',
     grupoConteudo: 'NATUREZAS_MATEMATICA' as 'NATUREZAS_MATEMATICA' | 'HUMANAS_LINGUAGENS',
     tipo: 'CONTEUDO' as 'CONTEUDO' | 'REVISAO',
     topicos: [] as string[],
@@ -275,6 +277,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           apostilaId,
           capitulo: formData.capitulo,
           frente: formData.frente,
+          anoEscolar: formData.anoEscolar,
           grupoConteudo: formData.grupoConteudo,
           tipo: formData.tipo,
           topicos: formData.topicos,
@@ -298,6 +301,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
       setFormData({
         capitulo: '',
         frente: 'A',
+        anoEscolar: 'P1',
         grupoConteudo: 'NATUREZAS_MATEMATICA',
         tipo: 'CONTEUDO',
         topicos: [],
@@ -338,7 +342,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
         </div>
       </div>
 
-      {/* Linha 2: Frente e Ano */}
+      {/* Linha 2: Frente e Bimestre */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="label-base">Frente</label>
@@ -354,6 +358,20 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           </select>
         </div>
 
+        <div>
+          <label className="label-base">Bimestre</label>
+          <select
+            name="anoEscolar"
+            value={formData.anoEscolar}
+            onChange={handleInputChange}
+            className="input-base"
+          >
+            <option value="P1">P1</option>
+            <option value="P2">P2</option>
+            <option value="P3">P3</option>
+            <option value="P4">P4</option>
+          </select>
+        </div>
       </div>
 
       {/* Grupo de Conteúdo */}
@@ -540,6 +558,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
               setFormData({
                 capitulo: '',
                 frente: 'A',
+                anoEscolar: 'P1',
                 grupoConteudo: 'NATUREZAS_MATEMATICA',
                 tipo: 'CONTEUDO',
                 topicos: [],
@@ -559,6 +578,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
             onClick={() => setFormData({
               capitulo: '',
               frente: 'A',
+              anoEscolar: 'P1',
               grupoConteudo: 'NATUREZAS_MATEMATICA',
               tipo: 'CONTEUDO',
               topicos: [],

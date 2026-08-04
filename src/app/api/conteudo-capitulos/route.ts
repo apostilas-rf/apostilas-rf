@@ -7,6 +7,7 @@ const createConteudoSchema = z.object({
   apostilaId: z.string().min(1),
   capitulo: z.string().min(3, 'Capítulo deve ter no mínimo 3 caracteres'),
   frente: z.enum(['A', 'B', 'C']),
+  anoEscolar: z.string().optional(),
   grupoConteudo: z.enum(['NATUREZAS_MATEMATICA', 'HUMANAS_LINGUAGENS']),
   tipo: z.enum(['CONTEUDO', 'REVISAO']),
   topicos: z.array(z.string()).max(10, 'Máximo 10 tópicos'),
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { apostilaId, capitulo, frente, grupoConteudo, tipo, topicos, enemTopico, enemEstrelas, conteudo } = validation.data
+    const { apostilaId, capitulo, frente, anoEscolar, grupoConteudo, tipo, topicos, enemTopico, enemEstrelas, conteudo } = validation.data
 
     // Buscar apostila
     const apostila = await db.apostila.findUnique({ where: { id: apostilaId } })
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
         apostilaId,
         capitulo,
         frente,
+        anoEscolar,
         grupoConteudo,
         tipo,
         topicos,
