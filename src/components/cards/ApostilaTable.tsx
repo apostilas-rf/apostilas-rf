@@ -1,17 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { StatusBadge } from './StatusBadge'
+import { useState } from 'react'
+import { StatusBadgeClickable } from './StatusBadgeClickable'
 import { SERIES } from '@/lib/constants'
-import type { Apostila } from '@/types'
+import type { Apostila, ApostilaStatus } from '@/types'
 
 interface ApostilaTableProps {
   apostilas: Apostila[]
   isLoading?: boolean
   onDelete?: (id: string) => void
+  onStatusChange?: (id: string, status: ApostilaStatus) => void
 }
 
-export function ApostilaTable({ apostilas, isLoading = false, onDelete }: ApostilaTableProps) {
+export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatusChange }: ApostilaTableProps) {
+  const [apostasList, setApostasList] = useState(apostilas)
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -42,7 +45,7 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete }: Aposti
           </tr>
         </thead>
         <tbody>
-          {apostilas.map((apostila) => (
+          {apostasList.map((apostila) => (
             <tr key={apostila.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
               <td className="px-6 py-4">
                 <Link
@@ -57,7 +60,16 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete }: Aposti
                 {SERIES[apostila.serie].label}
               </td>
               <td className="px-6 py-4">
-                <StatusBadge status={apostila.status} />
+                <StatusBadgeClickable
+                  status={apostila.status}
+                  apostilaId={apostila.id}
+                  onStatusChange={(newStatus) => {
+                    setApostasList((prev) =>
+                      prev.map((a) => (a.id === apostila.id ? { ...a, status: newStatus } : a))
+                    )
+                    onStatusChange?.(apostila.id, newStatus)
+                  }}
+                />
               </td>
               <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">
                 {new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}
