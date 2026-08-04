@@ -367,6 +367,10 @@ model ConteudoCapitulo {
   usuarioId         String
   usuario           User           @relation(fields: [usuarioId], references: [id])
 
+  // Google Drive
+  driveFileId   String? // ID do arquivo no Drive
+  driveFileName String? // Nome do arquivo no Drive
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 

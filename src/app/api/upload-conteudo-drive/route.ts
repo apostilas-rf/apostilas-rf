@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
-    const { conteudo, capitulo, apostilaId } = await request.json()
+    const { conteudo, capitulo, apostilaId, driveFileId } = await request.json()
 
     if (!conteudo || !capitulo) {
       return Response.json({ error: 'Conteúdo e capítulo são obrigatórios' }, { status: 400 })
@@ -70,44 +70,75 @@ export async function POST(request: Request) {
 
     const accessToken = await refreshGoogleToken(user.driveRefreshToken)
 
-    const formData = new FormData()
-    formData.append(
-      'metadata',
-      new Blob(
-        [
-          JSON.stringify({
-            name: filename,
-            mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            parents: [DRIVE_FOLDER_ID],
-          }),
-        ],
-        { type: 'application/json' }
+    let driveFile
+    let uploadUrl: string
+
+    if (driveFileId) {
+      // Atualizar arquivo existente
+      uploadUrl = `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`
+      const response = await fetch(uploadUrl, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        },
+        body: buffer,
+      })
+
+      if (!response.ok) {
+        const error = await response.text()
+        console.error('Drive update error:', error)
+        return Response.json({ error: 'Erro ao atualizar arquivo no Drive', details: error }, { status: 500 })
+      }
+
+      driveFile = await response.json()
+      return Response.json({
+        success: true,
+        fileId: driveFileId,
+        fileName: filename,
+        message: 'Conteúdo atualizado no Drive com sucesso',
+      })
+    } else {
+      // Criar novo arquivo
+      const formData = new FormData()
+      formData.append(
+        'metadata',
+        new Blob(
+          [
+            JSON.stringify({
+              name: filename,
+              mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+              parents: [DRIVE_FOLDER_ID],
+            }),
+          ],
+          { type: 'application/json' }
+        )
       )
-    )
-    formData.append('file', new Blob([buffer]), filename)
+      formData.append('file', new Blob([buffer]), filename)
 
-    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: formData,
-    })
+      uploadUrl = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      })
 
-    if (!response.ok) {
-      const error = await response.text()
-      console.error('Drive upload error:', error)
-      return Response.json({ error: 'Erro ao fazer upload no Drive', details: error }, { status: 500 })
+      if (!response.ok) {
+        const error = await response.text()
+        console.error('Drive upload error:', error)
+        return Response.json({ error: 'Erro ao fazer upload no Drive', details: error }, { status: 500 })
+      }
+
+      driveFile = await response.json()
+      return Response.json({
+        success: true,
+        fileId: driveFile.id,
+        fileName: filename,
+        message: 'Conteúdo salvo no Drive com sucesso',
+      })
     }
-
-    const driveFile = await response.json()
-
-    return Response.json({
-      success: true,
-      fileId: driveFile.id,
-      fileName: filename,
-      message: 'Conteúdo salvo no Drive com sucesso',
-    })
   } catch (error) {
     console.error('Upload error:', error)
     return Response.json({ error: 'Erro ao processar upload' }, { status: 500 })

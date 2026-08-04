@@ -21,6 +21,8 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
 
+  const [driveFileId, setDriveFileId] = useState<string | null>(null)
+
   useEffect(() => {
     if (conteudoEditando) {
       setFormData({
@@ -35,6 +37,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
         novoEnemEstrelas: '3',
         conteudo: conteudoEditando.conteudo,
       })
+      setDriveFileId(conteudoEditando.driveFileId || null)
     }
   }, [conteudoEditando])
 
@@ -255,6 +258,32 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
         return
       }
 
+      // Upload para Drive ANTES de salvar no banco (para ter o fileId)
+      let newDriveFileId = driveFileId
+      try {
+        const driveResponse = await fetch('/api/upload-conteudo-drive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            conteudo: formData.conteudo,
+            capitulo: formData.capitulo,
+            apostilaId,
+            driveFileId: driveFileId, // Se existir, vai atualizar
+          }),
+        })
+
+        if (driveResponse.ok) {
+          const driveData = await driveResponse.json()
+          newDriveFileId = driveData.fileId
+          console.log('Drive upload/update:', driveData.message)
+        } else {
+          console.warn('Aviso: Não foi possível salvar no Drive')
+        }
+      } catch (driveError) {
+        console.error('Erro ao fazer upload no Drive:', driveError)
+      }
+
       const url = conteudoEditando
         ? `/api/conteudo-capitulos/${conteudoEditando.id}`
         : '/api/conteudo-capitulos'
@@ -272,6 +301,7 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
           topicos: formData.topicos,
           enemTopicos: formData.enemTopicos,
           conteudo: formData.conteudo,
+          driveFileId: newDriveFileId,
         }),
       })
 
@@ -283,30 +313,9 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
 
       setSuccess(conteudoEditando ? 'Capítulo atualizado com sucesso!' : 'Capítulo salvo com sucesso!')
 
-      // Upload do conteúdo para o Google Drive como arquivo Word
-      try {
-        const driveResponse = await fetch('/api/upload-conteudo-drive', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            conteudo: formData.conteudo,
-            capitulo: formData.capitulo,
-            apostilaId,
-          }),
-        })
-
-        if (driveResponse.ok) {
-          const driveData = await driveResponse.json()
-          setSuccess(
-            (prev) =>
-              prev + ` | Arquivo salvo no Drive: ${driveData.fileName}`
-          )
-        } else {
-          console.warn('Aviso: Não foi possível salvar no Drive')
-        }
-      } catch (driveError) {
-        console.error('Erro ao fazer upload no Drive:', driveError)
+      // Atualizar driveFileId no estado local para próximas edições
+      if (newDriveFileId) {
+        setDriveFileId(newDriveFileId)
       }
 
       setFormData({
