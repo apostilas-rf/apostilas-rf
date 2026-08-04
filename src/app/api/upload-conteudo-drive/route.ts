@@ -1,7 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
-import { getServerSession } from 'next-auth/next'
-import { authConfig } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { headers } from 'next/headers'
 
 // Mapear série para número
 const SERIE_MAP: Record<string, number> = {
@@ -11,27 +11,29 @@ const SERIE_MAP: Record<string, number> = {
   CURSINHO: 0,
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authConfig)
-    if (!session?.user?.id) {
-      return Response.json({ error: 'Não autenticado' }, { status: 401 })
+    const headersList = await headers()
+    const userId = headersList.get('x-user-id')
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
     const { conteudo, capitulo, apostilaId, driveFileId, materia, serie, frente } = await request.json()
 
     if (!conteudo || !capitulo) {
-      return Response.json({ error: 'Conteúdo e capítulo são obrigatórios' }, { status: 400 })
+      return NextResponse.json({ error: 'Conteúdo e capítulo são obrigatórios' }, { status: 400 })
     }
 
     // Obter token de acesso do Google Drive
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+    const user = await db.user.findUnique({
+      where: { id: userId },
       select: { driveRefreshToken: true },
     })
 
     if (!user?.driveRefreshToken) {
-      return Response.json({ error: 'Drive não configurado. Autorize o acesso ao Drive.' }, { status: 400 })
+      return NextResponse.json({ error: 'Drive não configurado. Autorize o acesso ao Drive.' }, { status: 400 })
     }
 
     // Gerar documento Word
@@ -114,11 +116,11 @@ export async function POST(request: Request) {
       if (!response.ok) {
         const error = await response.text()
         console.error('Drive update error:', error)
-        return Response.json({ error: 'Erro ao atualizar arquivo no Drive', details: error }, { status: 500 })
+        return NextResponse.json({ error: 'Erro ao atualizar arquivo no Drive', details: error }, { status: 500 })
       }
 
       driveFile = await response.json()
-      return Response.json({
+      return NextResponse.json({
         success: true,
         fileId: driveFileId,
         fileName: filename,
@@ -154,11 +156,11 @@ export async function POST(request: Request) {
       if (!response.ok) {
         const error = await response.text()
         console.error('Drive upload error:', error)
-        return Response.json({ error: 'Erro ao fazer upload no Drive', details: error }, { status: 500 })
+        return NextResponse.json({ error: 'Erro ao fazer upload no Drive', details: error }, { status: 500 })
       }
 
       driveFile = await response.json()
-      return Response.json({
+      return NextResponse.json({
         success: true,
         fileId: driveFile.id,
         fileName: filename,
@@ -167,7 +169,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error('Upload error:', error)
-    return Response.json({ error: 'Erro ao processar upload' }, { status: 500 })
+    return NextResponse.json({ error: 'Erro ao processar upload' }, { status: 500 })
   }
 }
 
