@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LatexFormulaToolbar } from './LatexFormulaToolbar'
-import { MarkdownWithLatex } from '@/components/content/MarkdownWithLatex'
+import { RichTextEditor } from './RichTextEditor'
 
 interface EditorConteudoFormProps {
   apostilaId: string
@@ -527,33 +527,21 @@ export function EditorConteudoForm({ apostilaId, onSuccess, conteudoEditando, on
             />
           </div>
 
-          {/* Editor com Renderização em Tempo Real */}
-          <div className="p-3 relative">
-            {/* Textarea para Input */}
-            <textarea
-              ref={textareaRef}
-              name="conteudo"
+          {/* Editor Rico com Renderização em Tempo Real */}
+          <div className="p-3">
+            <RichTextEditor
               value={formData.conteudo}
-              onChange={handleInputChange}
-              onPaste={handlePaste}
+              onChange={(value) => setFormData((prev) => ({ ...prev, conteudo: value }))}
+              onPaste={(e: React.ClipboardEvent<HTMLDivElement>) => {
+                const files = e.clipboardData?.files
+                if (files && files.length > 0) {
+                  e.preventDefault()
+                  handleImageUpload(files)
+                }
+              }}
               placeholder="Escreva o conteúdo aqui... Cole imagens com Ctrl+V para inseri-las automaticamente"
-              rows={14}
-              className="w-full border-0 resize-none focus:outline-none focus:ring-0 font-sans text-sm dark:bg-gray-800 dark:text-white relative z-10 bg-transparent"
-              style={{ fontFamily: 'Open Sans, system-ui, sans-serif' }}
               maxLength={30000}
-              required
             />
-
-            {/* Renderização de Fundo */}
-            <div className="absolute inset-0 p-3 pointer-events-none overflow-hidden">
-              <div className="text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap break-words">
-                <MarkdownWithLatex content={formData.conteudo} />
-              </div>
-            </div>
-
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              {formData.conteudo.length} / 30000 caracteres
-            </p>
           </div>
         </div>
 
