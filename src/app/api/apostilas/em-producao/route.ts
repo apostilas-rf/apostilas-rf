@@ -39,12 +39,15 @@ export async function GET() {
 
     // Processar dados para o dashboard
     const processadas = apostilas.map((apostila) => {
-      // Calcular dias restantes
+      // Apostila sem dataFinal não tem prazo — devolve nulo em vez de inventar
+      // um. A sentinela 2099-12-31 que ficava aqui virava "26812d" na tela, e
+      // ainda discordava do campo de data logo abaixo, que usava outro
+      // palpite (hoje + 30 dias) para a mesma ausência.
       const hoje = new Date()
-      const dataFinal = new Date(apostila.dataFinal || '2099-12-31')
-      const diasRestantes = Math.ceil(
-        (dataFinal.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24)
-      )
+      const dataFinal = apostila.dataFinal ? new Date(apostila.dataFinal) : null
+      const diasRestantes = dataFinal
+        ? Math.ceil((dataFinal.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
+        : null
 
       // Contar atribuições por tarefa
       const conteudoProfessores = apostila.atribuicoes.filter(a => a.tarefa === 'CONTEUDO').length
@@ -54,24 +57,27 @@ export async function GET() {
       // Gerar alertas
       const alertas = []
 
-      if (diasRestantes < 0) {
-        alertas.push({
-          tipo: 'CRITICO',
-          mensagem: `VENCIDO há ${Math.abs(diasRestantes)} dias`,
-          timestamp: new Date().toISOString(),
-        })
-      } else if (diasRestantes <= 3) {
-        alertas.push({
-          tipo: 'CRITICO',
-          mensagem: `Apenas ${diasRestantes} dias até o prazo`,
-          timestamp: new Date().toISOString(),
-        })
-      } else if (diasRestantes <= 7) {
-        alertas.push({
-          tipo: 'AVISO',
-          mensagem: `${diasRestantes} dias até o prazo`,
-          timestamp: new Date().toISOString(),
-        })
+      // Sem prazo definido não há o que alertar sobre vencimento.
+      if (diasRestantes !== null) {
+        if (diasRestantes < 0) {
+          alertas.push({
+            tipo: 'CRITICO',
+            mensagem: `VENCIDO há ${Math.abs(diasRestantes)} dias`,
+            timestamp: new Date().toISOString(),
+          })
+        } else if (diasRestantes <= 3) {
+          alertas.push({
+            tipo: 'CRITICO',
+            mensagem: `Apenas ${diasRestantes} dias até o prazo`,
+            timestamp: new Date().toISOString(),
+          })
+        } else if (diasRestantes <= 7) {
+          alertas.push({
+            tipo: 'AVISO',
+            mensagem: `${diasRestantes} dias até o prazo`,
+            timestamp: new Date().toISOString(),
+          })
+        }
       }
 
       // Alertas por falta de atribuições
@@ -107,7 +113,7 @@ export async function GET() {
         status: apostila.status,
         bimestre: apostila.observacoes?.match(/P\d/)?.[0] || 'N/A',
         tipo: apostila.serie?.includes('Humanas') ? 'HUMANAS' : 'NATUREZAS',
-        prazoEntrega: apostila.dataFinal ? apostila.dataFinal.toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        prazoEntrega: apostila.dataFinal ? apostila.dataFinal.toISOString() : null,
         diasRestantes,
         conteudoRecebido: conteudoProfessores,
         conteudoTotal: 1,

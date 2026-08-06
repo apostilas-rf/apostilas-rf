@@ -11,7 +11,7 @@ interface Apostila {
   status: string
   bimestre: string
   tipo: 'HUMANAS' | 'NATUREZAS'
-  prazoEntrega: string
+  prazoEntrega: string | null
   conteudoRecebido: number
   conteudoTotal: number
   diagramacaoCompleta: number
@@ -76,13 +76,13 @@ export default function GestorPage() {
     }
   }
 
-  const getDiasRestantes = (prazo: string) => {
-    if (!prazo) return 0
-    const hoje = new Date()
+  // null = sem prazo definido. Antes devolvia 0 aqui, o que pintava a apostila
+  // de "vence hoje" quando na verdade ninguém tinha marcado data.
+  const getDiasRestantes = (prazo: string | null) => {
+    if (!prazo) return null
     const prazoDt = new Date(prazo)
-    if (isNaN(prazoDt.getTime())) return 0
-    const diff = Math.ceil((prazoDt.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
-    return diff
+    if (isNaN(prazoDt.getTime())) return null
+    return Math.ceil((prazoDt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
   }
 
   const formatarData = (dataStr: string) => {
@@ -96,7 +96,8 @@ export default function GestorPage() {
     }
   }
 
-  const getStatusColor = (dias: number) => {
+  const getStatusColor = (dias: number | null) => {
+    if (dias === null) return 'text-gray-400 dark:text-gray-500'
     if (dias < 0) return 'text-red-600 dark:text-red-400'
     if (dias <= 3) return 'text-amber-600 dark:text-amber-400'
     return 'text-green-600 dark:text-green-400'
@@ -160,10 +161,14 @@ export default function GestorPage() {
                   </div>
                   <div className="text-right">
                     <div className={`text-3xl font-bold ${getStatusColor(diasRestantes)}`}>
-                      {diasRestantes >= 0 ? `${diasRestantes}d` : `${Math.abs(diasRestantes)}d atrasado`}
+                      {diasRestantes === null
+                        ? '—'
+                        : diasRestantes >= 0
+                          ? `${diasRestantes}d`
+                          : `${Math.abs(diasRestantes)}d atrasado`}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Até {formatarData(apostila.prazoEntrega)}
+                      {apostila.prazoEntrega ? `Até ${formatarData(apostila.prazoEntrega)}` : 'Sem prazo definido'}
                     </p>
                   </div>
                 </div>

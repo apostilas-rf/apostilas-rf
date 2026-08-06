@@ -131,6 +131,7 @@ export function PrazosTab({ setorId, setorLabel }: PrazosTabProps) {
             id={prazo.id}
             titulo={prazo.apostila.titulo}
             descricao={prazo.apostila.materia}
+            responsavel={prazo.usuario.nome}
             prazoEntrega={prazo.prazoEntrega ? new Date(prazo.prazoEntrega) : null}
             statusPrazo={prazo.statusPrazo}
             concluido={prazo.concluido}

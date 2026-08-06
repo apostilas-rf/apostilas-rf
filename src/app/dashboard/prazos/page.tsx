@@ -245,8 +245,9 @@ export default function PrazosPage() {
             <PrazoCard
               key={prazo.id}
               id={prazo.id}
-              titulo={`${prazo.apostila.titulo} - ${prazo.usuario.nome}`}
+              titulo={prazo.apostila.titulo}
               descricao={`Setor: ${setores.find((s) => s.value === prazo.tarefa)?.label || 'N/A'}`}
+              responsavel={prazo.usuario.nome}
               prazoEntrega={prazo.prazoEntrega ? new Date(prazo.prazoEntrega) : null}
               statusPrazo={prazo.statusPrazo}
               concluido={prazo.concluido}

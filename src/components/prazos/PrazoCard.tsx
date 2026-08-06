@@ -6,6 +6,9 @@ interface PrazoCardProps {
   id: string
   titulo: string
   descricao?: string
+  /** Quem responde pela etapa. Campo próprio porque, colado no título, o
+      `truncate` do cabeçalho cortava os dois pela metade. */
+  responsavel?: string
   prazoEntrega: Date | null
   statusPrazo: 'NO_PRAZO' | 'VENCIMENTO_PROXIMO' | 'VENCIDO' | 'COMPLETADO'
   concluido: boolean
@@ -16,6 +19,7 @@ export function PrazoCard({
   id,
   titulo,
   descricao,
+  responsavel,
   prazoEntrega,
   statusPrazo,
   concluido,
@@ -103,12 +107,17 @@ export function PrazoCard({
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate" title={titulo}>
               {titulo}
             </h3>
             {descricao && (
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 {descricao}
+              </p>
+            )}
+            {responsavel && (
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Responsável: <span className="font-medium">{responsavel}</span>
               </p>
             )}
           </div>
