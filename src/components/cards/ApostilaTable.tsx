@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { StatusBadgeClickable } from './StatusBadgeClickable'
 import { VisualizarApostilaModal } from './VisualizarApostilaModal'
+import { PrazosMiniPreview } from '@/components/prazos/PrazosMiniPreview'
 import { SERIES } from '@/lib/constants'
 import type { Apostila, ApostilaStatus } from '@/types'
 
@@ -54,7 +55,7 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
           </tr>
         </thead>
         <tbody>
-          {apostasList.map((apostila) => (
+          {apostasList.map((apostila) => [
             <tr
               key={apostila.id}
               style={{ borderColor: 'var(--line)' }}
@@ -130,8 +131,18 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
                   )}
                 </div>
               </td>
-            </tr>
-          ))}
+            </tr>,
+            <tr
+              key={`prazos-${apostila.id}`}
+              style={{ borderColor: 'var(--line)' }}
+              className="border-b last:border-0 bg-gray-500/5 dark:bg-white/5"
+            >
+              <td colSpan={6} className="px-6 py-3">
+                <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">Prazos por etapa</div>
+                <PrazosMiniPreview apostilaId={apostila.id} />
+              </td>
+            </tr>,
+          ])}
           </tbody>
         </table>
       </div>
