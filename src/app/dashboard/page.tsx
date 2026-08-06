@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useUser } from '@/contexts/UserContext'
 import { StatusChart } from '@/components/dashboard/StatusChart'
+import { BlocoAtencao } from '@/components/dashboard/BlocoAtencao'
 import { ActivityLog } from '@/components/dashboard/ActivityLog'
 
 interface DashboardData {
@@ -144,7 +145,11 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Dashboard Geral - Gráfico de Status (aparece primeiro) */}
+      {/* Antes do gráfico: o que exige ação vem primeiro, e some sozinho
+          quando não há nada pendente. */}
+      <BlocoAtencao />
+
+      {/* Dashboard Geral - Gráfico de Status */}
       {data && (
         <StatusChart data={data.porStatus} />
       )}
