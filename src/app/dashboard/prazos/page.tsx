@@ -103,25 +103,26 @@ export default function PrazosPage() {
     }
   }
 
-  async function handleAdicionarPrazo(prazo: any) {
-    try {
-      const response = await fetch('/api/prazos', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(prazo),
-      })
+  async function handleAdicionarPrazo(prazo: {
+    apostilaId: string
+    etapa: Etapa
+    dataPrazo: string
+    responsavelId: string | null
+  }) {
+    const response = await fetch('/api/deadlines', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prazo),
+    })
 
-      if (!response.ok) {
-        // Repassa a mensagem da API para o modal em vez de um erro genérico
-        const erro = await response.json().catch(() => null)
-        throw new Error(erro?.error || 'Erro ao adicionar prazo')
-      }
-
-      buscarPrazos()
-    } catch (err) {
-      throw err
+    if (!response.ok) {
+      // Repassa a mensagem da API para o modal em vez de um erro genérico
+      const erro = await response.json().catch(() => null)
+      throw new Error(erro?.error || 'Erro ao adicionar prazo')
     }
+
+    await buscarPrazosEtapa()
   }
 
   function getPrazosFiltrads() {
@@ -288,7 +289,7 @@ export default function PrazosPage() {
           </p>
           {prazosEtapa.length === 0 && (
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Os prazos das quatro etapas são definidos dentro de cada apostila.
+              Use “Adicionar Prazo” acima, ou defina as quatro etapas dentro da apostila.
             </p>
           )}
         </div>
@@ -324,13 +325,6 @@ export default function PrazosPage() {
       {mostrarModal && (
         <AdicionarPrazoModal
           apostilaId={apostilaSelecionada}
-          apostilaTitulo={
-            apostilaSelecionada
-              ? apostilas.find((a) => a.id === apostilaSelecionada)?.titulo ||
-                'Selecione uma apostila'
-              : 'Selecione uma apostila'
-          }
-          setores={setores}
           apostilas={apostilas}
           onAdicionar={handleAdicionarPrazo}
           onFechar={() => {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { ETAPAS, type Etapa } from '@/lib/etapas'
 
 interface Apostila {
   id: string
@@ -14,24 +15,23 @@ interface Usuario {
   email: string
 }
 
-// Cada setor é atendido por um papel de usuário
-const ROLE_POR_SETOR: Record<string, string> = {
+// Papel que costuma atender cada etapa, usado só para pré-filtrar a lista.
+// GRAFICA não tem papel próprio na plataforma: quem despacha é o gestor, então
+// ali a lista vem inteira.
+const ROLE_POR_ETAPA: Partial<Record<Etapa, string>> = {
+  REVISAO_INICIAL: 'REVISOR',
   DIAGRAMACAO: 'DIAGRAMADOR',
-  REVISAO: 'REVISOR',
-  ILUSTRACAO: 'ILUSTRADOR',
+  REVISAO_FINAL: 'REVISOR',
 }
 
 interface AdicionarPrazoModalProps {
   apostilaId: string
-  apostilaTitulo: string
-  setores: Array<{ value: string; label: string }>
   apostilas: Apostila[]
   onAdicionar: (prazo: {
     apostilaId: string
-    setor?: string
-    usuarioId: string
-    prazoEntrega: Date
-    descricao?: string
+    etapa: Etapa
+    dataPrazo: string
+    responsavelId: string | null
   }) => Promise<void>
   onFechar: () => void
   onApostilaChange: (id: string) => void
@@ -39,34 +39,30 @@ interface AdicionarPrazoModalProps {
 
 export function AdicionarPrazoModal({
   apostilaId,
-  apostilaTitulo,
-  setores,
   apostilas,
   onAdicionar,
   onFechar,
   onApostilaChange,
 }: AdicionarPrazoModalProps) {
-  const [setor, setSetor] = useState('')
-  const [usuarioId, setUsuarioId] = useState('')
+  const [etapa, setEtapa] = useState<'' | Etapa>('')
+  const [responsavelId, setResponsavelId] = useState('')
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [carregandoUsuarios, setCarregandoUsuarios] = useState(false)
   const [data, setData] = useState('')
-  const [descricao, setDescricao] = useState('')
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState('')
 
-  // Ao trocar de setor, recarrega os responsáveis possíveis
+  // Ao trocar de etapa, recarrega os responsáveis possíveis.
   useEffect(() => {
-    setUsuarioId('')
+    setResponsavelId('')
     setUsuarios([])
+    if (!etapa) return
 
-    const role = ROLE_POR_SETOR[setor]
-    if (!role) return
-
+    const role = ROLE_POR_ETAPA[etapa]
     let cancelado = false
     setCarregandoUsuarios(true)
 
-    fetch(`/api/usuarios?role=${role}`, { credentials: 'include' })
+    fetch(role ? `/api/usuarios?role=${role}` : '/api/usuarios', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('falha'))))
       .then((json) => {
         if (!cancelado) setUsuarios(json.data || [])
@@ -81,40 +77,25 @@ export function AdicionarPrazoModal({
     return () => {
       cancelado = true
     }
-  }, [setor])
+  }, [etapa])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErro('')
 
-    if (!apostilaId) {
-      setErro('Selecione uma apostila')
-      return
-    }
-
-    if (!data) {
-      setErro('Selecione uma data')
-      return
-    }
-
-    if (setores.length > 0 && !setor) {
-      setErro('Selecione um setor')
-      return
-    }
-
-    if (!usuarioId) {
-      setErro('Selecione o responsável')
-      return
-    }
+    if (!apostilaId) return setErro('Selecione uma apostila')
+    if (!etapa) return setErro('Selecione a etapa')
+    if (!data) return setErro('Selecione a data de entrega')
 
     try {
       setCarregando(true)
+      // Responsável fica opcional: dá para fechar o cronograma antes de saber
+      // quem pega cada etapa.
       await onAdicionar({
         apostilaId,
-        setor: setor || undefined,
-        usuarioId,
-        prazoEntrega: new Date(data),
-        descricao: descricao || undefined,
+        etapa,
+        dataPrazo: data,
+        responsavelId: responsavelId || null,
       })
       onFechar()
     } catch (err) {
@@ -125,21 +106,28 @@ export function AdicionarPrazoModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-floating p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          Adicionar Prazo
-        </h2>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onFechar}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div onClick={(e) => e.stopPropagation()} className="panel w-full max-w-md p-6 shadow-floating">
+        <h2 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">Adicionar prazo</h2>
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Uma etapa tem um prazo por apostila — definir de novo substitui o anterior.
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="label-base" htmlFor="apostila">
               Apostila
             </label>
             <select
+              id="apostila"
               value={apostilaId}
               onChange={(e) => onApostilaChange(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
+              className="input-base"
             >
               <option value="">Selecione uma apostila</option>
               {apostilas.map((a) => (
@@ -150,44 +138,44 @@ export function AdicionarPrazoModal({
             </select>
           </div>
 
-          {setores.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Setor
-              </label>
-              <select
-                value={setor}
-                onChange={(e) => setSetor(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
-              >
-                <option value="">Selecione um setor</option>
-                {setores.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Responsável
+            <label className="label-base" htmlFor="etapa">
+              Etapa
             </label>
             <select
-              value={usuarioId}
-              onChange={(e) => setUsuarioId(e.target.value)}
-              disabled={!setor || carregandoUsuarios}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green disabled:opacity-50"
+              id="etapa"
+              value={etapa}
+              onChange={(e) => setEtapa(e.target.value as '' | Etapa)}
+              className="input-base"
+            >
+              <option value="">Selecione a etapa</option>
+              {ETAPAS.map((e) => (
+                <option key={e.valor} value={e.valor}>
+                  {e.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="label-base" htmlFor="responsavel">
+              Responsável <span className="font-normal text-gray-400">(opcional)</span>
+            </label>
+            <select
+              id="responsavel"
+              value={responsavelId}
+              onChange={(e) => setResponsavelId(e.target.value)}
+              disabled={!etapa || carregandoUsuarios}
+              className="input-base disabled:opacity-50"
             >
               <option value="">
-                {!setor
-                  ? 'Selecione um setor primeiro'
+                {!etapa
+                  ? 'Selecione a etapa primeiro'
                   : carregandoUsuarios
-                    ? 'Carregando...'
+                    ? 'Carregando…'
                     : usuarios.length === 0
-                      ? 'Nenhum usuário neste setor'
-                      : 'Selecione o responsável'}
+                      ? 'Nenhum usuário disponível'
+                      : 'A definir'}
               </option>
               {usuarios.map((u) => (
                 <option key={u.id} value={u.id}>
@@ -198,50 +186,34 @@ export function AdicionarPrazoModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Data de Entrega
+            <label className="label-base" htmlFor="dataPrazo">
+              Data de entrega
             </label>
             <input
+              id="dataPrazo"
               type="date"
               value={data}
               onChange={(e) => setData(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Descrição (opcional)
-            </label>
-            <textarea
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              placeholder="Ex: Revisão final completa"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rf-green resize-none"
-              rows={3}
+              className="input-base"
             />
           </div>
 
           {erro && (
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-sm">
+            <p role="alert" className="rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {erro}
-            </div>
+            </p>
           )}
 
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onFechar}
-              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onFechar} className="btn-secondary flex-1">
               Cancelar
             </button>
             <button
               type="submit"
               disabled={carregando}
-              className="flex-1 px-4 py-2 rounded-lg bg-rf-green text-white font-medium hover:bg-emerald-600 transition-colors disabled:opacity-50"
+              className="btn-primary flex-1 disabled:opacity-50"
             >
-              {carregando ? 'Adicionando...' : 'Adicionar'}
+              {carregando ? 'Salvando…' : 'Adicionar'}
             </button>
           </div>
         </form>
