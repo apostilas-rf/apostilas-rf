@@ -6,7 +6,6 @@ import { useUser } from '@/contexts/UserContext'
 import { StatusBadge } from '@/components/cards/StatusBadge'
 import { EditorConteudoForm } from '@/components/forms/EditorConteudoForm'
 import { ProblemasDiagramacaoCard } from '@/components/professor/ProblemasDiagramacaoCard'
-import { EtapasDaApostila } from '@/components/prazos/EtapasDaApostila'
 import { FormattedDate } from '@/components/common/FormattedDate'
 import { APOSTILA_STATUS, SERIES } from '@/lib/constants'
 
@@ -209,7 +208,6 @@ export default function ApostilaDetailPage() {
 
       {/* As quatro etapas lado a lado: é aqui que se vê onde o fluxo travou. */}
       <div className="mb-8">
-        <EtapasDaApostila apostilaId={id} podeEditar={usuario?.role === 'GESTOR'} />
       </div>
 
       {apostila.observacoes && (

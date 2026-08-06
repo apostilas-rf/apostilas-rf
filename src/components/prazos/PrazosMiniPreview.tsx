@@ -38,6 +38,10 @@ export function PrazosMiniPreview({ apostilaId }: PrazosMiniPreviewProps) {
 
   if (carregando) return null
 
+  if (prazos.length === 0) {
+    return <span className="text-xs text-gray-500 dark:text-gray-400">Sem prazos definidos</span>
+  }
+
   return (
     <div className="flex flex-wrap gap-2">
       {prazos.map((prazo) => {
