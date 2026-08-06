@@ -25,6 +25,20 @@ function normalizarEnemTopicos(conteudo: any): EnemTopico[] {
   return []
 }
 
+const FORM_VAZIO = {
+  capitulo: '',
+  frente: 'A' as 'A' | 'B' | 'C',
+  anoEscolar: 'P1',
+  grupoConteudo: 'NATUREZAS_MATEMATICA' as 'NATUREZAS_MATEMATICA' | 'HUMANAS_LINGUAGENS',
+  tipo: 'CONTEUDO' as 'CONTEUDO' | 'REVISAO',
+  topicos: [] as string[],
+  novoTopico: '',
+  enemTopicos: [] as EnemTopico[],
+  novoEnemTopico: '',
+  novoEnemEstrelas: '3',
+  conteudo: '',
+}
+
 interface EditorConteudoFormProps {
   apostilaId: string
   materia?: string
@@ -87,19 +101,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
     }
   }, [])
 
-  const [formData, setFormData] = useState({
-    capitulo: '',
-    frente: 'A' as 'A' | 'B' | 'C',
-    anoEscolar: 'P1',
-    grupoConteudo: 'NATUREZAS_MATEMATICA' as 'NATUREZAS_MATEMATICA' | 'HUMANAS_LINGUAGENS',
-    tipo: 'CONTEUDO' as 'CONTEUDO' | 'REVISAO',
-    topicos: [] as string[],
-    novoTopico: '',
-    enemTopicos: [] as EnemTopico[],
-    novoEnemTopico: '',
-    novoEnemEstrelas: '3',
-    conteudo: '',
-  })
+  const [formData, setFormData] = useState(FORM_VAZIO)
 
   // Filosofia, Literatura, Língua Portuguesa, Sociologia e Redação não têm
   // frente; Física/Química/Geografia/História têm só A e B.
@@ -130,6 +132,14 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
         conteudo: conteudoEditando.conteudo,
       })
       setDriveFileId(conteudoEditando.driveFileId || null)
+      setFichaAberta(false)
+    } else {
+      // Sair da edição precisa zerar tudo. Faltava o driveFileId em especial:
+      // ele continuava apontando para o capítulo anterior, e o "capítulo novo"
+      // salvo em seguida sobrescrevia o arquivo daquele capítulo no Drive.
+      setFormData(FORM_VAZIO)
+      setDriveFileId(null)
+      setFichaAberta(true)
     }
   }, [conteudoEditando])
 
@@ -840,45 +850,19 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
         >
           {loading ? 'Salvando...' : conteudoEditando ? 'Atualizar Capítulo' : 'Salvar Capítulo'}
         </button>
+        {/* Cancelar só avisa o pai: zerar formulário e driveFileId é o efeito
+            que reage a conteudoEditando virar nulo. */}
         {conteudoEditando ? (
-          <button
-            type="button"
-            onClick={() => {
-              onCancelEdit?.()
-              setFormData({
-                capitulo: '',
-                frente: 'A',
-                anoEscolar: 'P1',
-                grupoConteudo: 'NATUREZAS_MATEMATICA',
-                tipo: 'CONTEUDO',
-                topicos: [],
-                novoTopico: '',
-                enemTopicos: [],
-                novoEnemTopico: '',
-                novoEnemEstrelas: '3',
-                conteudo: '',
-              })
-            }}
-            className="btn-secondary"
-          >
+          <button type="button" onClick={() => onCancelEdit?.()} className="btn-secondary">
             Cancelar Edição
           </button>
         ) : (
           <button
             type="button"
-            onClick={() => setFormData({
-              capitulo: '',
-              frente: 'A',
-              anoEscolar: 'P1',
-              grupoConteudo: 'NATUREZAS_MATEMATICA',
-              tipo: 'CONTEUDO',
-              topicos: [],
-              novoTopico: '',
-              enemTopicos: [],
-              novoEnemTopico: '',
-              novoEnemEstrelas: '3',
-              conteudo: '',
-            })}
+            onClick={() => {
+              setFormData(FORM_VAZIO)
+              setDriveFileId(null)
+            }}
             className="btn-secondary"
           >
             Limpar

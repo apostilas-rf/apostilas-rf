@@ -23,12 +23,21 @@ export default function ApostilaDetailPage() {
   const [, setDeletingId] = useState<string | null>(null)
   const editorRef = useRef<HTMLDivElement>(null)
 
+  // Só na primeira carga: depois de salvar, a lista é buscada de novo e sem
+  // isto o editor voltaria sozinho para o modo de edição.
+  const jaAbriuCapitulo = useRef(false)
+
+  // Rolar até o editor faz sentido quando o professor clicou em "Editar" na
+  // lista; na abertura da página seria um pulo sem motivo.
+  const deveRolar = useRef(false)
+
   useEffect(() => {
     fetchApostila()
   }, [id])
 
   useEffect(() => {
-    if (conteudoEditando && editorRef.current) {
+    if (conteudoEditando && deveRolar.current && editorRef.current) {
+      deveRolar.current = false
       editorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [conteudoEditando])
@@ -63,7 +72,16 @@ export default function ApostilaDetailPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setConteudos(data.data || [])
+        const lista = data.data || []
+        setConteudos(lista)
+
+        // Quem chega aqui pelo "Editar" da lista de apostilas quer mexer no
+        // que já escreveu, não começar um capítulo em branco. A rota devolve
+        // em ordem decrescente de criação, então [0] é o mais recente.
+        if (!jaAbriuCapitulo.current && lista.length > 0) {
+          jaAbriuCapitulo.current = true
+          setConteudoEditando(lista[0])
+        }
       }
     } catch (err) {
       console.error('Erro ao buscar conteúdos:', err)
@@ -80,6 +98,9 @@ export default function ApostilaDetailPage() {
 
       if (response.ok) {
         setConteudos((prev) => prev.filter((c) => c.id !== conteudoId))
+        // Sem isto o editor continuaria aberto sobre um capítulo que não
+        // existe mais, e salvar bateria numa rota inexistente.
+        setConteudoEditando((atual: any) => (atual?.id === conteudoId ? null : atual))
         alert('Capítulo deletado com sucesso!')
       } else {
         alert('Erro ao deletar capítulo')
@@ -93,6 +114,7 @@ export default function ApostilaDetailPage() {
   }
 
   async function handleEditConteudo(conteudo: any) {
+    deveRolar.current = true
     setConteudoEditando(conteudo)
   }
 
@@ -174,14 +196,30 @@ export default function ApostilaDetailPage() {
 
       {/* Editor Estruturado de Conteúdo */}
       <div className="card mt-8" ref={editorRef}>
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          {conteudoEditando ? '✏️ Editando Capítulo' : 'Escrever Conteúdo'}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
-          {conteudoEditando
-            ? `Editando: ${conteudoEditando.capitulo}`
-            : 'Escreva o conteúdo diretamente na plataforma com estrutura pré-definida'}
-        </p>
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              {conteudoEditando ? conteudoEditando.capitulo : 'Novo capítulo'}
+            </h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {conteudoEditando
+                ? 'Você está editando este capítulo. As alterações substituem o arquivo no Drive.'
+                : 'Escreva o conteúdo diretamente na plataforma com estrutura pré-definida'}
+            </p>
+          </div>
+
+          {/* O editor abre no último capítulo, então precisa de uma saída
+              explícita para começar um novo. */}
+          {conteudoEditando && (
+            <button
+              type="button"
+              onClick={() => setConteudoEditando(null)}
+              className="btn-soft btn-soft-primary shrink-0"
+            >
+              + Novo capítulo
+            </button>
+          )}
+        </div>
         <EditorConteudoForm
           apostilaId={id}
           materia={apostila?.materia}
@@ -207,12 +245,25 @@ export default function ApostilaDetailPage() {
               return (
                 <div
                   key={conteudo.id}
-                  className="flex justify-between items-start p-3 bg-white dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition"
+                  aria-current={conteudoEditando?.id === conteudo.id ? 'true' : undefined}
+                  className={`flex justify-between items-start p-3 bg-white dark:bg-gray-900 rounded border transition ${
+                    conteudoEditando?.id === conteudo.id
+                      ? 'border-rf-green ring-1 ring-rf-green/30'
+                      : 'border-gray-200 dark:border-gray-700 hover:shadow-sm'
+                  }`}
                 >
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{conteudo.capitulo}</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                      {conteudo.capitulo}
+                      {conteudoEditando?.id === conteudo.id && (
+                        <span className="ml-2 rounded-full bg-rf-green/10 px-2 py-0.5 text-xs font-medium text-rf-green">
+                          editando
+                        </span>
+                      )}
+                    </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      Frente {conteudo.frente} • {grupoLabel} • {conteudo.tipo === 'CONTEUDO' ? 'Conteúdo' : 'Revisão'}
+                      {conteudo.frente ? `Frente ${conteudo.frente} • ` : ''}
+                      {grupoLabel} • {conteudo.tipo === 'CONTEUDO' ? 'Conteúdo' : 'Revisão'}
                     </p>
                   </div>
                   <div className="flex gap-2">
