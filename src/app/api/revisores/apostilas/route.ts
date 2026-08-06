@@ -17,11 +17,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Buscar apostilas em status "EM_DIAGRAMACAO" ou superior (prontas para revisão)
+    // A revisão inicial é a primeira etapa do fluxo e faltava aqui: sem ela a
+    // tela do revisor só começava depois da diagramação.
     const apostilas = await db.apostila.findMany({
       where: {
         status: {
-          in: ['EM_DIAGRAMACAO', 'EM_REVISAO_FINAL', 'EM_AJUSTE'],
+          in: ['EM_REVISAO_INICIAL', 'EM_DIAGRAMACAO', 'EM_REVISAO_FINAL', 'EM_AJUSTE'],
         },
       },
       include: {

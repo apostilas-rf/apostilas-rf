@@ -5,6 +5,9 @@ import { z } from 'zod'
 
 const comentarioSchema = z.object({
   apostilaId: z.string(),
+  // Opcional: sem capítulo o apontamento vale para a apostila inteira, que é
+  // como funcionava antes.
+  capituloId: z.string().nullable().optional(),
   conteudo: z.string().min(10).max(1000),
   tipo: z.enum(['REVISAO']),
   categoriaApontamento: z.enum([
@@ -48,10 +51,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Capítulo informado precisa ser desta apostila, senão o apontamento
+    // apareceria no editor de outra.
+    const capituloId = validation.data.capituloId || null
+    if (capituloId) {
+      const capitulo = await db.conteudoCapitulo.findUnique({
+        where: { id: capituloId },
+        select: { apostilaId: true },
+      })
+      if (!capitulo || capitulo.apostilaId !== validation.data.apostilaId) {
+        return NextResponse.json(
+          { error: 'Capítulo não pertence a esta apostila' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Criar comentário
     const comentario = await db.comentario.create({
       data: {
         apostilaId: validation.data.apostilaId,
+        capituloId,
         usuarioId: userId,
         conteudo: validation.data.conteudo,
         tipo: validation.data.tipo,

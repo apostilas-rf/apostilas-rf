@@ -324,11 +324,21 @@ model Comentario {
   conteudo String
   tipo     String? // "REVISAO", "AJUSTE", "COMENTARIO_GERAL"
 
+  // Apontamento preso a um capítulo. Nulo = comentário da apostila inteira,
+  // que é como todos os já gravados ficam.
+  capituloId String?
+  capitulo   ConteudoCapitulo? @relation(fields: [capituloId], references: [id], onDelete: Cascade)
+
+  // Fechado pelo professor depois de corrigir o texto.
+  resolvido   Boolean   @default(false)
+  resolvidoEm DateTime?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
   @@index([apostilaId])
   @@index([usuarioId])
+  @@index([capituloId])
 }
 
 // Progresso de Diagramação
@@ -423,7 +433,8 @@ model ConteudoCapitulo {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  versoes ConteudoVersao[]
+  versoes      ConteudoVersao[]
+  apontamentos Comentario[]
 
   @@index([apostilaId])
   @@index([usuarioId])

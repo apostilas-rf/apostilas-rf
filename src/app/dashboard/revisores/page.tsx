@@ -40,6 +40,7 @@ interface Apostila {
 }
 
 const statusLabels: Record<string, string> = {
+  EM_REVISAO_INICIAL: '📝 Em revisão inicial',
   EM_DIAGRAMACAO: '🎨 Em diagramação',
   EM_REVISAO_FINAL: '🔍 Em revisão final',
   EM_AJUSTE: '⚙️ Em ajuste',
@@ -163,7 +164,9 @@ export default function RevisoresPage() {
           <div className="bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-8">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Filtros</h2>
             <div className="flex gap-2 flex-wrap">
-              {['todos', 'EM_DIAGRAMACAO', 'EM_REVISAO_FINAL', 'EM_AJUSTE'].map((status) => (
+              {/* EM_REVISAO_INICIAL existe no enum desde sempre e só faltava
+                  aqui — sem ele, a primeira etapa de revisão não tinha tela. */}
+              {['todos', 'EM_REVISAO_INICIAL', 'EM_DIAGRAMACAO', 'EM_REVISAO_FINAL', 'EM_AJUSTE'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFiltroStatus(status)}

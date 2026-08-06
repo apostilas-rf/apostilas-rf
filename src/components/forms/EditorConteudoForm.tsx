@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { LatexFormulaToolbar } from './LatexFormulaToolbar'
 import { RichTextEditor } from './RichTextEditor'
 import { VersoesCapitulo } from './VersoesCapitulo'
+import { ApontamentosCapitulo } from './ApontamentosCapitulo'
 import { frentesDaMateria } from '@/lib/materias'
 
 interface EnemTopico {
@@ -730,6 +731,10 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           )}
         </div>
       </section>
+
+      {/* O que a revisão apontou, acima do editor: é o que o professor precisa
+          ler antes de mexer no texto. Some sozinho quando não há apontamento. */}
+      {conteudoEditando && <ApontamentosCapitulo capituloId={conteudoEditando.id} />}
 
       {/* Histórico: só existe para capítulo já salvo. Restaurar usa callback
           próprio — o onSuccess do salvamento fecha o editor, e aqui o professor

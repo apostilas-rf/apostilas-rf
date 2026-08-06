@@ -94,6 +94,30 @@ export async function PATCH(
       }
     }
 
+    // Sair da revisão inicial exige que a revisão tenha se dado por satisfeita:
+    // apontamento aberto num capítulo é trabalho que ainda não voltou pro
+    // professor, e seguir para diagramação o perderia de vista.
+    if (apostila.status === 'EM_REVISAO_INICIAL' && novoStatus === 'EM_DIAGRAMACAO') {
+      const abertos = await db.comentario.count({
+        where: {
+          apostilaId: id,
+          capituloId: { not: null },
+          resolvido: false,
+        },
+      })
+
+      if (abertos > 0) {
+        return NextResponse.json(
+          {
+            error: `A revisão deixou ${abertos} apontamento(s) em aberto.`,
+            detalhes:
+              'O professor precisa resolvê-los antes de a apostila seguir para diagramação.',
+          },
+          { status: 409 }
+        )
+      }
+    }
+
     if (novoStatus === 'EM_AJUSTE' || novoStatus === 'FINALIZADO') {
       // Apenas REVISOR pode fazer essas transições
       if (userRole !== 'REVISOR') {

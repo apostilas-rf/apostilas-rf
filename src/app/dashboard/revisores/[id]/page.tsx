@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import ComentarioForm from '@/components/revisor/ComentarioForm'
+import { CapitulosParaRevisar } from '@/components/revisor/CapitulosParaRevisar'
 
 interface Comentario {
   id: string
@@ -145,7 +146,20 @@ export default function RevisorDetalhesPage() {
             )}
           </div>
 
-          {/* Form de Comentários */}
+          {/* Capítulos em leitura, com apontamento por capítulo. É aqui que a
+              revisão inicial acontece: o revisor lê e aponta, sem reescrever. */}
+          <div className="bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">
+              Capítulos
+            </h2>
+            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+              O texto é do professor e não pode ser editado aqui — deixe um apontamento e ele
+              corrige.
+            </p>
+            <CapitulosParaRevisar apostilaId={apostila.id} />
+          </div>
+
+          {/* Form de Comentários — apontamento da apostila inteira */}
           <ComentarioForm
             apostilaId={apostila.id}
             onSuccess={() => {
