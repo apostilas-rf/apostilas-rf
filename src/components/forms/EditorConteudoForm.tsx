@@ -514,216 +514,218 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
             {[
               temFrente ? `Frente ${frenteEfetiva}` : null,
               formData.anoEscolar,
+              formData.grupoConteudo === 'NATUREZAS_MATEMATICA'
+                ? 'Naturezas e Matemática'
+                : 'Humanas e Linguagens',
               formData.tipo === 'CONTEUDO' ? 'Conteúdo' : 'Revisão',
-              `${formData.topicos.length} tópico(s)`,
-              `${formData.enemTopicos.length} no ENEM`,
             ]
               .filter(Boolean)
               .join(' · ')}
           </p>
         )}
 
+        {/* Só os quatro seletores se recolhem. Tópicos e ENEM ficam
+            sempre à vista: são coisas que o professor escreve, não
+            ficha técnica, e escondê-los fazia parecer que sumiram. */}
         {fichaAberta && (
-          <>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              {temFrente && (
-                <div>
-                  <label className="label-base" htmlFor="frente">
-                    Frente
-                  </label>
-                  <select
-                    id="frente"
-                    name="frente"
-                    value={formData.frente}
-                    onChange={handleInputChange}
-                    className="input-base"
-                  >
-                    {frentesDisponiveis.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {temFrente && (
               <div>
-                <label className="label-base" htmlFor="anoEscolar">
-                  Bimestre
+                <label className="label-base" htmlFor="frente">
+                  Frente
                 </label>
                 <select
-                  id="anoEscolar"
-                  name="anoEscolar"
-                  value={formData.anoEscolar}
+                  id="frente"
+                  name="frente"
+                  value={formData.frente}
                   onChange={handleInputChange}
                   className="input-base"
                 >
-                  <option value="P1">P1</option>
-                  <option value="P2">P2</option>
-                  <option value="P3">P3</option>
-                  <option value="P4">P4</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="label-base" htmlFor="grupoConteudo">
-                  Área
-                </label>
-                <select
-                  id="grupoConteudo"
-                  name="grupoConteudo"
-                  value={formData.grupoConteudo}
-                  onChange={handleInputChange}
-                  className="input-base"
-                >
-                  <option value="NATUREZAS_MATEMATICA">Naturezas e Matemática</option>
-                  <option value="HUMANAS_LINGUAGENS">Humanas e Linguagens</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="label-base" htmlFor="tipo">
-                  Tipo
-                </label>
-                <select
-                  id="tipo"
-                  name="tipo"
-                  value={formData.tipo}
-                  onChange={handleInputChange}
-                  className="input-base"
-                >
-                  <option value="CONTEUDO">Conteúdo</option>
-                  <option value="REVISAO">Revisão</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Tópicos */}
-            <div>
-              <label className="label-base" htmlFor="novoTopico">
-                O que vamos estudar nesse capítulo{' '}
-                <span className="font-normal text-gray-400">{formData.topicos.length}/10</span>
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="novoTopico"
-                  type="text"
-                  value={formData.novoTopico}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, novoTopico: e.target.value }))}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleAddTopico()
-                    }
-                  }}
-                  placeholder="Digite um tópico e pressione Enter"
-                  className="input-base flex-1"
-                  disabled={formData.topicos.length >= 10}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddTopico}
-                  disabled={formData.topicos.length >= 10 || !formData.novoTopico.trim()}
-                  className="btn-soft btn-soft-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Adicionar
-                </button>
-              </div>
-
-              {formData.topicos.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {formData.topicos.map((topico, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-gray-500/10 py-1 pl-3 pr-1.5 text-sm text-gray-700 dark:bg-white/5 dark:text-gray-200"
-                    >
-                      {topico}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTopico(index)}
-                        aria-label={`Remover ${topico}`}
-                        className="grid h-5 w-5 place-items-center rounded-full text-gray-500 transition-colors hover:bg-red-500/15 hover:text-red-600"
-                      >
-                        ✕
-                      </button>
-                    </span>
+                  {frentesDisponiveis.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
                   ))}
-                </div>
-              )}
-            </div>
-
-            {/* ENEM */}
-            <div>
-              <label className="label-base" htmlFor="novoEnemTopico">
-                Cai no ENEM?{' '}
-                <span className="font-normal text-gray-400">{formData.enemTopicos.length}/10</span>
-              </label>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  id="novoEnemTopico"
-                  type="text"
-                  value={formData.novoEnemTopico}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, novoEnemTopico: e.target.value }))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleAddEnemTopico()
-                    }
-                  }}
-                  placeholder="Ex: Climatologia"
-                  className="input-base flex-1"
-                  disabled={formData.enemTopicos.length >= 10}
-                />
-                <select
-                  value={formData.novoEnemEstrelas}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, novoEnemEstrelas: e.target.value }))
-                  }
-                  aria-label="Frequência no ENEM"
-                  className="input-base sm:w-52"
-                >
-                  <option value="1">⭐ Pouco</option>
-                  <option value="2">⭐⭐ Raramente</option>
-                  <option value="3">⭐⭐⭐ Às vezes</option>
-                  <option value="4">⭐⭐⭐⭐ Frequente</option>
-                  <option value="5">⭐⭐⭐⭐⭐ Muito frequente</option>
                 </select>
-                <button
-                  type="button"
-                  onClick={handleAddEnemTopico}
-                  disabled={formData.enemTopicos.length >= 10 || !formData.novoEnemTopico.trim()}
-                  className="btn-soft btn-soft-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Adicionar
-                </button>
               </div>
+            )}
 
-              {formData.enemTopicos.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {formData.enemTopicos.map((item, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 py-1 pl-3 pr-1.5 text-sm text-amber-800 dark:text-amber-200"
-                    >
-                      {item.topico}
-                      <span aria-label={`${item.estrelas} de 5`}>{'⭐'.repeat(item.estrelas)}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveEnemTopico(index)}
-                        aria-label={`Remover ${item.topico}`}
-                        className="grid h-5 w-5 place-items-center rounded-full text-amber-700 transition-colors hover:bg-red-500/15 hover:text-red-600 dark:text-amber-300"
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
+            <div>
+              <label className="label-base" htmlFor="anoEscolar">
+                Bimestre
+              </label>
+              <select
+                id="anoEscolar"
+                name="anoEscolar"
+                value={formData.anoEscolar}
+                onChange={handleInputChange}
+                className="input-base"
+              >
+                <option value="P1">P1</option>
+                <option value="P2">P2</option>
+                <option value="P3">P3</option>
+                <option value="P4">P4</option>
+              </select>
             </div>
-          </>
+
+            <div>
+              <label className="label-base" htmlFor="grupoConteudo">
+                Área
+              </label>
+              <select
+                id="grupoConteudo"
+                name="grupoConteudo"
+                value={formData.grupoConteudo}
+                onChange={handleInputChange}
+                className="input-base"
+              >
+                <option value="NATUREZAS_MATEMATICA">Naturezas e Matemática</option>
+                <option value="HUMANAS_LINGUAGENS">Humanas e Linguagens</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="label-base" htmlFor="tipo">
+                Tipo
+              </label>
+              <select
+                id="tipo"
+                name="tipo"
+                value={formData.tipo}
+                onChange={handleInputChange}
+                className="input-base"
+              >
+                <option value="CONTEUDO">Conteúdo</option>
+                <option value="REVISAO">Revisão</option>
+              </select>
+            </div>
+          </div>
         )}
+
+        {/* Tópicos */}
+        <div>
+          <label className="label-base" htmlFor="novoTopico">
+            O que vamos estudar nesse capítulo{' '}
+            <span className="font-normal text-gray-400">{formData.topicos.length}/10</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="novoTopico"
+              type="text"
+              value={formData.novoTopico}
+              onChange={(e) => setFormData((prev) => ({ ...prev, novoTopico: e.target.value }))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleAddTopico()
+                }
+              }}
+              placeholder="Digite um tópico e pressione Enter"
+              className="input-base flex-1"
+              disabled={formData.topicos.length >= 10}
+            />
+            <button
+              type="button"
+              onClick={handleAddTopico}
+              disabled={formData.topicos.length >= 10 || !formData.novoTopico.trim()}
+              className="btn-soft btn-soft-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Adicionar
+            </button>
+          </div>
+
+          {formData.topicos.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {formData.topicos.map((topico, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gray-500/10 py-1 pl-3 pr-1.5 text-sm text-gray-700 dark:bg-white/5 dark:text-gray-200"
+                >
+                  {topico}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTopico(index)}
+                    aria-label={`Remover ${topico}`}
+                    className="grid h-5 w-5 place-items-center rounded-full text-gray-500 transition-colors hover:bg-red-500/15 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ENEM */}
+        <div>
+          <label className="label-base" htmlFor="novoEnemTopico">
+            Cai no ENEM?{' '}
+            <span className="font-normal text-gray-400">{formData.enemTopicos.length}/10</span>
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              id="novoEnemTopico"
+              type="text"
+              value={formData.novoEnemTopico}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, novoEnemTopico: e.target.value }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleAddEnemTopico()
+                }
+              }}
+              placeholder="Ex: Climatologia"
+              className="input-base flex-1"
+              disabled={formData.enemTopicos.length >= 10}
+            />
+            <select
+              value={formData.novoEnemEstrelas}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, novoEnemEstrelas: e.target.value }))
+              }
+              aria-label="Frequência no ENEM"
+              className="input-base sm:w-52"
+            >
+              <option value="1">⭐ Pouco</option>
+              <option value="2">⭐⭐ Raramente</option>
+              <option value="3">⭐⭐⭐ Às vezes</option>
+              <option value="4">⭐⭐⭐⭐ Frequente</option>
+              <option value="5">⭐⭐⭐⭐⭐ Muito frequente</option>
+            </select>
+            <button
+              type="button"
+              onClick={handleAddEnemTopico}
+              disabled={formData.enemTopicos.length >= 10 || !formData.novoEnemTopico.trim()}
+              className="btn-soft btn-soft-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Adicionar
+            </button>
+          </div>
+
+          {formData.enemTopicos.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {formData.enemTopicos.map((item, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 py-1 pl-3 pr-1.5 text-sm text-amber-800 dark:text-amber-200"
+                >
+                  {item.topico}
+                  <span aria-label={`${item.estrelas} de 5`}>{'⭐'.repeat(item.estrelas)}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveEnemTopico(index)}
+                    aria-label={`Remover ${item.topico}`}
+                    className="grid h-5 w-5 place-items-center rounded-full text-amber-700 transition-colors hover:bg-red-500/15 hover:text-red-600 dark:text-amber-300"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Conteúdo com Upload de Imagens */}
