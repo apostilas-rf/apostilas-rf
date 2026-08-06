@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { StatusBadgeClickable } from './StatusBadgeClickable'
+import { VisualizarApostilaModal } from './VisualizarApostilaModal'
 import { SERIES } from '@/lib/constants'
 import type { Apostila, ApostilaStatus } from '@/types'
 
@@ -15,6 +16,7 @@ interface ApostilaTableProps {
 
 export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatusChange }: ApostilaTableProps) {
   const [apostasList, setApostasList] = useState(apostilas)
+  const [visualizando, setVisualizando] = useState<Apostila | null>(null)
 
   useEffect(() => {
     setApostasList(apostilas)
@@ -36,8 +38,9 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
         <thead>
           {/* Cabeçalho sem fundo próprio nem borda dura: o rótulo miúdo em
               maiúsculas já separa da primeira linha. */}
@@ -85,12 +88,33 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
                 {new Date(apostila.criadoEm).toLocaleDateString('pt-BR')}
               </td>
               <td className="px-6 py-4">
-                <div className="flex justify-center gap-2">
+                <div className="flex items-center justify-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setVisualizando(apostila)}
+                    title="Visualizar conteúdo"
+                    aria-label={`Visualizar ${apostila.titulo}`}
+                    className="rounded-xl p-2 text-gray-500 transition-colors hover:bg-gray-500/10 hover:text-rf-green dark:text-gray-400 dark:hover:bg-white/5"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
                   <Link
                     href={`/dashboard/apostilas/${apostila.id}`}
                     className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-500/10 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                   >
-                    Ver
+                    Editar
                   </Link>
                   {onDelete && (
                     <button
@@ -108,8 +132,19 @@ export function ApostilaTable({ apostilas, isLoading = false, onDelete, onStatus
               </td>
             </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Fora do contêiner rolável de propósito: um transform num ancestral
+          faria o fixed virar posicionamento relativo a ele e o modal sumiria. */}
+      {visualizando && (
+        <VisualizarApostilaModal
+          apostilaId={visualizando.id}
+          titulo={visualizando.titulo}
+          onClose={() => setVisualizando(null)}
+        />
+      )}
+    </>
   )
 }
