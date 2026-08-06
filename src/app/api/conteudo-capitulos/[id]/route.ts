@@ -64,22 +64,41 @@ export async function PUT(
       )
     }
 
-    // Atualizar
-    const conteudoAtualizado = await db.conteudoCapitulo.update({
-      where: { id },
-      data: {
-        capitulo,
-        frente,
-        anoEscolar,
-        grupoConteudo,
-        tipo,
-        topicos,
-        enemTopicos: enemTopicos ?? undefined,
-        enemTopico: enemTopico || null,
-        enemEstrelas: enemEstrelas || null,
-        conteudo,
-        estimadoPaginas,
-      },
+    // Guarda o texto que está saindo e só então grava o novo, numa transação:
+    // separado, um erro no meio deixaria versão sem a edição correspondente.
+    // Edição que não mexeu no texto não gera versão — senão o histórico enche
+    // de linhas idênticas a cada ajuste de tópico.
+    const textoMudou =
+      conteudoExistente.conteudo !== conteudo || conteudoExistente.capitulo !== capitulo
+
+    const conteudoAtualizado = await db.$transaction(async (tx) => {
+      if (textoMudou) {
+        await tx.conteudoVersao.create({
+          data: {
+            capituloId: id,
+            conteudo: conteudoExistente.conteudo,
+            nomeCapitulo: conteudoExistente.capitulo,
+            autorId: userId,
+          },
+        })
+      }
+
+      return tx.conteudoCapitulo.update({
+        where: { id },
+        data: {
+          capitulo,
+          frente,
+          anoEscolar,
+          grupoConteudo,
+          tipo,
+          topicos,
+          enemTopicos: enemTopicos ?? undefined,
+          enemTopico: enemTopico || null,
+          enemEstrelas: enemEstrelas || null,
+          conteudo,
+          estimadoPaginas,
+        },
+      })
     })
 
     return NextResponse.json(

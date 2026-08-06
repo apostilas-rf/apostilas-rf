@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LatexFormulaToolbar } from './LatexFormulaToolbar'
 import { RichTextEditor } from './RichTextEditor'
+import { VersoesCapitulo } from './VersoesCapitulo'
 import { frentesDaMateria } from '@/lib/materias'
 
 interface EnemTopico {
@@ -46,9 +47,11 @@ interface EditorConteudoFormProps {
   onSuccess?: () => void
   conteudoEditando?: any
   onCancelEdit?: () => void
+  /** Recarrega o capítulo mantendo-o aberto, depois de restaurar uma versão. */
+  onVersaoRestaurada?: () => void
 }
 
-export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, conteudoEditando, onCancelEdit }: EditorConteudoFormProps) {
+export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, conteudoEditando, onCancelEdit, onVersaoRestaurada }: EditorConteudoFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -727,6 +730,19 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           )}
         </div>
       </section>
+
+      {/* Histórico: só existe para capítulo já salvo. Restaurar usa callback
+          próprio — o onSuccess do salvamento fecha o editor, e aqui o professor
+          precisa continuar vendo o texto que acabou de voltar. */}
+      {conteudoEditando && (
+        <VersoesCapitulo
+          capituloId={conteudoEditando.id}
+          onRestaurado={() => {
+            setSuccess('Versão restaurada.')
+            onVersaoRestaurada?.()
+          }}
+        />
+      )}
 
       {/* Conteúdo com Upload de Imagens */}
       <div>

@@ -104,6 +104,7 @@ model User {
   comentarios          Comentario[]
   arquivos             ApostilaArquivo[]      @relation("UsuarioArquivo")
   conteudosCriados     ConteudoCapitulo[]
+  versoesCriadas       ConteudoVersao[]       @relation("AutorVersao")
   diagramacaoAtribuida DiagramacaoProgresso[] @relation("DiagramadorAtribuido")
   problemasRelatados   ProblemaaDiagramacao[] @relation("ProblemasRelatados")
   problemasRecebidos   ProblemaaDiagramacao[] @relation("ProblemasRecebidos")
@@ -422,9 +423,36 @@ model ConteudoCapitulo {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
+  versoes ConteudoVersao[]
+
   @@index([apostilaId])
   @@index([usuarioId])
   @@index([status])
+}
+
+// Histórico de um capítulo. Cada linha é o texto **anterior** a uma edição, não
+// o texto salvo: assim a primeira edição de um capítulo que já existia preserva
+// o que o professor escreveu antes de o versionamento existir. A versão viva é
+// sempre o próprio ConteudoCapitulo.
+model ConteudoVersao {
+  id         String           @id @default(cuid())
+  capituloId String
+  capitulo   ConteudoCapitulo @relation(fields: [capituloId], references: [id], onDelete: Cascade)
+
+  // Cópia do texto e do nome, que é o que interessa reverter. Os demais campos
+  // (frente, tópicos, ENEM) mudam pouco e não valem o peso de duplicar.
+  conteudo     String
+  nomeCapitulo String
+
+  // Quem fez a edição que gerou esta versão. SetNull para o histórico
+  // sobreviver à remoção do usuário — perder a autoria é melhor que perder o
+  // texto.
+  autorId String?
+  autor   User?   @relation("AutorVersao", fields: [autorId], references: [id], onDelete: SetNull)
+
+  criadoEm DateTime @default(now())
+
+  @@index([capituloId, criadoEm])
 }
 
 // Rastreamento de alertas por email enviados

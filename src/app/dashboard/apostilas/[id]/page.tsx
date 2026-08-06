@@ -119,6 +119,25 @@ export default function ApostilaDetailPage() {
     setConteudoEditando(conteudo)
   }
 
+  // Depois de restaurar uma versão: rebusca a lista e reabre o MESMO capítulo,
+  // para o professor ver o texto que voltou em vez de um formulário vazio.
+  async function handleVersaoRestaurada() {
+    const abertoId = conteudoEditando?.id
+    try {
+      const response = await fetch(`/api/conteudo-capitulos?apostilaId=${id}`, {
+        credentials: 'include',
+      })
+      if (!response.ok) return
+      const data = await response.json()
+      const lista = data.data || []
+      setConteudos(lista)
+      const reaberto = lista.find((c: any) => c.id === abertoId)
+      if (reaberto) setConteudoEditando(reaberto)
+    } catch (err) {
+      console.error('Erro ao recarregar capítulo restaurado:', err)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -236,6 +255,7 @@ export default function ApostilaDetailPage() {
           }}
           conteudoEditando={conteudoEditando}
           onCancelEdit={() => setConteudoEditando(null)}
+          onVersaoRestaurada={handleVersaoRestaurada}
         />
       </div>
 
