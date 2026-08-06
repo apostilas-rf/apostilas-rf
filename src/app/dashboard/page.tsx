@@ -194,8 +194,8 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <div className={`text-xl font-bold ${getStatusColor(diasRestantes)}`}>
-                          {diasRestantes >= 0 ? `${diasRestantes}d` : `${Math.abs(diasRestantes)}d`}
+                        <div className={`text-xl font-bold ${diasRestantes == null ? 'text-gray-400' : getStatusColor(diasRestantes)}`}>
+                          {diasRestantes == null ? '—' : diasRestantes >= 0 ? `${diasRestantes}d` : `${Math.abs(diasRestantes)}d`}
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {formatarData(apostila.prazoEntrega)}
