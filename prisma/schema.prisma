@@ -69,6 +69,17 @@ enum StatusPrazo {
   COMPLETADO
 }
 
+// As quatro etapas por onde a apostila passa, na ordem do fluxo. Não reusa o
+// `tarefa` de UserAssignment de propósito: lá os valores são REVISAO e
+// ILUSTRACAO, e não há como decidir automaticamente se um "REVISAO" antigo era
+// a inicial ou a final.
+enum EtapaProducao {
+  REVISAO_INICIAL
+  DIAGRAMACAO
+  REVISAO_FINAL
+  GRAFICA
+}
+
 // User model
 model User {
   id           String    @id @default(cuid())
@@ -87,6 +98,7 @@ model User {
   rolesAdicionais      UserRole[]
   apostilasEnviadas    Apostila[]             @relation("ProfessorApostila")
   atribuicoes          UserAssignment[]
+  etapasResponsavel    Deadline[]             @relation("ResponsavelEtapa")
   notificacoes         Notificacao[]
   historicoApostila    ApostilaHistory[]
   comentarios          Comentario[]
@@ -158,6 +170,7 @@ model Apostila {
 
   // Relations
   atribuicoes          UserAssignment[]
+  prazosEtapa          Deadline[]
   arquivos             ApostilaArquivo[]
   historicoStatus      ApostilaHistory[]
   notificacoes         Notificacao[]
@@ -196,6 +209,35 @@ model UserAssignment {
   @@index([apostilaId])
   @@index([usuarioId])
   @@index([statusPrazo])
+}
+
+// Prazo de uma etapa da apostila. Tabela separada de UserAssignment porque são
+// perguntas diferentes: "quem trabalha nisto" versus "quando esta etapa vence".
+// Uma etapa tem um prazo só por apostila, daí o unique — é o que sustenta as
+// quatro datas lado a lado na tela da apostila.
+model Deadline {
+  id         String        @id @default(cuid())
+  apostilaId String
+  apostila   Apostila      @relation(fields: [apostilaId], references: [id], onDelete: Cascade)
+  etapa      EtapaProducao
+
+  dataPrazo DateTime
+
+  // Etapa pode ter prazo antes de alguém assumir, então o responsável é
+  // opcional; SetNull para não perder o prazo se o usuário for removido.
+  responsavelId String?
+  responsavel   User?   @relation("ResponsavelEtapa", fields: [responsavelId], references: [id], onDelete: SetNull)
+
+  concluido   Boolean   @default(false)
+  concluidoEm DateTime?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@unique([apostilaId, etapa])
+  @@index([apostilaId])
+  @@index([responsavelId])
+  @@index([dataPrazo])
 }
 
 // Apostila History (audit log)
