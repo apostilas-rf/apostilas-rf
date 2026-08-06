@@ -14,8 +14,8 @@
     --surface: #ffffff;
     --surface-raised: #ffffff;
     --surface-inset: #f4f8f6;
-    --line: rgb(0 60 40 / 0.09);
-    --line-strong: rgb(0 60 40 / 0.16);
+    --line: rgb(0 60 40 / 0.15);
+    --line-strong: rgb(0 60 40 / 0.25);
     --sombra: 0 55 36;
     color-scheme: light;
   }
@@ -34,9 +34,8 @@
 
   body {
     background-color: var(--canvas);
-    /* Quase-preto com um resto de verde. O gray-900 do Tailwind puxa para o
-       azul e destoava do canvas agora esverdeado. */
-    color: #101a15;
+    /* Preto com um resto de verde para o light mode. Maior contraste. */
+    color: #0d0d0d;
     @apply antialiased;
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
@@ -119,7 +118,7 @@
   .btn-secondary {
     background-color: var(--surface);
     border: 1px solid var(--line-strong);
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-gray-700 shadow-subtle hover:shadow-elevated active:brightness-95 transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-gray-900 shadow-subtle hover:shadow-elevated active:brightness-95 transition-all duration-200;
   }
 
   :root.dark .btn-secondary {
@@ -136,11 +135,11 @@
   }
 
   .btn-soft-primary {
-    @apply btn-soft bg-rf-green/10 text-rf-green hover:bg-rf-green/20;
+    @apply btn-soft bg-rf-green/20 text-rf-green hover:bg-rf-green/30 font-semibold;
   }
 
   .btn-soft-danger {
-    @apply btn-soft bg-red-500/10 text-red-600 hover:bg-red-500/20 dark:text-red-400;
+    @apply btn-soft bg-red-500/20 text-red-700 hover:bg-red-500/30 dark:text-red-400 font-semibold;
   }
 
   /* Cartões: raio grande, borda fio de cabelo, sem backdrop-blur (custava
@@ -171,18 +170,18 @@
   /* Quadradinho arredondado atrás de um ícone. Ancora visualmente o título de
      uma seção e é o detalhe que mais "moderniza" uma lista. */
   .icon-chip {
-    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rf-green/10 text-rf-green;
+    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rf-green/25 text-rf-green font-bold;
   }
 
   .icon-chip-sm {
-    @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-rf-green/10 text-rf-green;
+    @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-rf-green/25 text-rf-green font-bold;
   }
 
   /* Inputs */
   .input-base {
     background-color: var(--surface);
-    border: 1px solid var(--line-strong);
-    @apply w-full rounded-2xl px-4 py-3 text-base font-medium text-gray-900 placeholder-gray-400 focus:border-rf-green focus:outline-none focus:ring-4 focus:ring-rf-green/15 transition-all duration-200;
+    border: 2px solid var(--line-strong);
+    @apply w-full rounded-2xl px-4 py-3 text-base font-medium text-gray-900 placeholder-gray-500 focus:border-rf-green focus:outline-none focus:ring-4 focus:ring-rf-green/25 transition-all duration-200;
   }
 
   :root.dark .input-base {
@@ -195,7 +194,7 @@
   }
 
   .label-base {
-    @apply block text-sm font-semibold text-gray-600 mb-2 tracking-tight;
+    @apply block text-sm font-bold text-gray-900 mb-2 tracking-tight;
   }
 
   :root.dark .label-base {
@@ -208,19 +207,19 @@
   }
 
   .badge-primary {
-    @apply bg-blue-500/10 text-blue-700 dark:text-blue-300;
+    @apply bg-blue-500/20 text-blue-700 dark:text-blue-300 font-semibold;
   }
 
   .badge-success {
-    @apply bg-rf-green/10 text-rf-green;
+    @apply bg-rf-green/25 text-rf-green font-semibold;
   }
 
   .badge-warning {
-    @apply bg-yellow-500/10 text-yellow-700 dark:text-yellow-300;
+    @apply bg-yellow-500/25 text-yellow-700 dark:text-yellow-300 font-semibold;
   }
 
   .badge-danger {
-    @apply bg-red-500/10 text-red-600 dark:text-red-400;
+    @apply bg-red-500/25 text-red-700 dark:text-red-400 font-semibold;
   }
 
   .divider {
@@ -259,15 +258,15 @@
   }
 
   .status-pill-active {
-    @apply bg-rf-green/10 text-rf-green;
+    @apply bg-rf-green/25 text-rf-green font-semibold;
   }
 
   .status-pill-pending {
-    @apply bg-yellow-500/10 text-yellow-700 dark:text-yellow-300;
+    @apply bg-yellow-500/25 text-yellow-700 dark:text-yellow-300 font-semibold;
   }
 
   .status-pill-inactive {
-    @apply bg-gray-500/10 text-gray-600 dark:text-gray-300;
+    @apply bg-gray-500/20 text-gray-800 dark:text-gray-300 font-semibold;
   }
 
   /* Animações */
