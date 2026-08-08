@@ -425,6 +425,7 @@ export function EditorConteudoForm({ apostilaId, materia, serie, onSuccess, cont
           topicos: formData.topicos,
           enemTopicos: formData.enemTopicos,
           conteudo: formData.conteudo,
+          driveFileId: newDriveFileId,
         }),
       })
 
