@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { SERIES } from '@/lib/constants'
 import type { Apostila } from '@/types'
@@ -10,11 +9,35 @@ interface BancoApostilasTableProps {
   isLoading?: boolean
 }
 
+interface ApostilaComDrive extends Apostila {
+  driveId?: string | null
+}
+
 export function BancoApostilasTable({ apostilas, isLoading = false }: BancoApostilasTableProps) {
-  const [apostasList, setApostasList] = useState(apostilas)
+  const [apostasList, setApostasList] = useState<ApostilaComDrive[]>(apostilas)
 
   useEffect(() => {
-    setApostasList(apostilas)
+    // Buscar Drive IDs para cada apostila
+    const fetchDriveIds = async () => {
+      const listaComDriveIds = await Promise.all(
+        apostilas.map(async (apost) => {
+          try {
+            const res = await fetch(`/api/apostilas/${apost.id}/drive`, {
+              credentials: 'include',
+            })
+            if (res.ok) {
+              const data = await res.json()
+              return { ...apost, driveId: data.driveId }
+            }
+          } catch (e) {
+            console.error('Erro ao buscar Drive ID:', e)
+          }
+          return apost
+        })
+      )
+      setApostasList(listaComDriveIds)
+    }
+    fetchDriveIds()
   }, [apostilas])
 
   if (isLoading) {
@@ -124,13 +147,25 @@ export function BancoApostilasTable({ apostilas, isLoading = false }: BancoApost
                         <line x1="12" y1="15" x2="12" y2="3" />
                       </svg>
                     </button>
-                    <button
-                      title="Abrir no Google Drive"
-                      className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-500/10 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
-                      disabled
-                    >
-                      Drive
-                    </button>
+                    {apostila.driveId ? (
+                      <a
+                        href={`https://drive.google.com/file/d/${apostila.driveId}/view`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Abrir no Google Drive"
+                        className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-500/10 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
+                      >
+                        Drive
+                      </a>
+                    ) : (
+                      <button
+                        title="Sem arquivo no Drive"
+                        className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-400 cursor-not-allowed dark:text-gray-600"
+                        disabled
+                      >
+                        Drive
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
