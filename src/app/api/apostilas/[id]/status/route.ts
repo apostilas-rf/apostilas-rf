@@ -119,10 +119,10 @@ export async function PATCH(
     }
 
     if (novoStatus === 'EM_AJUSTE' || novoStatus === 'FINALIZADO') {
-      // Apenas REVISOR pode fazer essas transições
-      if (userRole !== 'REVISOR') {
+      // REVISOR ou GESTOR pode fazer essas transições
+      if (userRole !== 'REVISOR' && userRole !== 'GESTOR') {
         return NextResponse.json(
-          { error: 'Apenas REVISOR pode fazer essa transição' },
+          { error: 'Apenas REVISOR ou GESTOR pode fazer essa transição' },
           { status: 403 }
         )
       }
