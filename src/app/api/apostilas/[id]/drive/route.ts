@@ -16,20 +16,32 @@ export async function GET(
 
     const { id } = await params
 
-    const arquivo = await db.apostilaArquivo.findFirst({
+    // Tenta buscar o driveFileId de ConteudoCapitulo (onde fica armazenado)
+    const conteudo = await db.conteudoCapitulo.findFirst({
       where: {
         apostilaId: id,
-        tipo: 'FINAL',
-        googleDriveId: { not: null },
+        driveFileId: { not: null },
       },
-      select: { googleDriveId: true },
+      select: { driveFileId: true },
+      orderBy: { id: 'desc' },
     })
 
-    if (!arquivo || !arquivo.googleDriveId) {
-      return NextResponse.json({ driveId: null }, { status: 200 })
+    if (!conteudo || !conteudo.driveFileId) {
+      // Fallback: tenta ApostilaArquivo
+      const arquivo = await db.apostilaArquivo.findFirst({
+        where: {
+          apostilaId: id,
+          googleDriveId: { not: null },
+        },
+        select: { googleDriveId: true },
+      })
+      if (!arquivo) {
+        return NextResponse.json({ driveId: null }, { status: 200 })
+      }
+      return NextResponse.json({ driveId: arquivo.googleDriveId }, { status: 200 })
     }
 
-    return NextResponse.json({ driveId: arquivo.googleDriveId }, { status: 200 })
+    return NextResponse.json({ driveId: conteudo.driveFileId }, { status: 200 })
   } catch (error) {
     console.error('GET /api/apostilas/[id]/drive error:', error)
     return NextResponse.json({ error: 'Erro ao buscar Drive ID' }, { status: 500 })
