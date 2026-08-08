@@ -9,35 +9,11 @@ interface BancoApostilasTableProps {
   isLoading?: boolean
 }
 
-interface ApostilaComDrive extends Apostila {
-  driveId?: string | null
-}
-
 export function BancoApostilasTable({ apostilas, isLoading = false }: BancoApostilasTableProps) {
-  const [apostasList, setApostasList] = useState<ApostilaComDrive[]>(apostilas)
+  const [apostasList, setApostasList] = useState(apostilas)
 
   useEffect(() => {
-    // Buscar Drive IDs para cada apostila
-    const fetchDriveIds = async () => {
-      const listaComDriveIds = await Promise.all(
-        apostilas.map(async (apost) => {
-          try {
-            const res = await fetch(`/api/apostilas/${apost.id}/drive`, {
-              credentials: 'include',
-            })
-            if (res.ok) {
-              const data = await res.json()
-              return { ...apost, driveId: data.driveId }
-            }
-          } catch (e) {
-            console.error('Erro ao buscar Drive ID:', e)
-          }
-          return apost
-        })
-      )
-      setApostasList(listaComDriveIds)
-    }
-    fetchDriveIds()
+    setApostasList(apostilas)
   }, [apostilas])
 
   if (isLoading) {
@@ -125,48 +101,28 @@ export function BancoApostilasTable({ apostilas, isLoading = false }: BancoApost
                     : '—'}
                 </td>
                 <td className="px-6 py-4">
-                  <div className="flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleDownload(apostila)}
-                      title="Baixar texto"
-                      aria-label={`Baixar ${apostila.titulo}`}
-                      className="rounded-xl p-2 text-gray-500 transition-colors hover:bg-gray-500/10 hover:text-rf-green dark:text-gray-400 dark:hover:bg-white/5"
+                  <button
+                    onClick={() => handleDownload(apostila)}
+                    title="Baixar texto como arquivo .txt"
+                    aria-label={`Baixar ${apostila.titulo}`}
+                    className="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-500/10 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
-                      <svg
-                        aria-hidden="true"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                      </svg>
-                    </button>
-                    {apostila.driveId ? (
-                      <a
-                        href={`https://drive.google.com/file/d/${apostila.driveId}/view`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Abrir no Google Drive"
-                        className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-500/10 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
-                      >
-                        Drive
-                      </a>
-                    ) : (
-                      <button
-                        title="Sem arquivo no Drive"
-                        className="rounded-xl px-3 py-1.5 text-xs font-medium text-gray-400 cursor-not-allowed dark:text-gray-600"
-                        disabled
-                      >
-                        Drive
-                      </button>
-                    )}
-                  </div>
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Baixar
+                  </button>
                 </td>
               </tr>
             ))}
