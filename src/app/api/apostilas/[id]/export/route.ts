@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   try {
     const headersList = await headers()
     const userId = headersList.get('x-user-id')
@@ -12,7 +16,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     const apostila = await db.apostila.findFirst({
-      where: { id: params.id },
+      where: { id },
       include: {
         conteudosCapitulos: {
           orderBy: { id: 'asc' },
